@@ -1,0 +1,19 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000T002",
+  "type": "comment.received",
+  "occurredAt": "2026-11-24T07:40:00Z",
+  "source": "cell:zalohub-01",
+  "docKey": "facebook_comment|1234567890|p_555|c_777",
+  "version": 1,
+  "channel": "facebook_comment",
+  "channelAccount": { "externalAccountId": "1234567890", "kind": "page" },
+  "thread": { "externalThreadId": "p_555:c_777", "kind": "comment_thread", "anchor": { "postId": "p_555", "commentId": "c_777" } },
+  "sender": { "scope": "comment:1234567890", "externalId": "99887766", "displayName": "Nguyễn Thu Hương", "avatarRef": null },
+  "direction": "inbound",
+  "content": { "type": "text", "text": "Váy hoa này giá sao shop?", "attachments": [] },
+  "hints": {},
+  "encryption": { "e2ee": false, "decryptedOnCell": false },
+  "delivery": null,
+  "history": { "backfill": false, "cursor": null }
+}

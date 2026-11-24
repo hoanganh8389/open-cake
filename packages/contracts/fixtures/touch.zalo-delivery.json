@@ -1,0 +1,19 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000T003",
+  "type": "delivery.updated",
+  "occurredAt": "2026-11-24T09:19:05Z",
+  "source": "cell:zalohub-01",
+  "docKey": "zalo_personal|7350219485123001001|u_8812|m_9001",
+  "version": 2,
+  "channel": "zalo_personal",
+  "channelAccount": { "externalAccountId": "7350219485123001001", "kind": "personal" },
+  "thread": { "externalThreadId": "u_8812", "kind": "dm", "anchor": null },
+  "sender": { "scope": "global", "externalId": "7350219485123001001", "displayName": "Shop Hoa Mai", "avatarRef": null },
+  "direction": "outbound",
+  "content": { "type": "none", "text": null, "attachments": [] },
+  "hints": { "commandKey": "cake:88123:send:1" },
+  "encryption": { "e2ee": false, "decryptedOnCell": false },
+  "delivery": { "status": "sent", "externalMessageId": "m_9001" },
+  "history": { "backfill": false, "cursor": null }
+}

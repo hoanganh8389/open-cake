@@ -1,0 +1,20 @@
+{
+  "name": "open-cake",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open Cake — Bizcity Open Customer Framework (web): contact_id là trục xuyên mọi kênh. GPL-2.0-or-later.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "engines": { "node": ">=22.12" },
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/contracts --noEmit",
+    "contracts:check": "vitest run packages/contracts"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.6",
+    "typescript": "5.6.3",
+    "vitest": "2.1.5"
+  }
+}

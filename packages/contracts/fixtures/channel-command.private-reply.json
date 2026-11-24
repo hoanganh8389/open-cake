@@ -1,0 +1,11 @@
+{
+  "contract": "bizcity_channel_command@1",
+  "operation": "comment.private_reply",
+  "idempotencyKey": "cake:88120:private_reply:1",
+  "channel": "facebook_page",
+  "channelAccount": { "cellRef": "acc_9f2", "externalAccountId": "1234567890" },
+  "target": { "externalThreadId": null, "anchor": { "postId": "p_555", "commentId": "c_777" } },
+  "content": { "type": "text", "text": "Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!", "attachments": [] },
+  "options": { "messageTag": null, "quoteExternalMessageId": null },
+  "requestedBy": { "kind": "user", "id": "7" }
+}

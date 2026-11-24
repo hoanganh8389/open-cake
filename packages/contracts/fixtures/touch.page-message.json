@@ -1,0 +1,19 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000T001",
+  "type": "message.received",
+  "occurredAt": "2026-11-24T08:00:00Z",
+  "source": "cell:zalohub-01",
+  "docKey": "facebook_page|1234567890|t_2468|m_abc123",
+  "version": 1,
+  "channel": "facebook_page",
+  "channelAccount": { "externalAccountId": "1234567890", "kind": "page" },
+  "thread": { "externalThreadId": "t_2468", "kind": "dm", "anchor": null },
+  "sender": { "scope": "page:1234567890", "externalId": "2468", "displayName": "Nguyễn Thu Hương", "avatarRef": null },
+  "direction": "inbound",
+  "content": { "type": "text", "text": "Còn hàng không shop?", "attachments": [] },
+  "hints": { "phone": null, "email": null, "privateReplyOf": "c_777" },
+  "encryption": { "e2ee": false, "decryptedOnCell": false },
+  "delivery": null,
+  "history": { "backfill": false, "cursor": null }
+}

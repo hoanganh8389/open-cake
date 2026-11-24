@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+docs/ui/mockup-src/node_modules/
+evidence/tmp/
