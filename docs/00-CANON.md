@@ -43,7 +43,7 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 |---|---|
 | **R-CAKE-CELL-1** | Kênh sống ở Cell. Không cột / log / sự kiện chứa cookie, token Page, khoá E2EE (SC-CAKE-6). Chỉ nhận `bizcity_touch@1` đã ký, chỉ gửi `bizcity_channel_command@1` qua Hub |
 | **R-CAKE-CELL-2** | Không gọi LLM. AI / kịch bản / skill = Twin Brain qua `/mcp`; ghi chỉ tạo nháp / chờ duyệt, cần `confirm_token` |
-| **R-CAKE-MASTER-1** | **Độc lập trước** (ADR-0004): Cake có danh mục riêng — hàng, mã, ĐVT, nhóm, bảng giá — chạy đầy đủ không cần Kế Toán; nguồn theo đơn vị `catalog_source = local | ketoan` |
+| **R-CAKE-MASTER-1** | **Độc lập trước** (ADR-0004): Cake có danh mục riêng — hàng, mã, ĐVT, nhóm, bảng giá — chạy đầy đủ không cần Kế Toán; nguồn theo đơn vị `catalog_source` = `local` · `ketoan` |
 | **R-CAKE-MASTER-2** | **Sẵn ánh xạ**: hình dữ liệu theo chuẩn open-ketoan ngay từ đầu — `item_id` ULID, mã có hiệu lực (đóng / mở), chuẩn H-1…H-18 của open-pos (E chặn ở hợp đồng, W thành cảnh báo `CAT-*`); mọi bảng đồng bộ mang khối `source · ext_id · ext_synced_at · ext_hash · push_status` |
 | **R-CAKE-MASTER-3** | **Một chủ tại một thời điểm**: `ketoan` ⇒ cột kế toán chỉ đọc qua MỘT cổng ghi (`catalogWriteGate`) ở mọi trạng thái kết nối; cột vận hành của Cake vẫn sửa; kéo một chiều, chỉ đẩy mã mới; không đồng bộ hai chiều (R-MD-1, R-OKT-CONN-4) |
 | **R-CAKE-MASTER-4** | Đơn vị Cake ↔ đơn vị Kế Toán qua `tenant_links`; `okt_tenant_id` đọc từ health của khoá, không gõ tay; `external_ref = opencake:<site>` |
