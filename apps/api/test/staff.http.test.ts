@@ -116,4 +116,29 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     expect((await req('PUT', `/api/v1/staff/${lan}/active`, owner, { active: true })).json().data.staff.active).toBe(true);
     expect((await sso('lan@hoamai.vn')).statusCode).toBe(200);
   });
+
+  // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API: hiện một lần, không lưu rõ, dùng theo phạm vi, thu hồi ⇒ hết; chỉ chủ.
+  it('khoá API: khoá rõ một lần (gửi lặp nhận bản ẩn, DB không có khoá rõ); dùng theo phạm vi; thu hồi ⇒ 401; quản lý không tạo được', async () => {
+    const mk = () => app.inject({ method: 'POST', url: '/api/v1/api-keys', payload: { name: 'POS Quận 3', scopes: ['cake:read'] }, headers: { authorization: `Bearer ${owner}`, 'idempotency-key': 'khoa-api-0001' } });
+    const r = await mk();
+    expect(r.statusCode).toBe(200);
+    const { key, secret } = r.json().data as { key: { keyId: string; prefix: string }; secret: string };
+    expect(secret).toMatch(/^kc_[A-Za-z0-9_-]{43}$/);
+    expect(key.prefix).toBe(secret.slice(0, 10));
+    expect((await mk()).json().data.secret).not.toBe(secret);
+    const pg = (await import('pg')).default;
+    const c = new pg.Client({ connectionString: process.env.DATABASE_URL });
+    await c.connect();
+    const leak = await c.query(`SELECT count(*)::int AS n FROM action_requests WHERE strpos(response::text, $1) > 0`, [secret]);
+    await c.end();
+    expect(leak.rows[0].n).toBe(0);
+    const use = (u: string) => app.inject({ method: 'GET', url: u, headers: { 'x-api-key': secret } });
+    expect((await use('/api/v1/catalog/items')).statusCode).toBe(200);
+    expect((await use('/api/v1/conversations')).statusCode).toBe(403);
+    expect((await req('POST', `/api/v1/api-keys/${key.keyId}/revoke`, owner, {})).json().data.revokedAt).toBeTruthy();
+    expect((await use('/api/v1/catalog/items')).statusCode).toBe(401);
+    expect((await req('POST', '/api/v1/api-keys', owner, { name: 'X', scopes: ['documents:write'] })).statusCode).toBe(400);
+    expect((await req('POST', '/api/v1/api-keys', await login('minh@hoamai.vn'), { name: 'X', scopes: ['cake:read'] })).statusCode).toBe(403);
+    expect((await req('GET', '/api/v1/api-keys', owner)).json().data.keys[0]).not.toHaveProperty('secret');
+  });
 });

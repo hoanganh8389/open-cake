@@ -18,6 +18,7 @@ import { MIGRATION_SOURCES } from './migrate.js';
 import { registerCakeAuthz } from './auth/authz.js';
 import { registerAuthRoutes } from './auth/routes.js';
 import { staffHandlers } from './auth/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
+import { apiKeyHandlers } from './auth/apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API
 import { failure, registerActions } from './runtime.js';
 
 export const VERSION = '0.1.0';
@@ -37,7 +38,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
     return { ok: true, data: { schema: 'ready' } };
   });
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
-  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers };
+  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
   // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — tra một bằng chứng theo meta.receipt.evidenceId (trong đơn vị; không có nội dung, chỉ băm).
   app.get<{ Params: { id: string } }>('/api/v1/evidence/:id', { preHandler: requirePermission('reports:read') }, async (req) => {

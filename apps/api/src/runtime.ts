@@ -74,7 +74,7 @@ const ctxOf = (req: FastifyRequest, tx: Db): Ctx => {
 export type Receipt = { evidenceId: string; hash: string; at: string };
 const objectIdOf = (input: Any, out: unknown): string | null => {
   const o = (out ?? {}) as Any;
-  return input.conversationId ?? input.contactId ?? input.itemId ?? input.recordId ?? input.userId ?? input.roleKey ?? o.itemId ?? o.recordId ?? o.userId ?? o.key ?? null; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — + nhân viên / vai
+  return input.conversationId ?? input.contactId ?? input.itemId ?? input.recordId ?? input.userId ?? input.roleKey ?? input.keyId ?? o.itemId ?? o.recordId ?? o.userId ?? o.key ?? null; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — + nhân viên / vai
 };
 async function evidence(conn: Db, req: FastifyRequest, spec: ActionSpec, x: { inputHash: string; key: string | null; objectId: string | null; ok: boolean; code?: string }): Promise<Receipt> {
   const a = authOf(req);
@@ -103,7 +103,7 @@ async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: 
         }
       }
       const out = await h(ctxOf(req, tx), input);
-      if (key) await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: inputHash, status_code: 200, response: JSON.stringify(out) as never, actor: authOf(req).actor } as never).execute();
+      if (key) await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: inputHash, status_code: 200, response: JSON.stringify(out, (k, v) => (k === 'secret' ? '[đã ẩn — khoá chỉ hiện một lần]' : v)) as never /* [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — không lưu khoá rõ vào action_requests */, actor: authOf(req).actor } as never).execute();
       return { out, meta: { receipt: await evidence(tx, req, spec, { inputHash, key, objectId: objectIdOf(input, out), ok: true }) } };
     });
   } catch (e) {
