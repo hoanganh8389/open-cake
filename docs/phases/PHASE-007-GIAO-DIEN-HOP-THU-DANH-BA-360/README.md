@@ -1,5 +1,6 @@
-# PHASE-007 — Giao diện lõi: khung Deplao, Hộp thư, Danh bạ, Contact 360, Kênh, Tổng quan
+# PHASE-007 — Giao diện nối dữ liệu thật: đổi adapter giả lập → http, SSE realtime (màn đã dựng ở PHASE-003)
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
+<!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — màn lõi dựng ở PHASE-003 trên hợp đồng + giả lập; phase này chỉ nối backend thật (adapter http, SSE), giữ bảng đầu ra cũ làm danh sách kiểm. -->
 
 > **Việc lộ trình:** W2 · **Áp dụng cho:** cake · **Trạng thái:** ☐ · **Phụ thuộc:** 004, 005, 006
 > **Mục tiêu:** 6 màn lõi giống ảnh duyệt ([docs/ui/mockup-shots](../../ui/mockup-shots/)) chạy trên dữ liệu thật. Chi tiết: [60-UI](../../architecture/60-UI.md), [80-REACT](../../architecture/80-REACT.md).
