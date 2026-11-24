@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- [2026-11-24 09:57 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — mockup lean màn Cài đặt › Nhân viên cho chủ duyệt trước khi code: danh sách, sửa (vai + tài khoản kênh), ngưng, mời. Dùng tokens.css / chat.css thật; số liệu GIẢ LẬP. -->
+<!-- [2026-11-24 10:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — mockup lean màn Cài đặt › Nhân viên cho chủ duyệt trước khi code: danh sách, sửa (vai + tài khoản kênh), ngưng, mời. Dùng tokens.css / chat.css thật; số liệu GIẢ LẬP. -->
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -59,6 +59,22 @@
   .hi { color: var(--warning); font-size: 12px; margin-left: 6px; }
   .who b { font-weight: 500; } .who .xs { display: block; }
   .chiprow { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wpf { display: flex; gap: 6px; font-size: 13px; color: var(--muted-foreground); padding: 0 32px 12px; }
+  .wpf a { color: var(--primary); } .wpf b { color: var(--foreground); font-weight: 600; }
+  .utab.on { color: var(--foreground); border-bottom-color: var(--primary); }
+  .mx { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .mx th, .mx td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: center; }
+  .mx th:first-child, .mx td:first-child { text-align: left; }
+  .mx thead th { font-weight: 500; color: var(--muted-foreground); font-size: 13px; vertical-align: bottom; }
+  .mx thead th .xs { display: block; font-weight: 400; }
+  .mx .grp td { background: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-foreground); font-weight: 600; text-align: left; padding: 5px 10px; }
+  .mx code { font-size: 11px; color: var(--subtle-foreground); margin-left: 6px; }
+  .mx .cus { background: var(--primary-soft); }
+  .c { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--subtle-foreground); }
+  .c.inh { color: var(--primary); }
+  .c.al { background: var(--primary); color: #fff; } .c.dn { background: var(--destructive); color: #fff; } .c.no { border: 1.5px solid var(--border); }
+  .legend { display: flex; gap: 16px; align-items: center; font-size: 12px; color: var(--muted-foreground); }
+  .legend span { display: inline-flex; gap: 6px; align-items: center; }
 </style>
 
 <!-- ① NHÂN VIÊN — một bảng: tên, vai, thấy hội thoại của, trạng thái. Không thẻ đếm, không nhóm, không "online". -->
@@ -67,12 +83,14 @@
   <div class="body">
     <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-store"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
     <main class="page flush">
+      <div style="padding:16px 32px 0"><div class="utabs"><span class="utab on">Nhân viên</span><span class="utab">Vai &amp; quyền</span></div></div>
       <div class="tbar">
         <h1 class="h2" style="margin:0">Nhân viên</h1><span class="muted">5</span>
         <span class="grow"></span>
         <div class="search" style="width:280px"><svg><use href="#i-search"/></svg><input class="input sm" placeholder="Tên hoặc email…"></div>
         <button class="btn pri"><svg class="ico"><use href="#i-plus"/></svg>Mời nhân viên</button>
       </div>
+      <div class="wpf"><b>Tất cả (5)</b> | <a>Chủ (1)</a> | <a>Quản lý (1)</a> | <a>Nhân viên chăm sóc (2)</a> | <a>Trưởng ca (0)</a> | <a>Đã ngưng (1)</a></div>
       <div style="padding:0 32px">
         <table class="tbl">
           <thead><tr><th>Nhân viên</th><th style="width:200px">Vai</th><th>Thấy hội thoại của</th><th style="width:130px">Trạng thái</th></tr></thead>
@@ -84,7 +102,7 @@
             <tr style="opacity:.55"><td class="who"><b>Phạm Quốc Bảo</b><span class="xs subtle">bao@hoamai.vn</span></td><td>Tiếp thị</td><td class="subtle">—</td><td><span class="badge out">đã ngưng</span></td></tr>
           </tbody>
         </table>
-        <div class="xs subtle mt16">Nhân viên đăng nhập bằng tài khoản WordPress của shop (cùng email) · bấm một dòng để đổi vai, giao tài khoản kênh hoặc ngưng.</div>
+        <div class="xs subtle mt16">Nhân viên đăng nhập bằng tài khoản WordPress của shop (cùng email) · bấm một dòng để đổi vai, giao tài khoản kênh hoặc ngưng · Chủ và Quản lý làm được (quyền <code>users:write</code>).</div>
       </div>
     </main>
   </div>
@@ -106,6 +124,7 @@
         <div class="role on"><span class="dot"></span><div><b>Nhân viên chăm sóc</b><div class="xs subtle">Đọc, trả lời, gắn nhãn hội thoại của tài khoản được giao.</div></div></div>
         <div class="role"><span class="dot"></span><div><b>Tiếp thị</b><div class="xs subtle">Danh bạ, hàng hoá, giá — không đọc nội dung tin.</div></div></div>
         <div class="role"><span class="dot"></span><div><b>Chỉ xem</b><div class="xs subtle">Danh bạ, báo cáo — không đọc nội dung tin.</div></div></div>
+        <div class="role"><span class="dot"></span><div><b>Trưởng ca</b> <span class="badge out">vai riêng</span><div class="xs subtle">Nhân viên chăm sóc + xuất danh bạ · cấm ghép khách.</div></div></div>
       </div>
       <label class="sm muted" style="display:block;margin-top:20px">Thấy hội thoại của</label>
       <div class="mt8">
@@ -161,6 +180,98 @@
       <div class="xs subtle mt16">Hoa vào Open CRM bằng tài khoản WordPress của shop có đúng email này — không cần mật khẩu riêng.</div>
     </div>
     <div class="ft"><button class="btn">Huỷ</button><button class="btn pri">Mời</button></div>
+  </div></div>
+</section>
+<!-- vai-quyen -->
+<section class="frame app" id="vai-quyen">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-store"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page flush">
+      <div style="padding:16px 32px 0"><div class="utabs"><span class="utab">Nhân viên</span><span class="utab on">Vai &amp; quyền</span></div></div>
+      <div class="tbar">
+        <h1 class="h2" style="margin:0">Vai &amp; quyền</h1>
+        <span class="grow"></span>
+        <div class="legend"><span><span class="c">✓</span>vai hệ thống</span><span><span class="c inh">✓</span>từ vai nền</span><span><span class="c al">✓</span>Cho thêm</span><span><span class="c dn">⊘</span>Cấm (thắng)</span><span class="hi">⚠ rủi ro cao</span></div>
+        <button class="btn pri"><svg class="ico"><use href="#i-plus"/></svg>Vai riêng</button>
+      </div>
+      <div style="padding:0 32px">
+        <table class="mx">
+          <thead><tr><th>Quyền</th><th>Chủ</th><th>Quản lý</th><th>NV chăm sóc</th><th>Tiếp thị</th><th>Chỉ xem</th><th class="cus">Trưởng ca<span class="xs subtle">nền: NV chăm sóc</span></th></tr></thead>
+          <tbody>
+<tr class="grp"><td colspan="7">Hộp thư</td></tr>
+<tr><td>Xem hội thoại được giao<code>cake:inbox-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Trả lời, gắn nhãn<code>cake:inbox-lap</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Xem mọi hộp thư <span class="hi">⚠</span><code>cake:all-inbox-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr class="grp"><td colspan="7">Danh bạ</td></tr>
+<tr><td>Xem khách<code>cake:contacts-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Sửa khách<code>cake:contacts-sua</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Ghép / tách khách <span class="hi">⚠</span><code>cake:contacts-gop</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c dn">⊘</span></td></tr>
+<tr><td>Xuất danh bạ <span class="hi">⚠</span><code>cake:contacts-xuat</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c al">✓</span></td></tr>
+<tr class="grp"><td colspan="7">Hàng hoá</td></tr>
+<tr><td>Thêm, sửa hàng<code>cake:catalog-lap</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Sửa giá<code>cake:catalog-gia</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr class="grp"><td colspan="7">Kênh & nhân viên</td></tr>
+<tr><td>Kết nối kênh <span class="hi">⚠</span><code>cake:channels-lap</code></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Mời, đổi vai, giao tài khoản kênh <span class="hi">⚠</span><code>users:write</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Sửa vai &amp; quyền <span class="hi">⚠</span><code>settings:write</code></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+          </tbody>
+        </table>
+        <div class="xs subtle mt16">Vai hệ thống do phần mềm khai (mỗi phân hệ đăng ký quyền + vai lúc khởi động) — chỉ xem ở đây. Muốn khác: tạo <b>vai riêng</b> dựa trên một vai hệ thống, rồi bấm ô của cột đó để Cho / Cấm. Khoá API và AI không bao giờ nhận quyền ⚠.</div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- vai-rieng -->
+<section class="frame app" id="vai-rieng">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-store"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page flush" style="opacity:.35">
+      <div style="padding:16px 32px 0"><div class="utabs"><span class="utab">Nhân viên</span><span class="utab on">Vai &amp; quyền</span></div></div>
+      <div class="tbar">
+        <h1 class="h2" style="margin:0">Vai &amp; quyền</h1>
+        <span class="grow"></span>
+        <div class="legend"><span><span class="c">✓</span>vai hệ thống</span><span><span class="c inh">✓</span>từ vai nền</span><span><span class="c al">✓</span>Cho thêm</span><span><span class="c dn">⊘</span>Cấm (thắng)</span><span class="hi">⚠ rủi ro cao</span></div>
+        <button class="btn pri"><svg class="ico"><use href="#i-plus"/></svg>Vai riêng</button>
+      </div>
+      <div style="padding:0 32px">
+        <table class="mx">
+          <thead><tr><th>Quyền</th><th>Chủ</th><th>Quản lý</th><th>NV chăm sóc</th><th>Tiếp thị</th><th>Chỉ xem</th><th class="cus">Trưởng ca<span class="xs subtle">nền: NV chăm sóc</span></th></tr></thead>
+          <tbody>
+<tr class="grp"><td colspan="7">Hộp thư</td></tr>
+<tr><td>Xem hội thoại được giao<code>cake:inbox-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Trả lời, gắn nhãn<code>cake:inbox-lap</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Xem mọi hộp thư <span class="hi">⚠</span><code>cake:all-inbox-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr class="grp"><td colspan="7">Danh bạ</td></tr>
+<tr><td>Xem khách<code>cake:contacts-xem</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Sửa khách<code>cake:contacts-sua</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c inh">✓</span></td></tr>
+<tr><td>Ghép / tách khách <span class="hi">⚠</span><code>cake:contacts-gop</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c dn">⊘</span></td></tr>
+<tr><td>Xuất danh bạ <span class="hi">⚠</span><code>cake:contacts-xuat</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c al">✓</span></td></tr>
+<tr class="grp"><td colspan="7">Hàng hoá</td></tr>
+<tr><td>Thêm, sửa hàng<code>cake:catalog-lap</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Sửa giá<code>cake:catalog-gia</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr class="grp"><td colspan="7">Kênh & nhân viên</td></tr>
+<tr><td>Kết nối kênh <span class="hi">⚠</span><code>cake:channels-lap</code></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Mời, đổi vai, giao tài khoản kênh <span class="hi">⚠</span><code>users:write</code></td><td><span class="c">✓</span></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+<tr><td>Sửa vai &amp; quyền <span class="hi">⚠</span><code>settings:write</code></td><td><span class="c">✓</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td><span class="c">·</span></td><td class="cus"><span class="c no"></span></td></tr>
+          </tbody>
+        </table>
+        <div class="xs subtle mt16">Vai hệ thống do phần mềm khai (mỗi phân hệ đăng ký quyền + vai lúc khởi động) — chỉ xem ở đây. Muốn khác: tạo <b>vai riêng</b> dựa trên một vai hệ thống, rồi bấm ô của cột đó để Cho / Cấm. Khoá API và AI không bao giờ nhận quyền ⚠.</div>
+      </div>
+    </main>
+  </div>
+  <div class="sheet-bg"><div class="sheet" role="dialog" style="max-width:560px">
+    <div class="hd"><div class="grow"><h2 class="h2">Vai riêng mới</h2></div><button class="menu-dots"><svg class="ico"><use href="#i-x"/></svg></button></div>
+    <div class="bd">
+      <div class="row gap16">
+        <div class="grow"><label class="sm muted">Tên vai *</label><input class="input mt8" value="Trưởng ca"></div>
+        <div class="grow"><label class="sm muted">Dựa trên *</label><select class="input mt8"><option>Nhân viên chăm sóc</option></select></div>
+      </div>
+      <div class="xs subtle mt16">Vai mới có đúng quyền của vai nền; sau đó Cho / Cấm thêm từng quyền ở ma trận. Không xoá vai — chỉ tắt; đổi vai nền = tạo vai mới.</div>
+    </div>
+    <div class="ft"><button class="btn">Huỷ</button><button class="btn pri">Tạo vai</button></div>
   </div></div>
 </section>
 </body>
