@@ -9,7 +9,7 @@
 
 ## Tiến độ
 
-<!-- [2026-11-24 06:16 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — bắt đầu theo thứ tự P2b (platform) → apps/api của cake; mỗi bước một PR ở bizcity-platform. -->
+<!-- [2026-11-24 06:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — bắt đầu theo thứ tự P2b (platform) → apps/api của cake; mỗi bước một PR ở bizcity-platform. -->
 
 | Bước | Ở đâu | Gỡ điểm chặn | TT |
 |---|---|---|---|
