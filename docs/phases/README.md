@@ -9,7 +9,7 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | Phase | Đợt | Một câu | Repo chạm | Golden | TT |
 |---|---|---|---|---|---|
 | [001](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md) Kiến trúc | W0 | trục `contact_id`, khung open-ketoan, bốn trục, chốt D / Q | cake | — | ⏸ chờ chủ |
-| [002](PHASE-002-KHUNG-MONOREPO-PLATFORM/README.md) Khung | W1 | monorepo, platform fork, Docker, CI, selfcheck, một site ngầm định | cake | — | ☐ |
+| [002](PHASE-002-KHUNG-MONOREPO-PLATFORM/README.md) Khung | W1 | monorepo trên gói chung `@bizcity/platform` (ADR-0002), lớp mềm bản đầu `@bizcity/flex`, Docker, CI, selfcheck | cake · gói chung | — | ☐ (chờ P0–P4) |
 | [003](PHASE-003-QUAN-SAT-VAN-HANH/README.md) Quan sát | W1 | log Loki · metric Prometheus · trace Tempo · Grafana · chẩn đoán | cake | — | ☐ |
 | [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W1 | quyền `cake:*`, SSO WP, khoá API, bằng chứng hash-chain | cake | — | ☐ |
 | [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W1 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ☐ |
@@ -27,7 +27,8 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 ## Đường găng
 
 ```text
-001 ─► 002 ─┬─► 003
+gói chung P0–P4 ─┐
+001 ─────────────┴► 002 ─┬─► 003
             ├─► 004 ─┐
             └─► 005 ─┴─► 006 ─► 007 ─► 008 ─► 009
                               │        └─► 010 ─► 013

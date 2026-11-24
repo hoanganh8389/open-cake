@@ -20,6 +20,9 @@
 5. Nhiều CSDL theo PHASE-039, cùng `bizcity_site_provisioning@1`.
 6. Plugin WP `open-crm` chạy song song theo canon §6; chuyển dữ liệu là phase riêng.
 
+> **Sửa bởi [ADR-0002](ADR-0002-goi-chung-bizcity-platform.md) (2026-11-24):** quyết định 1 không còn "sao chép / fork" — `platform`, `module-sdk`, `ui-kit`, `cli` là **gói chung** `@bizcity/*` một nguồn.
+<!-- [2026-11-24 03:10 PM Johnny Chu - Chu Hoàng Anh] PLATFORM-SPLIT -->
+
 ## Hệ quả
 
 - Được: dùng lại toàn bộ hạ tầng đã chứng minh; open-setup cấp CRM mà không học hợp đồng mới; một người nhiều kênh không bị tách thành nhiều "khách".

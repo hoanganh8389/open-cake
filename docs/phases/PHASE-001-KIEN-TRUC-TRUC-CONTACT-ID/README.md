@@ -195,10 +195,11 @@ open-crm/
 ├── apps/api        Fastify · /api/v1 · /mcp · /_sites/v1 · /ingress/v1 (bizcity_touch@1, ký HMAC)
 ├── apps/web        React · 13 màn Deplao + Contact 360 + Kênh
 ├── packages/contracts     zod: bizcity_touch@1 · bizcity_channel_command@1 · bizcity_contact@1 · bizcity_touch@1
-├── packages/platform      ← fork có ghi nguồn từ open-ketoan (auth · actions · events · db router · RLS · settings)
+├── (phụ thuộc) @bizcity/platform   gói chung một nguồn (auth · actions · events · db router · RLS · settings · nhiều site) — ADR-0002
 ├── packages/care-kernel   contacts · identities · resolver · submitTouchIn · ledger · state · merge
-├── packages/module-sdk    ← fork
-├── packages/ui-kit        ← fork + token Deplao (PHASE-002)
+├── (phụ thuộc) @bizcity/module-sdk
+├── (phụ thuộc) @bizcity/ui-kit + theme Deplao của cake
+├── packages/flex          @bizcity/flex — bản đầu lớp dữ liệu mềm (D-PLAT-4)
 ├── packages/cli           bizcity crm: site create|migrate|backup · rebuild-state · identity audit
 ├── modules/inbox · contacts · broadcast · tasks        (bizcity.module.json, mod_<key>)
 ├── db/migrations/0001…    SQL là nguồn sự thật; 0001 nền + RLS, 0002 care-kernel, 0003 outbox…
@@ -231,7 +232,7 @@ open-crm/
 
 | Mã | Câu hỏi | Đề xuất |
 |---|---|---|
-| Q018-1 | `packages/platform` lấy bằng cách nào? **A.** fork vào open-crm (nhanh, hai bản trôi). **B.** tách thành repo/gói `@bizcity/platform` dùng chung cho open-ketoan và open-crm (đúng "one code base", nhưng đụng open-ketoan K3) | **A ở W1**, ghi `UPSTREAM.md` commit gốc; mở ADR tách gói sau khi open-crm chạy được site đầu |
+| Q018-1 | **ĐÃ CHỐT 2026-11-24: B — gói chung `@bizcity/platform`** ([ADR-0002](../../adr/ADR-0002-goi-chung-bizcity-platform.md), [kế hoạch P0–P7](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/KE-HOACH-GOI-CHUNG-BIZCITY-PLATFORM.md)); lớp dữ liệu mềm bản đầu ở open-cake. Câu hỏi gốc: `packages/platform` lấy bằng cách nào? **A.** fork vào open-crm (nhanh, hai bản trôi). **B.** tách thành repo/gói `@bizcity/platform` dùng chung cho open-ketoan và open-crm (đúng "one code base", nhưng đụng open-ketoan K3) | **A ở W1**, ghi `UPSTREAM.md` commit gốc; mở ADR tách gói sau khi open-crm chạy được site đầu |
 | Q018-2 | open-setup: thêm trường `product: ketoan\|crm` vào `Bizcity Ketoan Site` + Settings có hai `provisioning_url`, hay DocType riêng `Bizcity CRM Site`? | thêm `product` + bảng con URL theo sản phẩm; hợp đồng `bizcity_site_provisioning@1` **không đổi**, chỉ thêm `product` tuỳ chọn |
 | Q018-3 | Hub tìm site CRM để gửi touch bằng gì: Hub giữ bảng `site → ingress_url` riêng, hay hỏi registry `/_sites/v1/sites/{id}` của CRM? | Hub giữ bảng riêng, cập nhật khi site `active` (webhook từ Provisioning job) — Hub không đọc control DB |
 | Q018-4 | `from.id` của comment Page và comment Group trùng nhau có coi là cùng người không? | **asserted**, không proven, cho tới khi kiểm được trên Page thử |
@@ -243,7 +244,7 @@ open-crm/
 | Đợt | Việc | Xong khi |
 |---|---|---|
 | **W0** | Chủ chốt D/Q; ADR-0001 open-crm "cùng khung open-ketoan, trục contact"; `docs/00-CANON.md` R-OC-* bản 1.0 | ADR được duyệt |
-| **W1** | Repo skeleton (fork platform, module-sdk, ui-kit, cli, selfcheck); `db/migrations/0001–0004` (nền + RLS, care-kernel, outbox, mcp); `submitTouchIn`, resolver, merge; `selfcheck --strict` SC-OC-* xanh | `npm test` + `selfcheck` PASS trên DB test; chưa có kênh |
+| **W1** | Repo skeleton (phụ thuộc gói chung `@bizcity/*`, `packages/flex`, selfcheck); `db/migrations/0001–0004` (nền + RLS, care-kernel, outbox, mcp); `submitTouchIn`, resolver, merge; `selfcheck --strict` SC-OC-* xanh | `npm test` + `selfcheck` PASS trên DB test; chưa có kênh |
 | **W2** | `/ingress/v1` nhận `bizcity_touch@1` ký HMAC; Cell zalo-hub phát `bizcity_touch@1` **song song** `inbound_forward` (cờ theo tenant); màn Hộp thư + Danh bạ + Contact 360 đọc sổ | một số Zalo thật ⇒ tin vào / ra hiện ở web, replay không trùng |
 | **W3** | FB Page + comment qua API chính thức: Cell nhận webhook Meta, phát `comment.received`, `message.received` scope page; `comment.private_reply`; resolver 2b | G1–G4 PASS |
 | **W4** | Mở lại PHASE-017 (fbchat-v2 bridge) phát `bizcity_touch@1` cho `facebook_personal` | G5 PASS |
@@ -265,7 +266,7 @@ Trên một site `cake_<slug>` do open-setup cấp, chạy cùng bản mã với
 
 | Rủi ro | Giảm |
 |---|---|
-| Fork `platform` trôi khỏi open-ketoan | `UPSTREAM.md` + script so diff hàng tuần; ADR tách gói ở Q018-1 |
+| Gói chung chưa tách xong (P0–P4) chặn W1 | làm trước PHASE-001, care-kernel trên giấy, `packages/flex` trên giao diện cổng; P0–P4 là đường găng (ADR-0002) |
 | Meta đổi webhook / Group API bị bỏ | Group ở W6 cuối; capability do Cell công bố, CRM không giả định |
 | Hai bản Open CRM (WP + web) song song gây lẫn | tên repo tách (Q018-5); bảng phase README ghi rõ bản nào; không chia sẻ database |
 | Ghép nhầm người | D018-4; UNMERGE 30 ngày; audit `proof` bắt buộc |

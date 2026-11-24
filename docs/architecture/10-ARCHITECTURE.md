@@ -41,16 +41,17 @@
 ```text
 packages/contracts     zod + kiểu: bizcity_touch@1 · bizcity_channel_command@1 · bizcity_contact@1
                        + bản sao có ghi nguồn: ERROR_CATALOG, DOC_LINK_ROLES, event envelope, api envelope
-packages/platform      ← fork open-ketoan (UPSTREAM.md): http (phong bì, Errors.*), auth (JWT, API key, SSO),
+@bizcity/platform      ← GÓI CHUNG (phụ thuộc theo phiên bản, không fork — ADR-0002): http (phong bì, Errors.*), auth (JWT, API key, SSO),
                        actions (defineAction/runAction, Idempotency), events (outbox, defineSubscriber,
                        dispatchOnce, tickClock), db (client, router theo site, RLS set_config), settings,
                        documents (business_documents, document_links), evidence (audit_logs hash-chain),
                        logger (pino + REDACT_PATHS), telemetry (OTel), diagnostics
 packages/care-kernel   KHÔNG biết HTTP. contacts · identities · resolver · submitTouchIn · touch ledger ·
                        contact_state · merge/unmerge · Send Guard. Mặt công khai chỉ src/index.ts
-packages/module-sdk    facade duy nhất module được import
-packages/ui-kit        facade duy nhất web module được import (token Deplao)
-packages/cli           bin bizcity: site create|migrate|backup · cake rebuild-state · cake identity-audit · doctor
+@bizcity/module-sdk    (gói chung) facade duy nhất module được import
+@bizcity/ui-kit        (gói chung) facade web; token Deplao là theme của cake
+packages/flex          @bizcity/flex — BẢN ĐẦU lớp dữ liệu mềm (user_meta, entity_meta, record_types, records); thăng vào @bizcity/platform khi app thứ hai dùng
+@bizcity/cli (gói chung) + lệnh cake: bin bizcity: site create|migrate|backup · cake rebuild-state · cake identity-audit · doctor
 apps/api               lắp ráp: platform + care-kernel + modules; route lõi /api/v1/{contacts,conversations,
                        messages,channels,identities,system,auth,documents}; /ingress/v1; /mcp; /_sites/v1
 apps/web               khung + màn lõi (Hộp thư, Danh bạ, Contact 360, Kênh, Tổng quan); nạp modules/*/web
@@ -111,4 +112,4 @@ nhân viên bấm Gửi (sheet) ─► POST /api/v1/messages  (Idempotency-Key) 
 
 | Khoá (ADR-0001) | Còn mở (PHASE-001 §8) |
 |---|---|
-| khung open-ketoan; trục `contact_id`; danh tính tách; kênh ở Cell; nhiều CSDL theo PHASE-039 | Q-1 fork hay tách gói `@bizcity/platform` · Q-2 open-setup thêm `product` · Q-3 Hub tra site bằng gì · Q-4 `from.id` comment vs group |
+| khung open-ketoan; trục `contact_id`; danh tính tách; kênh ở Cell; nhiều CSDL theo PHASE-039 | ~~Q-1~~ chốt: gói chung `@bizcity/platform` (ADR-0002) · Q-2 open-setup thêm `product` · Q-3 Hub tra site bằng gì · Q-4 `from.id` comment vs group |
