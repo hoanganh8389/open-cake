@@ -14,4 +14,7 @@ export * from './cake/contact-contract.js';
 export * from './cake/actions.js';
 export * from './flex/registry.js';
 export * from './flex/records.js';
+export * from './catalog/standard.js';
+export * from './catalog/entities.js';
+export * from './catalog/actions.js';
 export * from './catalog.js';

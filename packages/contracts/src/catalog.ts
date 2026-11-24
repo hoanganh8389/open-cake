@@ -4,6 +4,7 @@
 import { createActionCatalog } from './base/action.js';
 import { CAKE_ACTIONS } from './cake/actions.js';
 import { FLEX_ACTIONS } from './flex/records.js';
+import { CATALOG_ACTIONS } from './catalog/actions.js';
 
-export const ALL_ACTIONS = [...CAKE_ACTIONS, ...FLEX_ACTIONS] as const;
+export const ALL_ACTIONS = [...CAKE_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
 export const appCatalog = createActionCatalog(ALL_ACTIONS);

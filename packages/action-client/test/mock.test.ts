@@ -112,3 +112,27 @@ describe('lớp mềm core.record.* (R-CANON-15)', async () => {
     expect((await c.call(recordList, { type: 'cake.quick_reply', includeArchived: true })).data.find((x) => x.recordId === r.data.recordId)?.status).toBe('archived');
   });
 });
+
+describe('danh mục độc lập sẵn ánh xạ (ADR-0004)', async () => {
+  const { catalogItemCreate, catalogItemList, catalogItemUpdate, catalogPriceSet } = await import('@open-cake/contracts');
+  it('local: tạo đúng chuẩn, trùng mã / tên bị chặn, đặt giá theo ĐVT của mã', async () => {
+    const c = createMockClient();
+    expect((await c.call(catalogItemList, { page: 1, pageSize: 50, includeRetired: false })).data).toHaveLength(4);
+    const it1 = await c.call(catalogItemCreate, { sku: '101010004', name: 'Váy hoa Thu Đông — đỏ', units: [{ unit: 'Cái', ratio: 1, isDefaultSale: true }], taxCode: 'R08', categoryCode: '101010' });
+    expect(it1.data.taxCode).toBe('8');
+    expect(it1.data.warnings.map((w) => w.code)).toContain('CAT-NO-COMPANY-PRICE');
+    await expect(c.call(catalogItemCreate, { sku: '101010004', name: 'Khác', units: [{ unit: 'Cái', ratio: 1 }], taxCode: '8' })).rejects.toMatchObject({ reason: 'CAKE_SKU_TAKEN' });
+    await expect(c.call(catalogItemCreate, { sku: '101010005', name: 'váy hoa thu đông — đỏ', units: [{ unit: 'Cái', ratio: 1 }], taxCode: '8' })).rejects.toMatchObject({ reason: 'CAKE_ITEM_NAME_TAKEN' });
+    await expect(c.call(catalogPriceSet, { priceListCode: 'CONGTY', itemId: it1.data.itemId, unit: 'Hộp', price: 1 })).rejects.toMatchObject({ field: 'unit' });
+    await c.call(catalogPriceSet, { priceListCode: 'CONGTY', itemId: it1.data.itemId, unit: 'Cái', price: 390000 });
+    expect((await c.call(catalogItemList, { q: '101010004', page: 1, pageSize: 50, includeRetired: false })).data[0]?.warnings.map((w) => w.code)).not.toContain('CAT-NO-COMPANY-PRICE');
+  });
+  it('ketoan: cột kế toán chỉ đọc ở mọi trạng thái, cột vận hành vẫn sửa được', async () => {
+    const c = createMockClient();
+    c.store.catalog.source = 'ketoan';
+    const id = c.store.catalog.items[0]!.itemId;
+    await expect(c.call(catalogItemUpdate, { itemId: id, patch: { name: 'Đổi tên' } })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
+    await expect(c.call(catalogItemCreate, { sku: '199999999', name: 'Mới', units: [{ unit: 'Cái', ratio: 1 }], taxCode: '8' })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
+    expect((await c.call(catalogItemUpdate, { itemId: id, patch: { displayName: 'Váy hồng (bán chạy)' } })).data.displayName).toBe('Váy hồng (bán chạy)');
+  });
+});

@@ -2,6 +2,7 @@
 
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — chủ (2026-11-24): chia phase rõ ràng theo vai system builder / architect; khuôn phase open-ketoan (README · S<nnn>-n · Xong khi · Rủi ro). -->
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — chủ (2026-11-24): "phase này tập trung làm open-cake foundation framework contract và hình thành UI/UX trước, làm open-ketoan sau" ⇒ PHASE-002 nền hợp đồng, PHASE-003 UI/UX trên hợp đồng (giả lập); khung chạy + quan sát dời sang PHASE-016; mọi việc trong open-ketoan hoãn (ADR-0003). -->
+<!-- [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — ADR-0004: thêm PHASE-017 danh mục độc lập sẵn ánh xạ (ưu tiên standalone); đồng bộ contact / item / tenant vẫn ở 010. -->
 
 **Khuôn một phase** (R-PHASE, theo open-ketoan): `README.md` có dòng máy đọc `> **Việc lộ trình:**`, áp dụng cho (WP · cake · cả hai), trạng thái, phụ thuộc, mục tiêu một câu, ngoài phạm vi, đầu ra `S<nnn>-n`, quyết định `D<nnn>-n`, câu hỏi `Q<nnn>-n`, **Xong khi**, rủi ro; khi lớn thêm `00-MASTER-PLAN.md`, `40-MASTER-CHECKLIST.md` (bằng chứng `T<nnn>-n`), `evidence/`, `70-REFLECT.md`. Nhận việc ở [CLAIMS.md](CLAIMS.md) trước khi code (R-FLOW).
 
@@ -27,12 +28,13 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [014](PHASE-014-NHIEU-SITE-OPEN-SETUP/README.md) Nhiều site | W6 | máy nhiều site của platform cho cake; open-setup `product` | cake · open-setup · router | — | ☐ |
 | [015](PHASE-015-KIEM-CHUNG-PHAT-HANH/README.md) Kiểm chứng | W7 | golden G1–G8, DOD-SYS, thử tải, phát hành | cả hai | G1–G8 | ☐ |
 | [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ☐ |
+| [017](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/README.md) **Danh mục độc lập** | W1 | hàng · nhóm · ĐVT · bảng giá của riêng Cake theo chuẩn H-* open-ketoan, `catalog_source local|ketoan`, một cổng ghi (ADR-0004) | cake | — | ◐ hợp đồng + giả lập ☑ (61 test) |
 | *(open-ketoan)* PHASE-041 tách gói | — | P0 / P1 / P3 / P6 trong open-ketoan | open-ketoan | — | 💤 hoãn (#616, #617 bản nháp) |
 
 ## Thứ tự làm
 
 ```text
-W1   001 ─► 002 Nền hợp đồng ─► 003 UI/UX trên hợp đồng (giả lập)          ← phase này
+W1   001 ─► 002 Nền hợp đồng ─► 003 UI/UX trên hợp đồng (giả lập) ─► 017 Danh mục độc lập   ← phase này
 W2   016 Khung chạy (bizcity-platform, bản sao chỉ đọc) ─► 004 · 005
 W3   006 Kênh Zalo ─► 007 nối dữ liệu thật
 W4+  008 ─► 009 · 010 · 011 · 012 · 013 · 014 ─► 015

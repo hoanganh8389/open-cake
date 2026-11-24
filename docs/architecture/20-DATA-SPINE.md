@@ -79,7 +79,7 @@ vào: (channel, scope, external_id, hints{phone?, email?, tax_code?, private_rep
 
 | Khi | Cake làm | Kế Toán làm |
 |---|---|---|
-| nhân viên bấm "Tạo khách công nợ" hoặc POS yêu cầu | `PUT /api/v1/partners/CAKE-<contact_id>` `{name, kind: customer, phone?, taxCode?}` (khoá API site, `catalog:write`) → lưu `contact_links` | tạo `partner_id`, phát `bizcity.masterdata.partner.changed` |
+| nhân viên bấm "Tạo khách công nợ" hoặc POS yêu cầu | `PUT /api/v1/partners/<mã>` — mã = số điện thoại đã xác minh (khớp open-pos), không có thì `CAKE-<contact_id>`, vãng lai `KHACH-LE` (ADR-0004) — `{name, kind: customer, phone?, taxCode?}` (khoá API site, `catalog:write`) → lưu `contact_links` | tạo `partner_id`, phát `bizcity.masterdata.partner.changed` |
 | Kế Toán đổi tên / mã số thuế | nghe sự kiện → **chỉ** cập nhật `ref_id` / cờ, không chép tên ngược | giữ sự thật |
 | Kế Toán ngưng đối tượng (`catalog_tombstones`) | gắn cờ trên liên kết; contact **vẫn sống** | — |
 | hiện công nợ trong Contact 360 | `GET /api/v1/partners/:code/balances` (đọc, cache ≤ 5 phút, R-CACHE) | — |

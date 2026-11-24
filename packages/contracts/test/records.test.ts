@@ -19,8 +19,8 @@ describe('recordDataSchema (R-REUSE-5: máy chủ và form dùng chung)', () => 
 });
 
 describe('danh mục app', () => {
-  it('19 action cake + 4 action lớp mềm, không trùng id / route', () => {
-    expect(ALL_ACTIONS.length).toBe(23);
-    expect(Object.keys(appCatalog)).toHaveLength(23);
+  it("action cake + lớp mềm + danh mục, không trùng id / route", () => {
+    expect(ALL_ACTIONS.length).toBe(31);
+    expect(Object.keys(appCatalog)).toHaveLength(31);
   });
 });

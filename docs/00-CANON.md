@@ -43,9 +43,12 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 |---|---|
 | **R-CAKE-CELL-1** | Kênh sống ở Cell. Không cột / log / sự kiện chứa cookie, token Page, khoá E2EE (SC-CAKE-6). Chỉ nhận `bizcity_touch@1` đã ký, chỉ gửi `bizcity_channel_command@1` qua Hub |
 | **R-CAKE-CELL-2** | Không gọi LLM. AI / kịch bản / skill = Twin Brain qua `/mcp`; ghi chỉ tạo nháp / chờ duyệt, cần `confirm_token` |
-| **R-CAKE-SIB-1** | Không bảng `partners`, `items`, `orders`, `invoices`. Tham chiếu qua `contact_links`, `document_links` (`doc_ref` của app kia) |
+| **R-CAKE-MASTER-1** | **Độc lập trước** (ADR-0004): Cake có danh mục riêng — hàng, mã, ĐVT, nhóm, bảng giá — chạy đầy đủ không cần Kế Toán; nguồn theo đơn vị `catalog_source = local | ketoan` |
+| **R-CAKE-MASTER-2** | **Sẵn ánh xạ**: hình dữ liệu theo chuẩn open-ketoan ngay từ đầu — `item_id` ULID, mã có hiệu lực (đóng / mở), chuẩn H-1…H-18 của open-pos (E chặn ở hợp đồng, W thành cảnh báo `CAT-*`); mọi bảng đồng bộ mang khối `source · ext_id · ext_synced_at · ext_hash · push_status` |
+| **R-CAKE-MASTER-3** | **Một chủ tại một thời điểm**: `ketoan` ⇒ cột kế toán chỉ đọc qua MỘT cổng ghi (`catalogWriteGate`) ở mọi trạng thái kết nối; cột vận hành của Cake vẫn sửa; kéo một chiều, chỉ đẩy mã mới; không đồng bộ hai chiều (R-MD-1, R-OKT-CONN-4) |
+| **R-CAKE-MASTER-4** | Đơn vị Cake ↔ đơn vị Kế Toán qua `tenant_links`; `okt_tenant_id` đọc từ health của khoá, không gõ tay; `external_ref = opencake:<site>` |
 | **R-CAKE-SIB-2** | Không nộp `bizcity_ledger_intake@1`. Báo giá, cơ hội, yêu cầu đặt hàng là chứng từ nghiệp vụ của Cake, không là sự thật tiền |
-| **R-CAKE-SIB-3** | Nối khách công nợ = `PUT /api/v1/partners/CAKE-<contact_id>` một chiều; tên / MST sau đó do Kế Toán giữ |
+| **R-CAKE-MASTER-5** | Khách ↔ đối tượng công nợ: mã gửi Kế Toán = số điện thoại đã xác minh (khớp open-pos), không có thì `CAKE-<contact_id>`, vãng lai `KHACH-LE`; lưu ở `contact_links`; tên / MST sau khi liên kết do Kế Toán giữ |
 | **R-CAKE-SITE-1** | Site = database `cake_<slug>`; `SITE_MODE`; control DB `cake_control`; `/_sites/v1` cùng `bizcity_site_provisioning@1` (R-SITE-1..13 áp nguyên) |
 | **R-CAKE-TEN-1** | Mọi bảng `tenant_id` + RLS FORCE; không nhận `tenantId` / `siteId` từ input (R-TEN-1) |
 | **R-CAKE-MOD-1** | Module = `modules/<key>/bizcity.module.json`, schema `mod_<key>`, đọc lõi qua `bizcity_read.*`, không import module khác (R-BOUND-1..10) |
@@ -65,7 +68,7 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 | API | R-API-1..12 | RULE-API.md | [70-API-REST](architecture/70-API-REST.md) |
 | Hạ tầng | R-CACHE-1..6 · R-OUTBOX-1..7 · R-BAK-1..6 | RULE-INFRASTRUCTURE.md | Redis tuỳ chọn |
 | Chứng từ | R-DOC-CONT-0..9 | RULE-DOCUMENT-CONTINUITY.md | `cake.order_request`, `cake.quote` |
-| Danh mục | R-MD-1..10 | RULE-MASTER-DATA.md | R-CAKE-SIB-1..3 |
+| Danh mục | R-MD-1..10 | RULE-MASTER-DATA.md | R-CAKE-MASTER-1..5 (ADR-0004), R-CAKE-SIB-2 |
 | Ranh giới | R-BOUND-1..10 | RULE-MODULE-BOUNDARY.md | R-WEB-1 |
 | Cổng | R-GATE-1..11 · R-BLOCK-1..6 | RULE-GATE.md · RULE-BLOCKED.md | finding `CAKE-*` |
 | Chất lượng | R-QG-1..10 | RULE-QUALITY-GATE.md | DB `cake_test` |
@@ -101,4 +104,4 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 
 ## Cấm (đọc nhanh)
 
-❌ khoá bảng theo id kênh · ❌ ghép người theo tên · ❌ `UPDATE` / `DELETE` dòng sổ · ❌ cookie / token / khoá trong DB, log, sự kiện · ❌ gọi LLM · ❌ bảng khách / hàng / đơn riêng · ❌ nộp sổ kế toán · ❌ đọc DB của plugin WP hay app khác · ❌ nhận `tenantId` từ input · ❌ `reply.status` tay · ❌ `catch` im lặng · ❌ nhãn metric nhiều giá trị · ❌ Electron · ❌ tên agent trong dấu R-SIG.
+❌ khoá bảng theo id kênh · ❌ ghép người theo tên · ❌ `UPDATE` / `DELETE` dòng sổ · ❌ cookie / token / khoá trong DB, log, sự kiện · ❌ gọi LLM · ❌ hai chủ cùng lúc cho một danh mục (sửa cột kế toán khi nguồn = ketoan) · ❌ danh mục lệch chuẩn H-* (không ánh xạ được) · ❌ nộp sổ kế toán · ❌ đọc DB của plugin WP hay app khác · ❌ nhận `tenantId` từ input · ❌ `reply.status` tay · ❌ `catch` im lặng · ❌ nhãn metric nhiều giá trị · ❌ Electron · ❌ tên agent trong dấu R-SIG.

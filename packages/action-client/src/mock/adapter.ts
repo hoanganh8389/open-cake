@@ -7,10 +7,11 @@ import { ApiError, type ActionClient, type CallResult } from '../client.js';
 import { contactHandlers } from './handlers-contacts.js';
 import { inboxHandlers } from './handlers-inbox.js';
 import { recordHandlers } from './handlers-records.js';
+import { catalogHandlers } from './handlers-catalog.js';
 import { createStore, isPaged, type Store } from './store.js';
 
 export type MockScenario = 'normal' | 'empty' | 'error' | 'denied' | 'slow';
-const HANDLERS = { ...inboxHandlers, ...contactHandlers, ...recordHandlers };
+const HANDLERS = { ...inboxHandlers, ...contactHandlers, ...recordHandlers, ...catalogHandlers };
 
 /** Mọi action trong danh mục phải có handler giả lập (kiểm khi tạo client). */
 export const missingMockHandlers = () => Object.keys(appCatalog).filter((id) => !HANDLERS[id]);

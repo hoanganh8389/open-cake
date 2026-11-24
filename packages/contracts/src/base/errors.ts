@@ -40,6 +40,9 @@ export const CAKE_REASONS = {
   CAKE_TOUCH_VERSION_STALE: { code: 'CONFLICT', message: 'Sự việc này đã có phiên bản mới hơn.', hint: 'Không cần gửi lại.' },
   CAKE_SIGNATURE_INVALID: { code: 'UNAUTHORIZED', message: 'Chữ ký Hub không hợp lệ hoặc lệch giờ.', hint: 'Kiểm đồng hồ máy chủ và khoá ký.' },
   CAKE_META_KEY_UNKNOWN: { code: 'VALIDATION_ERROR', message: 'Khoá dữ liệu phụ chưa đăng ký.', hint: 'Thêm khoá vào registry trước khi ghi.' },
+  CAKE_CATALOG_READONLY: { code: 'CONFLICT', message: 'Danh mục đang lấy từ Kế Toán: cột này chỉ sửa ở Kế Toán.', hint: 'Sửa ở Open Kế Toán, hoặc chuyển nguồn danh mục về "local" ở Cài đặt.' },
+  CAKE_SKU_TAKEN: { code: 'CONFLICT', message: 'Mã hàng đã có (kể cả hàng đã xoá).', hint: 'Chọn mã khác (H-2).' },
+  CAKE_ITEM_NAME_TAKEN: { code: 'CONFLICT', message: 'Tên hàng đã có.', hint: 'Tên hàng phải duy nhất, không phân biệt hoa thường (H-7).' },
   CAKE_RECORD_TYPE_UNKNOWN: { code: 'VALIDATION_ERROR', message: 'Loại bản ghi chưa đăng ký.', hint: 'Thêm record_type vào registry trước khi ghi.' },
 } as const satisfies Record<string, { code: ErrorCode; message: string; hint: string }>;
 
