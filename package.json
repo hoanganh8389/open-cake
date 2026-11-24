@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p packages/contracts && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web",
+    "typecheck": "tsc -p packages/contracts && tsc -p packages/care-kernel && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web",
     "contracts:check": "vitest run packages/contracts",
     "web:dev": "npm run dev -w @open-cake/web",
     "web:build": "npm run build -w @open-cake/web"

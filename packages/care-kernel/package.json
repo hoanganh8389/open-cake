@@ -1,0 +1,12 @@
+{
+  "name": "@open-cake/care-kernel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Care-kernel của open-cake: một cửa submitTouchIn, sổ chạm khách chỉ thêm (dòng đảo), resolver danh tính có bằng chứng, ghép / tách, dựng lại contact_state. Logic thuần trên cổng CareRepo — không biết HTTP, không biết SQL.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@open-cake/contracts": "0.1.0" }
+}
