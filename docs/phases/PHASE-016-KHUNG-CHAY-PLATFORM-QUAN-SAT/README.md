@@ -3,9 +3,23 @@
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chủ (2026-11-24): nền hợp đồng + UI/UX làm trước (PHASE-002, 003 mới); khung chạy và quan sát dời xuống đây, dựng trên bizcity-platform (bản sao chỉ đọc từ open-ketoan, tổng quát hoá trong repo gói chung — open-ketoan không đổi). Nội dung quan sát ở 10-QUAN-SAT.md. -->
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake (khuôn phase open-ketoan). -->
 
-> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☐ · **Phụ thuộc:** 002, 003 · gói chung `bizcity-platform` dựng từ bản sao chỉ đọc của open-ketoan ([ADR-0003](../../adr/ADR-0003-nen-hop-dong-va-ui-truoc.md)) — open-ketoan không phải đổi
+> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ◐ · **Phụ thuộc:** 002, 003 · gói chung `bizcity-platform` dựng từ bản sao chỉ đọc của open-ketoan ([ADR-0003](../../adr/ADR-0003-nen-hop-dong-va-ui-truoc.md)) — open-ketoan không phải đổi
 > **Mục tiêu:** `docker compose up` ra một API + web rỗng đúng khuôn open-ketoan (một site ngầm định), CI xanh, selfcheck chạy được — chưa có nghiệp vụ.
 > **Ngoài phạm vi:** bảng care-kernel (005), giao diện thật (007), nhiều site (014).
+
+## Tiến độ
+
+<!-- [2026-11-24 06:16 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — bắt đầu theo thứ tự P2b (platform) → apps/api của cake; mỗi bước một PR ở bizcity-platform. -->
+
+| Bước | Ở đâu | Gỡ điểm chặn | TT |
+|---|---|---|---|
+| **P2b-1** trình chạy migration chung: nhiều nguồn (`sources`), trùng tên ⇒ dừng, cổng `hooks`; phần riêng Kế Toán tách ra `migrate-ketoan-legacy.ts` | bizcity-platform [PR #4](https://github.com/hoanganh8389/bizcity-platform/pull/4) | #2 `adoptBaseline` | ◐ chờ duyệt (5 test trên Postgres thật) |
+| **S016-2b (DB)** `0103_flex.sql`: `user_meta`, `entity_meta` (có `item`, 3 chỉ mục khoá indexed), `record_types`, `records` + RLS FORCE | open-cake | — | ☑ áp bằng trình chạy P2b-1: 0101–0103 một lần, chạy lại 0; 4 ca sai bị chặn; truy vấn meta dùng chỉ mục |
+| P2b-2 gom migration nền 00xx (tenants, users, roles, api_keys, audit_logs, setting_values, event_outbox, business_documents…) | bizcity-platform | #4 bảng nền rải trong migration Kế Toán | ☐ |
+| P2b-3 cổng vai / quyền (`registerRoles`, `registerPermissions`) | bizcity-platform | #3 quyền viết cứng theo kế toán | ☐ |
+| P2b-4 kiểu `Database` mở rộng theo app (generic / `withTables`) | bizcity-platform | #1 `Database` cố định | ☐ |
+| P2b-5 phát hành 0.2.0 lên GitHub Packages (workflow theo tag) | bizcity-platform | — | ☐ |
+| S016-1/5/6 `apps/api` (Fastify trên platform), `PgCatalogRepo` + `PgCareRepo`, compose db · db-migrate · api | open-cake | — | ☐ sau P2b-5 |
 
 ## Đầu ra
 
