@@ -6,7 +6,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { sql } from 'kysely';
+import { authOf, requirePermission } from '@bizcity/platform/core/auth';
 import { AppError } from '@bizcity/platform/core/errors';
 import { ok } from '@bizcity/platform/core/http';
 import { currentRequest } from '@bizcity/platform/core/request-context';
@@ -14,7 +14,8 @@ import { db, type Db } from '@bizcity/platform/db/client';
 import { KernelError } from '@open-cake/care-kernel';
 import { CAKE_REASONS, ERROR_CATALOG, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
 
-export type Ctx = { tx: Db; tenantId: string };
+// [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — ngữ cảnh mang NGƯỜI THAO TÁC thật (authPlugin của nền): actor ghi sổ / bằng chứng, userId cho "của tôi".
+export type Ctx = { tx: Db; tenantId: string; actor: string; userId: string | null };
 type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod của spec
 export type Handler = (ctx: Ctx, input: Any) => Promise<unknown>;
 
@@ -63,6 +64,11 @@ const tenantOf = (): string => {
 };
 
 /** Lệnh có Idempotency-Key: cùng khoá + cùng thân ⇒ trả lại kết quả cũ; cùng khoá khác thân ⇒ IDEMPOTENCY_CONFLICT. */
+const ctxOf = (req: FastifyRequest, tx: Db): Ctx => {
+  const a = authOf(req);
+  return { tx, tenantId: tenantOf(), actor: a.actor, userId: a.kind === 'user' ? a.actor.slice('user:'.length) : null };
+};
+
 async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: Handler): Promise<unknown> {
   const tenantId = tenantOf();
   const key = req.headers['idempotency-key'];
@@ -76,9 +82,9 @@ async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: 
         return prev.response;
       }
     }
-    const out = await h({ tx, tenantId }, input);
+    const out = await h(ctxOf(req, tx), input);
     if (typeof key === 'string' && key) {
-      await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: hash, status_code: 200, response: JSON.stringify(out) as never, actor: 'dev' } as never).execute();
+      await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: hash, status_code: 200, response: JSON.stringify(out) as never, actor: authOf(req).actor } as never).execute();
     }
     return out;
   });
@@ -91,26 +97,18 @@ export function registerActions(app: FastifyInstance, specs: readonly ActionSpec
     const [method, url] = rest.split(' ') as ['GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', string];
     app.route({
       method, url,
+      preHandler: requirePermission(spec.permission as never), // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — quyền lấy từ CHÍNH spec (một nguồn)
       handler: async (req) => {
         const h = handlers[spec.id];
         if (!h) throw cakeError('CAKE_NOT_ON_SERVER', `Máy chủ chưa có ${spec.id}.`);
         const params = (req.params ?? {}) as Any;
         const body = method === 'GET' ? coerceQuery(spec.input, (req.query ?? {}) as Any) : ((req.body ?? {}) as Any);
         const input = spec.input.parse({ ...body, ...params }) as Any;
-        const out = await (spec.kind === 'command' ? runCommand(spec, req, input, h) : db.transaction().execute((tx) => h({ tx, tenantId: tenantOf() }, input))).catch((e) => { throw fromKernel(e); });
+        const out = await (spec.kind === 'command' ? runCommand(spec, req, input, h) : db.transaction().execute((tx) => h(ctxOf(req, tx), input))).catch((e) => { throw fromKernel(e); });
         const isPaged = typeof out === 'object' && out !== null && PAGED in out;
         const data = isPaged ? (out as Paged).data : out;
         return ok(spec.output.parse(data), isPaged ? ((out as Paged).meta as never) : undefined);
       },
     });
   }
-}
-
-/** Đơn vị dev (trước PHASE-004 đăng nhập): mọi yêu cầu chạy trong đơn vị CAKE_TENANT (slug). PHASE-004 thay bằng đơn vị của người đăng nhập. */
-export async function useDevTenant(app: FastifyInstance, slug: string): Promise<string> {
-  const row = await sql<{ id: string }>`SELECT id::text AS id FROM tenants WHERE code = ${slug}`.execute(db);
-  const id = row.rows[0]?.id;
-  if (!id) throw new Error(`Chưa có đơn vị "${slug}" — chạy npm run seed -w @open-cake/api.`);
-  app.addHook('preHandler', async () => { const c = currentRequest(); if (c) c.tenantId = id; });
-  return id;
 }

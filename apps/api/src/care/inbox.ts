@@ -49,7 +49,7 @@ export const inboxHandlers: Record<string, Handler> = {
     if (i.channelAccountId) q = q.where('v.channel_account_id', '=', i.channelAccountId);
     if (i.q) q = q.where('c.display_name', 'ilike', `%${i.q}%`);
     if (i.filter === 'unanswered') q = q.where('v.last_direction', '=', 'in');
-    if (i.filter === 'mine') q = q.where('v.assignee_user_id', 'is not', null); // PHASE-004: = người đăng nhập
+    if (i.filter === 'mine') q = q.where('v.assignee_user_id', '=', ctx.userId ?? '-'); // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — "của tôi" = người đăng nhập
     const rows = await q.selectAll('v').select('c.display_name').orderBy('v.last_at', 'desc').limit(i.limit).execute();
     const ids = rows.map((r) => r.conversation_id);
     const [unread, state, last] = await Promise.all([

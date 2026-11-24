@@ -15,7 +15,7 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [001](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md) Kiến trúc | W0 | trục `contact_id`, khung open-ketoan, bốn trục | cake | — | ◐ (D / Q còn mở) |
 | [002](PHASE-002-NEN-HOP-DONG-NANG-LUC/README.md) **Nền hợp đồng & năng lực** | W1 | zod một chỗ: hợp đồng nền, action spec + danh mục năng lực, trục contact, 3 hợp đồng cake, registry lớp mềm, fixture | cake | — | ☑ 2026-11-24 (25 test) |
 | [003](PHASE-003-UI-UX-TREN-HOP-DONG/README.md) **UI/UX trên hợp đồng** | W1 | ui-kit + 6 màn lõi + màn lớp mềm tự sinh, dữ liệu qua `ActionClient` + bộ giả lập | cake | — | ☑ 2026-11-24 (14 ảnh build, 42 test) |
-| [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ☐ |
+| [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ◐ SSO WordPress + quyền / vai + vai CSDL ứng dụng (RLS) ☑; phạm vi kênh, bằng chứng, màn Nhân viên ☐ |
 | [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ kernel + PgCareRepo ☑ (9 kịch bản trên bộ nhớ và Postgres); còn outbox, selfcheck |
 | [006](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/README.md) Kênh | W3 | ingress `bizcity_touch@1` / `bizcity_channel_command@1`; Zalo cá nhân đầu tiên | cake · zalo-hub · router | — | ◐ cổng nhận phía Cake ☑ (HMAC, 3 test); Cell / Hub ☐ |
 | [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ◐ đọc + 4 lệnh ghi (nhãn, giao việc, ghép, tách) trên máy chủ ☑; gửi tin (Cell) + SSE ☐ |

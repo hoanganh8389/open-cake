@@ -5,12 +5,14 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { ActionClient } from '@open-cake/action-client';
 import { freshDb } from './fresh-db.js';
+import { clientFor, devToken } from './http-client.js';
 
 const url = process.env.TEST_DATABASE_URL;
 const HUB = { key: 'hub_kiem_thu_0123456789', secret: 'bi-mat-kiem-thu-0123456789-abcdefghijk' };
 
 describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres', () => {
   let app: FastifyInstance;
+  let token: string;
   let c: ActionClient;
   let sign: (secret: string, body: string, t?: number) => string;
   const C = () => import('@open-cake/contracts');
@@ -18,15 +20,13 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
   const ok = (body: string, t?: number) => ({ authorization: `Bearer ${HUB.key}`, 'x-bizcity-contract': 'bizcity_touch@1', 'x-bizcity-signature': sign(HUB.secret, body, t) });
 
   beforeAll(async () => {
+    process.env.CAKE_DEV_AUTH = '1';
     await freshDb(url!, 'inbox');
     await (await import('../src/seed-dev.js')).seedDev('hoa-mai');
     ({ signTouch: sign } = await import('../src/care/ingress.js'));
     app = await (await import('../src/server.js')).buildApp({ logger: false, hub: HUB });
-    const { createHttpClient } = await import('@open-cake/action-client');
-    c = createHttpClient({ fetchImpl: (async (u: string, init: RequestInit) => {
-      const r = await app.inject({ method: init.method as 'GET', url: u, headers: init.headers as Record<string, string>, payload: init.body as string | undefined });
-      return new Response(r.body, { status: r.statusCode, headers: { 'content-type': 'application/json' } });
-    }) as typeof fetch });
+    token = await devToken(app);
+    c = await clientFor(app, token);
   }, 90_000);
   afterAll(async () => { await app?.close(); });
 
@@ -77,18 +77,19 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
   });
 
   // [2026-11-24 08:49 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — 4 lệnh ghi không cần Cell qua HTTP, đi qua sổ.
-  it('gắn nhãn, giao việc, ghép (cần bằng chứng) và tách khách qua API', async () => {
+  it('gắn nhãn, giao việc, ghép (cần bằng chứng) và tách khách qua API', { timeout: 30_000 }, async () => {
     const { conversationList, conversationTag, conversationAssign, contactList, contactMerge, contactUnmerge, contactGet } = await C();
     const convs = (await c.call(conversationList, { filter: 'all', limit: 50 })).data;
     const khoa = convs.find((v) => v.title === 'Anh Khoa - sỉ HN')!;
     const huong = convs.find((v) => v.title === 'Nguyễn Thu Hương')!;
     expect((await c.call(conversationTag, { conversationId: khoa.conversationId, add: ['Khách sỉ'], remove: [] })).data.tags).toEqual(['Khách sỉ']);
     expect((await c.call(contactList, { tag: 'Khách sỉ', sort: 'name', page: 1, pageSize: 50 })).data.map((r) => r.contact.displayName)).toEqual(['Anh Khoa - sỉ HN']);
-    await c.call(conversationAssign, { conversationId: khoa.conversationId, userId: 'wp:12' });
+    const me = (await app.inject({ method: 'GET', url: '/api/v1/auth/me', headers: { authorization: `Bearer ${token}` } })).json().data.actor.slice('user:'.length);
+    await c.call(conversationAssign, { conversationId: khoa.conversationId, userId: me }); // "của tôi" = người đăng nhập
     expect((await c.call(conversationList, { filter: 'mine', limit: 50 })).data.map((v) => v.conversationId)).toEqual([khoa.conversationId]);
     // ghép theo TÊN bị chặn ở cả hai lớp: hợp đồng phía web (trước khi gửi) và máy chủ (gọi thẳng, bỏ qua web)
     await expect(c.call(contactMerge, { contactId: khoa.contactId, intoContactId: huong.contactId, proof: { kind: 'name' } } as never)).rejects.toThrow(/received 'name'/);
-    const raw = await app.inject({ method: 'POST', url: `/api/v1/contacts/${khoa.contactId}/merge`, payload: { intoContactId: huong.contactId, proof: { kind: 'name' } } });
+    const raw = await app.inject({ method: 'POST', url: `/api/v1/contacts/${khoa.contactId}/merge`, payload: { intoContactId: huong.contactId, proof: { kind: 'name' } }, headers: { authorization: `Bearer ${token}` } });
     expect([raw.statusCode, raw.json().error.code]).toEqual([400, 'VALIDATION_ERROR']);
     const before = (await c.call(contactList, { sort: 'name', page: 1, pageSize: 50 })).meta?.total as number;
     const m = await c.call(contactMerge, { contactId: khoa.contactId, intoContactId: huong.contactId, proof: { kind: 'human', userId: '7' } });

@@ -7,7 +7,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { ok } from '@bizcity/platform/core/http';
-import { currentRequest } from '@bizcity/platform/core/request-context';
 import { db } from '@bizcity/platform/db/client';
 import { submitTouchIn } from '@open-cake/care-kernel';
 import { cakeError, failure, fromKernel, newUlid } from '../runtime.js';
@@ -44,8 +43,11 @@ export function registerIngress(app: FastifyInstance, opts: { key?: string; secr
     r.post('/ingress/v1/touch', async (req) => {
       if (key.length < 16 || secret.length < 32) throw failure('NOT_READY', 'Cổng nhận Hub chưa cấu hình khoá (CAKE_HUB_KEY ≥ 16, CAKE_HUB_SECRET ≥ 32 ký tự).');
       verify(req.headers, (req as unknown as { rawBody: string }).rawBody, key, secret, Math.floor((opts.now?.() ?? Date.now()) / 1000));
-      const tenantId = currentRequest()?.tenantId;
-      if (!tenantId) throw failure('UNAUTHORIZED', 'Chưa xác định đơn vị.');
+      // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — đơn vị suy từ TÀI KHOẢN KÊNH của sự kiện (Hub đã tra site; trong site, một tài khoản kênh thuộc đúng một đơn vị).
+      const acc = (req.body as { channelAccount?: { externalAccountId?: string; kind?: string } })?.channelAccount;
+      const owners = acc?.externalAccountId ? await db.selectFrom('channel_accounts').select('tenant_id').distinct().where('external_account_id', '=', acc.externalAccountId).where('kind', '=', String(acc.kind)).execute() : [];
+      if (owners.length !== 1) throw cakeError('CAKE_CHANNEL_NOT_CONNECTED', owners.length ? 'Tài khoản kênh thuộc nhiều đơn vị — kiểm cấu hình.' : undefined);
+      const tenantId = owners[0]!.tenant_id;
       try {
         const res = await submitTouchIn({ repo: new PgCareRepo(tenantId, db), now: () => new Date().toISOString(), newId: () => newUlid() }, req.body);
         return ok({ status: res.status, touchId: res.touchId === null ? null : String(res.touchId), contactId: res.contactId });

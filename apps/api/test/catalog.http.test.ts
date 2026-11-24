@@ -5,29 +5,27 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { ActionClient } from '@open-cake/action-client';
 import { freshDb } from './fresh-db.js';
+import { clientFor, devToken } from './http-client.js';
 
 const url = process.env.TEST_DATABASE_URL;
 
 describe.skipIf(!url)('API danh mục trên Postgres (cùng hợp đồng với bộ giả lập)', () => {
   let app: FastifyInstance;
+  let token: string;
   let c: ActionClient;
   let sql: (q: string) => Promise<unknown>;
   const C = () => import('@open-cake/contracts');
 
   beforeAll(async () => {
+    process.env.CAKE_DEV_AUTH = '1';
     const dbUrl = await freshDb(url!, 'catalog'); // database riêng của tệp này
     const pg = (await import('pg')).default;
     const admin = new pg.Client({ connectionString: dbUrl }); await admin.connect();
     sql = (q) => admin.query(q);
     await (await import('../src/seed-dev.js')).seedDev('hoa-mai');
     app = await (await import('../src/server.js')).buildApp({ logger: false });
-    const { createHttpClient } = await import('@open-cake/action-client');
-    c = createHttpClient({
-      fetchImpl: (async (u: string, init: RequestInit) => {
-        const r = await app.inject({ method: init.method as 'GET', url: u, headers: init.headers as Record<string, string>, payload: init.body as string | undefined });
-        return new Response(r.body, { status: r.statusCode, headers: { 'content-type': 'application/json' } });
-      }) as typeof fetch,
-    });
+    token = await devToken(app);
+    c = await clientFor(app, token);
   }, 60_000);
   afterAll(async () => { await app?.close(); });
 

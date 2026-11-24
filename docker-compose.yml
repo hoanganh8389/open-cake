@@ -28,7 +28,8 @@ services:
   db-migrate:
     build: { context: ., dockerfile: docker/api.Dockerfile }
     image: open-cake-api:0.1.0
-    environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}" }
+    # [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — tạo vai ứng dụng cake_app (không siêu người dùng) sau migration.
+    environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}", CAKE_APP_ROLE: cake_app }
     command: ["sh", "-c", "node --conditions=cake-dist dist/migrate.js && if [ \"$$CAKE_SEED_DEV\" = 1 ]; then node --conditions=cake-dist dist/seed-dev.js; fi"]
     depends_on: { db: { condition: service_healthy } }
     restart: "no"
@@ -36,7 +37,15 @@ services:
 
   api:
     image: open-cake-api:0.1.0
-    environment: { <<: *dbenv, LOG_LEVEL: "${LOG_LEVEL:-info}" }
+    # [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — API chạy dưới vai cake_app (RLS có hiệu lực); đăng nhập: SSO WordPress, hoặc dev khi CAKE_DEV_AUTH=1 (mặc định TẮT).
+    environment:
+      <<: *dbenv
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      DB_SET_ROLE: cake_app
+      CAKE_DEV_AUTH: "${CAKE_DEV_AUTH:-0}"
+      WP_SSO_SECRET: "${WP_SSO_SECRET:-}"
+      WP_SSO_TENANT: "${WP_SSO_TENANT:-hoa-mai}"
+      WP_SSO_LOGIN_URL: "${WP_SSO_LOGIN_URL:-}"
     depends_on: { db-migrate: { condition: service_completed_successfully } }
     ports:
       - "${API_BIND:-127.0.0.1}:${API_PORT:-8120}:8120"

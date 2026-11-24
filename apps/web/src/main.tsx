@@ -6,9 +6,11 @@
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ActionProvider, createHttpClient, createMixClient, createMockClient, linkCatalogToKetoan, type ActionClient, type MockScenario } from '@open-cake/action-client';
+import { State } from '@open-cake/ui-kit';
 import '@open-cake/ui-kit/tokens.css';
 import '@open-cake/ui-kit/chat.css';
 import { Shell } from './app/Shell.js';
+import { ensureSession, getToken } from './app/session.js';
 import { useRoute } from './app/route.js';
 import { Catalog } from './screens/catalog/index.js';
 import { Channels } from './screens/Channels.js';
@@ -27,7 +29,10 @@ const mock = api === 'http' ? null : createMockClient({ scenario, latencyMs: 150
 if (mock && params.get('catalog') === 'ketoan') linkCatalogToKetoan(mock.store.catalog); // ?catalog=ketoan: xem màn khi danh mục do Kế Toán giữ
 // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — ?api=mix: Hàng hoá chạy máy chủ thật, màn khác vẫn giả lập tới phase của nó.
 // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — mix hỏi máy chủ danh sách action đã có (không còn viết cứng năng lực).
-const clientReady: Promise<ActionClient> = !mock ? Promise.resolve(createHttpClient()) : api === 'mix' ? createMixClient(mock, createHttpClient()) : Promise.resolve(mock);
+// [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — nói chuyện với máy chủ ⇒ cần phiên (SSO WordPress hoặc đăng nhập dev); giả lập thì không.
+const http = () => createHttpClient({ getToken });
+const session = mock && api !== 'mix' ? Promise.resolve({ ok: true as const }) : ensureSession();
+const clientReady: Promise<ActionClient> = !mock ? Promise.resolve(http()) : api === 'mix' ? createMixClient(mock, http()) : Promise.resolve(mock);
 
 function App() {
   const { path, query } = useRoute();
@@ -46,6 +51,16 @@ function App() {
   return <Shell screen={screen} account={query.get('account')}>{view}</Shell>;
 }
 
-void clientReady.then((client) => createRoot(document.getElementById('root')!).render(
-  <StrictMode><ActionProvider client={client}><App /></ActionProvider></StrictMode>,
+/** Không có phiên ⇒ một màn báo (thành phần State sẵn có), có nút sang trang đăng nhập WordPress nếu máy chủ khai. */
+function NeedLogin({ loginUrl }: { loginUrl: string | null }) {
+  return (
+    <div className="page" style={{ maxWidth: 560, margin: '10vh auto' }}>
+      <State kind="denied" title="Cần đăng nhập" desc="Mở Open CRM từ trang quản trị bizcity (WordPress) để đăng nhập một lần."
+        action={loginUrl ? <a className="btn pri" href={loginUrl}>Đăng nhập qua WordPress</a> : undefined} />
+    </div>
+  );
+}
+
+void Promise.all([session, clientReady]).then(([s, client]) => createRoot(document.getElementById('root')!).render(
+  <StrictMode>{s.ok ? <ActionProvider client={client}><App /></ActionProvider> : <NeedLogin loginUrl={s.loginUrl} />}</StrictMode>,
 ));

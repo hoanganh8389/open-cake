@@ -3,6 +3,7 @@
 // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 S016-1/5 — API của open-cake trên @bizcity/platform 0.2.0: request-context + phong bì lỗi của nền,
 //   32 route sinh từ action spec (9 danh mục chạy thật, còn lại 501 CAKE_NOT_ON_SERVER tới phase của nó), health / ready (cổng lược đồ R-SITE-9).
 import Fastify, { type FastifyInstance } from 'fastify';
+import { authPlugin } from '@bizcity/platform/core/auth';
 import { registerErrorHandler } from '@bizcity/platform/core/http';
 import { registerRequestContext } from '@bizcity/platform/core/request-context';
 import { pool } from '@bizcity/platform/db/client';
@@ -13,7 +14,9 @@ import { careCommandHandlers } from './care/commands.js';
 import { inboxHandlers } from './care/inbox.js';
 import { registerIngress } from './care/ingress.js';
 import { MIGRATION_SOURCES } from './migrate.js';
-import { registerActions, useDevTenant } from './runtime.js';
+import { registerCakeAuthz } from './auth/authz.js';
+import { registerAuthRoutes } from './auth/routes.js';
+import { registerActions } from './runtime.js';
 
 export const VERSION = '0.1.0';
 
@@ -21,17 +24,20 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   const app = Fastify({ logger: opts.logger ?? { level: process.env.LOG_LEVEL ?? 'info' } });
   registerRequestContext(app);
   registerErrorHandler(app);
-  app.get('/api/v1/system/health', async () => ({ ok: true, data: { app: 'open-cake', version: VERSION } }));
-  app.get('/api/v1/system/health/ready', async (_req, reply) => {
+  // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — mọi /api/v1/* cần phiên (JWT) hoặc khoá API (authPlugin của nền), trừ route khai public; quyền + vai của Cake khai trước khi nhận yêu cầu.
+  registerCakeAuthz();
+  await app.register(authPlugin);
+  registerAuthRoutes(app, { devTenant: opts.tenant });
+  app.get('/api/v1/system/health', { config: { public: true } }, async () => ({ ok: true, data: { app: 'open-cake', version: VERSION } }));
+  app.get('/api/v1/system/health/ready', { config: { public: true } }, async (_req, reply) => {
     const pending = await pendingMigrations(pool, { sources: MIGRATION_SOURCES });
     if (pending.length) return reply.code(503).send({ ok: false, error: { code: 'NOT_READY', message: 'Còn migration chưa áp — chạy db-migrate.', details: { pending } } });
     return { ok: true, data: { schema: 'ready' } };
   });
-  await useDevTenant(app, opts.tenant ?? process.env.CAKE_TENANT ?? 'hoa-mai');
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
   const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
-  app.get('/api/v1/system/actions', async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
+  app.get('/api/v1/system/actions', { config: { public: true } }, async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
   registerIngress(app, opts.hub);
   return app;
 }
