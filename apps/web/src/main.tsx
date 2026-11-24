@@ -5,7 +5,7 @@
 // [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — S017-6: thêm màn catalog (Hàng hoá · Bảng giá); ?catalog=ketoan giả lập đơn vị đã nối Kế Toán.
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ActionProvider, createHttpClient, createMockClient, linkCatalogToKetoan, routeByCapability, type MockScenario } from '@open-cake/action-client';
+import { ActionProvider, createHttpClient, createMixClient, createMockClient, linkCatalogToKetoan, type ActionClient, type MockScenario } from '@open-cake/action-client';
 import '@open-cake/ui-kit/tokens.css';
 import '@open-cake/ui-kit/chat.css';
 import { Shell } from './app/Shell.js';
@@ -22,11 +22,12 @@ import { Settings } from './screens/Settings.js';
 
 const params = new URLSearchParams(location.search);
 const scenario = (params.get('mock') ?? 'normal') as MockScenario;
-const api = params.get('api'); // không có = giả lập · http = máy chủ cho mọi màn · mix = năng lực đã có máy chủ (cake.catalog) đi http, còn lại giả lập
+const api = params.get('api'); // không có = giả lập · http = máy chủ cho mọi màn · mix = action máy chủ đã có đi http, còn lại giả lập
 const mock = api === 'http' ? null : createMockClient({ scenario, latencyMs: 150 });
 if (mock && params.get('catalog') === 'ketoan') linkCatalogToKetoan(mock.store.catalog); // ?catalog=ketoan: xem màn khi danh mục do Kế Toán giữ
 // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — ?api=mix: Hàng hoá chạy máy chủ thật, màn khác vẫn giả lập tới phase của nó.
-const client = !mock ? createHttpClient() : api === 'mix' ? routeByCapability({ 'cake.catalog': createHttpClient() }, mock) : mock;
+// [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — mix hỏi máy chủ danh sách action đã có (không còn viết cứng năng lực).
+const clientReady: Promise<ActionClient> = !mock ? Promise.resolve(createHttpClient()) : api === 'mix' ? createMixClient(mock, createHttpClient()) : Promise.resolve(mock);
 
 function App() {
   const { path, query } = useRoute();
@@ -45,6 +46,6 @@ function App() {
   return <Shell screen={screen} account={query.get('account')}>{view}</Shell>;
 }
 
-createRoot(document.getElementById('root')!).render(
+void clientReady.then((client) => createRoot(document.getElementById('root')!).render(
   <StrictMode><ActionProvider client={client}><App /></ActionProvider></StrictMode>,
-);
+));

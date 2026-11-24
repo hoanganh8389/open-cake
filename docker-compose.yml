@@ -11,6 +11,9 @@ x-log: &log { driver: json-file, options: { max-size: "10m", max-file: "3" } }
 x-db-env: &dbenv
   DATABASE_URL: postgres://cake:${DB_PASSWORD:-cake-dev}@db:5432/cake
   CAKE_TENANT: ${CAKE_TENANT:-hoa-mai}
+  # [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — khoá + bí mật Hub cho POST /ingress/v1/touch; trống ⇒ cổng nhận trả 503 (không mở không xác thực).
+  CAKE_HUB_KEY: ${CAKE_HUB_KEY:-}
+  CAKE_HUB_SECRET: ${CAKE_HUB_SECRET:-}
   JWT_SECRET: ${JWT_SECRET:?Đặt JWT_SECRET trong .env (xem .env.example) — nền chặn khoá mặc định ở bản production}
 
 services:

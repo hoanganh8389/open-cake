@@ -21,6 +21,8 @@ ENV NODE_ENV=production PORT=8120 CAKE_MIGRATIONS_DIR=/app/db/migrations
 COPY --from=build /app/node_modules node_modules
 COPY --from=build /app/packages/contracts/package.json packages/contracts/
 COPY --from=build /app/packages/contracts/dist packages/contracts/dist
+COPY --from=build /app/packages/care-kernel/package.json packages/care-kernel/
+COPY --from=build /app/packages/care-kernel/dist packages/care-kernel/dist
 COPY --from=build /app/apps/api/package.json apps/api/
 COPY --from=build /app/apps/api/dist apps/api/dist
 COPY db/migrations db/migrations

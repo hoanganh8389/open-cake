@@ -15,7 +15,14 @@ export interface ActionClient {
 
 // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chọn adapter theo năng lực: năng lực đã có máy chủ đi http, còn lại giả lập (máy chủ lên từng phần, giao diện không đổi).
 export function routeByCapability(routes: Record<string, ActionClient>, fallback: ActionClient): ActionClient {
-  return { kind: 'mix', call: (spec, input, opts) => (routes[spec.capability] ?? fallback).call(spec, input, opts) };
+  return { kind: 'mix', call: (spec, input, opts) => (routes[spec.id] ?? routes[spec.capability] ?? fallback).call(spec, input, opts) };
+}
+
+// [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — chế độ mix theo đúng danh sách action máy chủ ĐÃ có (GET /api/v1/system/actions): một năng lực có thể vừa có action đã làm vừa chưa.
+export async function createMixClient(fallback: ActionClient, http: ActionClient, opts: { baseUrl?: string; fetchImpl?: typeof fetch } = {}): Promise<ActionClient> {
+  const res = await (opts.fetchImpl ?? fetch)(`${opts.baseUrl ?? ''}/api/v1/system/actions`).then((r) => r.json()).catch(() => null) as { ok?: boolean; data?: { implemented?: string[] } } | null;
+  const ids = res?.ok ? res.data?.implemented ?? [] : [];
+  return routeByCapability(Object.fromEntries(ids.map((id) => [id, http])), fallback);
 }
 
 /** Lỗi theo phong bì bizcity_api@1: mã chung + lý do cụ thể + gợi ý + mã tra cứu. */

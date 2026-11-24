@@ -78,7 +78,7 @@ describe.skipIf(!url)('API danh mục trên Postgres (cùng hợp đồng với 
   });
 
   it('action chưa có máy chủ ⇒ 501 CAKE_NOT_ON_SERVER (không giả vờ thành công)', async () => {
-    const { contactList } = await C();
-    await expect(c.call(contactList, { page: 1, pageSize: 50 })).rejects.toMatchObject({ code: 'CAPABILITY_MISSING', reason: 'CAKE_NOT_ON_SERVER' });
+    const { contactMerge } = await C(); // PHASE-007: đọc danh bạ / gợi ý đã có máy chủ ⇒ ví dụ là lệnh ghép (chưa làm)
+    await expect(c.call(contactMerge, { contactId: '01JDAC00000000000000000001', intoContactId: '01JDAC00000000000000000002', proof: { kind: 'human', userId: '7' } } as never)).rejects.toMatchObject({ code: 'CAPABILITY_MISSING', reason: 'CAKE_NOT_ON_SERVER' });
   });
 });

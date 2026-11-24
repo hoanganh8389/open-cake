@@ -1,6 +1,6 @@
 # BIZCITY-TOUCH v1 — `bizcity_touch@1`
 
-> **Phiên bản:** 0.1.0-draft · 2026-11-24 · **Trạng thái:** Nháp (đề xuất — chưa có mã) · **Chủ:** open-cake
+> **Phiên bản:** 0.1.0-draft · 2026-11-24 · **Trạng thái:** Nháp — **phía Cake có mã** (`apps/api/src/care/ingress.ts`, 2026-11-24); Cell / Hub chưa · **Chủ:** open-cake
 
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] C-TOUCH — một lần chạm khách từ kênh (Cell) vào Cake qua Hub; thay inbound_forward của zalo-hub-bridge cho bản web. -->
 
