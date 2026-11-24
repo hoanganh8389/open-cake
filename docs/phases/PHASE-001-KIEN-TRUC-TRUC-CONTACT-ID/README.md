@@ -1,9 +1,10 @@
 # PHASE-001 — Kiến trúc open-cake: CRM Deplao trên khung open-ketoan, trục `contact_id` xuyên mọi kênh
 
-<!-- [2026-11-24 Claude Opus 5.5] PHASE-018 — chủ (2026-11-24): "đóng tạm phase 17; nghiên cứu Phase 18 dựa trên kiến trúc, framework của repo open-ketoan, viết lại CRM Deplao lấy trọng tâm xuyên suốt lõi là trục contact id cho mọi nghiệp vụ dù đến từ mọi channel. Golden case: kết nối Facebook từ chat cá nhân, chat page, nhóm, comment. Automation / skill là việc của cell qua MCP. Không đi hướng đóng gói Electron như Deplao; đi hướng web online như open-ketoan, tiến tới kết hợp open-setup: multi db ⇒ one code base." -->
-<!-- [2026-11-24 Claude Opus 5.5] PHASE-001 — bản chép từ bizcity-twin-crm/docs/phases/PHASE-018 (nguồn gốc nghiên cứu). Từ nay bản này là bản chủ; PHASE-018 bên plugin WP chỉ trỏ sang đây. Repo = open-cake (chủ chốt 2026-11-24, Q018-5 đóng). -->
+<!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 — chủ (2026-11-24): "đóng tạm phase 17; nghiên cứu Phase 18 dựa trên kiến trúc, framework của repo open-ketoan, viết lại CRM Deplao lấy trọng tâm xuyên suốt lõi là trục contact id cho mọi nghiệp vụ dù đến từ mọi channel. Golden case: kết nối Facebook từ chat cá nhân, chat page, nhóm, comment. Automation / skill là việc của cell qua MCP. Không đi hướng đóng gói Electron như Deplao; đi hướng web online như open-ketoan, tiến tới kết hợp open-setup: multi db ⇒ one code base." -->
+<!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] PHASE-001 — bản chép từ bizcity-twin-crm/docs/phases/PHASE-018 (nguồn gốc nghiên cứu). Từ nay bản này là bản chủ; PHASE-018 bên plugin WP chỉ trỏ sang đây. Repo = open-cake (chủ chốt 2026-11-24, Q018-5 đóng). -->
 
-> **Trạng thái:** ☐ nghiên cứu kiến trúc — chờ chủ chốt D018-1…14 và Q018-1…6. Chưa có repo, chưa có mã.
+> **Đọc tiếp (bản chi tiết, 2026-11-24 chiều):** kiến trúc đã tách thành `docs/architecture/10…90`, hợp đồng `docs/contracts/`, lộ trình `docs/phases/README.md` (PHASE-002…014). Tên hợp đồng theo chuẩn `bizcity_<x>@MAJOR`; bảng `care_events` đổi tên `touch_events`; §4.5 G8 + canon §3: **không có root document id**, chuỗi qua `document_links`.
+> **Trạng thái:** ☐ nghiên cứu kiến trúc — chờ chủ chốt D018-1…14 và Q018-1…6. Repo đã tạo (open-cake), chưa có mã.
 > **Mục tiêu (một câu):** Một **ứng dụng web** `open-cake` (TypeScript · Fastify · PostgreSQL · React) có hình dáng **giống hệt open-ketoan** — một bản mã, mỗi site một database, Frappe Site Manager (open-setup) cấp site — trong đó **`contact_id` là trục duy nhất**: mọi tin nhắn, bình luận, thẻ, việc, đơn, giấy tờ từ **bất kỳ kênh nào** đều rơi về một `contact_id`, ghi vào **sổ chạm khách chỉ thêm**, và chỉ vào qua **một cửa**.
 > **Ngoài phạm vi:** AI trả lời / kịch bản / skill (việc của Cell qua MCP) · hoá đơn, công nợ (Open Kế Toán) · đơn hàng, thanh toán (Open Kiot / Open POS) · adapter kênh chạy trong CRM (kênh sống ở Cell / Hub) · Electron, bản cài máy khách · chuyển dữ liệu từ plugin WordPress hiện tại (phase sau).
 > **Thay thế gì:** định vị "Open CRM = plugin WordPress" ở PHASE-001 **giữ nguyên cho bản đang chạy** (001–016); phase này mở **đích đến mới** là web độc lập. Hai bản sống song song cho tới khi có phase chuyển dữ liệu (Q018-6).
@@ -18,7 +19,7 @@
 |---|---|---|
 | Monorepo | npm workspaces: `apps/api` (Fastify 5, Kysely, pg, zod, jose), `apps/web` (React 18, Vite, react-query), `packages/{contracts, platform, kernel, module-sdk, ui-kit, cli, vn-rulepacks}`, `modules/*`, `db/migrations/*.sql`, `tests/conformance/selfcheck.mjs`, `docker/`, `infrastructure/` | **Nguyên cây**, đổi `kernel` → `care-kernel`, bỏ `vn-rulepacks` |
 | Một cửa ghi | `packages/kernel/src/index.ts:32-55` `postDocumentIn / submitDocumentIn`; `document.service.ts:9-23` lock(docKey) → cùng version = `unchanged` → cũ hơn = reject → đảo + lưu `accounting_event_versions` → post → emit | **Cùng thuật toán**, đổi tên: `submitTouchIn` |
-| Khoá tự nhiên | `accounting_events UNIQUE(tenant_id, doc_key)` + `version` (`0005:546`); `action_requests UNIQUE(tenant_id, action_id, idem_key)` (`0035:21`) | `care_events UNIQUE(tenant_id, source, doc_key)` |
+| Khoá tự nhiên | `accounting_events UNIQUE(tenant_id, doc_key)` + `version` (`0005:546`); `action_requests UNIQUE(tenant_id, action_id, idem_key)` (`0035:21`) | `touch_events UNIQUE(tenant_id, source, doc_key)` |
 | Chỉ thêm | trigger cấm UPDATE/DELETE/TRUNCATE `ledger_lines…` (`0006:640-682`); đảo một lần qua UNIQUE `reverses_entry_id`; audit hash-chain (`0036`) | trigger y hệt trên `touch_ledger` |
 | Outbox | `event_outbox` (uuid v7, `seq`, `dedupe_key`, cấm UPDATE) · `event_deliveries PK(consumer, event_id)` · `event_consumptions` (`0039:12-60`); runtime `platform/src/core/events.ts` `emitEvent` cùng giao dịch, `dispatchOnce` `SKIP LOCKED`, 8 lần / 5 s → 1 h, giữ 90 ngày; `defineSubscriber`; webhook HMAC cho app ngoài (`apps.ts`) | **Nguyên** |
 | Đa đơn vị | `tenants` + RLS FORCE 84 bảng `bizcity_tenant_visible()` (`0041`); `set_config('bizcity.tenant_id')` khi mượn kết nối (`db/client.ts:33-48`); JWT `tid/sub/role/sv`, `X-Api-Key` một tenant; R-TEN-1 không nhận `tenantId` từ input | **Nguyên** |
@@ -63,12 +64,12 @@ Không tìm thấy API chính thức ghép PSID ↔ user id cá nhân ↔ `from.
 │  packages/platform  ← y hệt open-ketoan: auth · actions · events(outbox) · db(router) · RLS  │
 │  packages/care-kernel  ← thay accounting-kernel:                                             │
 │      contacts · contact_identities · channel_accounts · conversations                        │
-│      care_events (một cửa)  →  touch_ledger (chỉ thêm)  →  contact_state (dẫn xuất)          │
-│  packages/contracts   unified-touch@1 · channel-command@1 · contact-link@1 · bizcity_module@1 │
+│      touch_events (một cửa)  →  touch_ledger (chỉ thêm)  →  contact_state (dẫn xuất)          │
+│  packages/contracts   bizcity_touch@1 · bizcity_channel_command@1 · bizcity_contact@1 · bizcity_module@1 │
 │  modules/  inbox · contacts · broadcast · tasks · (cộng đồng)                                 │
 │  db: cake_control (registry)  ·  cake_template  ·  cake_<slug> × N                              │
 └──────────────────────────────────────────────────────────────────────────────────────────────┘
-          ▲ unified-touch@1 (ký, idempotent)              │ channel-command@1 (gửi, reply, private-reply)
+          ▲ bizcity_touch@1 (ký, idempotent)              │ bizcity_channel_command@1 (gửi, reply, private-reply)
           │                                               ▼
    ZaloHub Cell  ── zca-js (Zalo cá nhân) · fbchat-v2 bridge (FB cá nhân, PHASE-017) · Meta webhooks (Page / feed / group_feed) · Zalo OA
 ```
@@ -98,7 +99,7 @@ Ba đường **không** có: CRM → provider trực tiếp · CRM gọi LLM · 
 | `contact_identities` | chìa khoá ghép | `identity_id`, `contact_id`, `channel` (`zalo_personal\|zalo_oa\|facebook_personal\|facebook_page\|facebook_group\|facebook_comment\|phone\|email\|web`), `scope` (vd `page:<page_id>`, `account:<acc_id>`, `global`), `external_id`, `display_name`, `confidence` (`proven\|asserted\|guessed`), `proof` (JSON: `kind`, `event_id`), `valid_from`, `valid_to` · UNIQUE `(tenant_id, channel, scope, external_id)` WHERE `valid_to IS NULL` | đổi contact của một identity = đóng dòng (`valid_to`) + mở dòng mới, cùng giao dịch, có `proof`. Không ghép theo tên |
 | `channel_accounts` | tài khoản doanh nghiệp | `channel_account_id`, `channel`, `kind personal\|page\|group\|oa`, `external_account_id`, `label`, `owner_user_id`, `cell_ref` (id bên Cell), `status`, `capabilities` (JSON từ Cell) | CRM **không giữ** cookie / token / khoá; chỉ `cell_ref` |
 | `conversations` | luồng | `conversation_id`, `channel_account_id`, `external_thread_id`, `contact_id`, `kind dm\|comment_thread\|group_thread`, `anchor` (JSON: `post_id`, `comment_id`), `last_in_at`, `last_out_at`, `window_until` (24 h Page) · UNIQUE `(tenant_id, channel_account_id, external_thread_id)` | đổi `contact_id` chỉ qua op MERGE / RELINK, ghi sổ |
-| `care_events` | **một cửa** | `event_id` uuid v7, `source`, `doc_key`, `version`, `type`, `payload` JSONB, `actor`, `correlation_id`, `received_at`, `status` · UNIQUE `(tenant_id, source, doc_key)` | như `accounting_events`: cùng version ⇒ `unchanged`; nhỏ hơn ⇒ 409; lớn hơn ⇒ đảo dòng cũ, lưu `care_event_versions` |
+| `touch_events` | **một cửa** | `event_id` uuid v7, `source`, `doc_key`, `version`, `type`, `payload` JSONB, `actor`, `correlation_id`, `received_at`, `status` · UNIQUE `(tenant_id, source, doc_key)` | như `accounting_events`: cùng version ⇒ `unchanged`; nhỏ hơn ⇒ 409; lớn hơn ⇒ đảo dòng cũ, lưu `touch_event_versions` |
 | `touch_ledger` | **sổ chỉ thêm** | `touch_id`, `event_id` NOT NULL, `contact_id` NOT NULL, `conversation_id`, `channel_account_id`, `kind`, `direction in\|out\|none`, `qty ±1`, `is_reversal`, `reverses_id` UNIQUE, `dims` JSONB (nhân viên, chiến dịch, thẻ, giai đoạn), `at` | trigger cấm UPDATE/DELETE/TRUNCATE (chép `0006:640-682`); mọi báo cáo đọc từ đây |
 | `messages` | nội dung | `message_id`, `touch_id`, `external_message_id`, `body`, `attachments` JSONB (ref có TTL, không khoá E2EE), `e2ee`, `delivery accepted\|sent\|delivered\|read\|failed\|unknown` | nội dung tách khỏi sổ; `delivery` chỉ đổi qua event `delivery.updated` |
 | `contact_state` | dẫn xuất | `contact_id` PK, `stage`, `tags`, `owner_user_id`, `last_in_at`, `last_out_at`, `unanswered`, `channels` (JSON đếm theo kênh), `rev` | cập nhật cùng giao dịch với dòng sổ; `bizcity crm rebuild-state` dựng lại được |
@@ -106,11 +107,11 @@ Ba đường **không** có: CRM → provider trực tiếp · CRM gọi LLM · 
 
 **Mười bảng lõi.** Pipeline / SLA / hoá đơn / đơn hàng **không** vào lõi (module hoặc dự án khác).
 
-### 4.2 Hợp đồng `unified-touch@1` (Cell / Hub → CRM) — thay cho `inbound_forward` của `zalo-hub-bridge`
+### 4.2 Hợp đồng `bizcity_touch@1` (Cell / Hub → CRM) — thay cho `inbound_forward` của `zalo-hub-bridge`
 
 ```json
 {
-  "contract": "unified-touch@1",
+  "contract": "bizcity_touch@1",
   "event_id": "01J…",
   "type": "message.received",
   "occurred_at": "2026-11-24T08:00:00Z",
@@ -135,7 +136,7 @@ Ba đường **không** có: CRM → provider trực tiếp · CRM gọi LLM · 
 - `site_id` do **Hub tra từ khoá đã xác thực**, không tin payload. Ký HMAC + timestamp + nonce ở Hub → CRM (việc 017.H1 chuyển sang đây, bắt buộc ở web).
 - Phản hồi CRM: `{status: unchanged|accepted|conflict, touch_id?, contact_id}` — Cell không cần biết contact.
 
-### 4.3 Hợp đồng `channel-command@1` (CRM → Hub → Cell)
+### 4.3 Hợp đồng `bizcity_channel_command@1` (CRM → Hub → Cell)
 
 `message.send · comment.reply · comment.private_reply · thread.mark_read · history.sync` với `idempotency_key = crm:<touch_id>:send:<n>`, `channel_account_id`, `external_thread_id` hoặc `anchor`. Trạng thái trả về ba mức `accepted ≠ sent ≠ delivered`, hết giờ chờ ⇒ `unknown`, **không tự gửi lại** (giữ D017-6). Page quá 24 h ⇒ CRM từ chối trước khi gửi với lỗi `WINDOW_CLOSED` + gợi ý tag.
 
@@ -179,7 +180,7 @@ Xong G1–G8 trên site thử = **golden case PASS**.
 
 ### 4.7 Nhiều CSDL — chép PHASE-039, đổi tiền tố
 
-`SITE_MODE single|multi` · `CONTROL_DATABASE_URL` (`cake_control`) · `SITE_TEMPLATE_DB=cake_template` · `SITE_ADMIN_HOST` · `/_sites/v1` cùng hợp đồng `bizcity_site_provisioning@1` · vai trò `cake_<slug>_app` · JWT `sid` · `SITE_CONTEXT_MISSING` · cổng `schema_version`. Khác duy nhất: Cell / Hub cần biết **tên miền site** để gửi `unified-touch` ⇒ registry thêm `site_domains.channel_ingress_url` do Hub đọc (Q018-3).
+`SITE_MODE single|multi` · `CONTROL_DATABASE_URL` (`cake_control`) · `SITE_TEMPLATE_DB=cake_template` · `SITE_ADMIN_HOST` · `/_sites/v1` cùng hợp đồng `bizcity_site_provisioning@1` · vai trò `cake_<slug>_app` · JWT `sid` · `SITE_CONTEXT_MISSING` · cổng `schema_version`. Khác duy nhất: Cell / Hub cần biết **tên miền site** để gửi `bizcity_touch@1` ⇒ registry thêm `site_domains.channel_ingress_url` do Hub đọc (Q018-3).
 
 **"One code base" đi tới đâu:** bước 1 (phase này) open-crm là repo riêng **cùng khung**; bước 2 open-setup cấp cả hai sản phẩm; bước 3 (ngoài phase) nếu chủ muốn **một** tiến trình chạy cả kế toán và CRM thì `packages/platform` phải thành gói chung (Q018-1).
 
@@ -191,9 +192,9 @@ Bảng dịch ở PHASE-001 §4 vẫn đúng cho giao diện. Đổi ở **rail*
 
 ```text
 open-crm/
-├── apps/api        Fastify · /api/v1 · /mcp · /_sites/v1 · /ingress/v1 (unified-touch, ký HMAC)
+├── apps/api        Fastify · /api/v1 · /mcp · /_sites/v1 · /ingress/v1 (bizcity_touch@1, ký HMAC)
 ├── apps/web        React · 13 màn Deplao + Contact 360 + Kênh
-├── packages/contracts     zod: unified-touch@1 · channel-command@1 · contact-link@1 · care-event@1
+├── packages/contracts     zod: bizcity_touch@1 · bizcity_channel_command@1 · bizcity_contact@1 · bizcity_touch@1
 ├── packages/platform      ← fork có ghi nguồn từ open-ketoan (auth · actions · events · db router · RLS · settings)
 ├── packages/care-kernel   contacts · identities · resolver · submitTouchIn · ledger · state · merge
 ├── packages/module-sdk    ← fork
@@ -216,8 +217,8 @@ open-crm/
 | **D018-3** | **Danh tính tách khỏi contact** (`contact_identities` có `scope`, `confidence`, `proof`, `valid_from/to`) | PSID theo Page, UID cá nhân toàn cục, `from.id` chưa rõ — không thể là một cột |
 | **D018-4** | **Không ghép theo tên.** Ghép tự động chỉ với bằng chứng `proven` (phone / email / private-reply handshake); còn lại nhân viên xác nhận | tránh gửi nhầm người; luật đã có ở ARCH §5.5 |
 | **D018-5** | **Một cửa** `submitTouchIn` với `(source, doc_key, version)`; **sổ chỉ thêm** `touch_ledger` với trigger và dòng đảo; dẫn xuất cùng giao dịch | chép nguyên trụ I–IV của open-ketoan |
-| **D018-6** | **Kênh sống ở Cell / Hub.** CRM không cầm cookie, token Page, khoá E2EE; chỉ nhận `unified-touch@1` đã ký và gửi `channel-command@1` | ARCH §2; PHASE-017 Z2/Z3 giữ nguyên vai Cell |
-| **D018-7** | Thay `zalo-hub-bridge/inbound_forward` bằng `unified-touch@1` **cho open-crm web**; plugin WordPress hiện tại **không đổi** | hợp đồng mới cho nền mới, không phá site đang chạy |
+| **D018-6** | **Kênh sống ở Cell / Hub.** CRM không cầm cookie, token Page, khoá E2EE; chỉ nhận `bizcity_touch@1` đã ký và gửi `bizcity_channel_command@1` | ARCH §2; PHASE-017 Z2/Z3 giữ nguyên vai Cell |
+| **D018-7** | Thay `zalo-hub-bridge/inbound_forward` bằng `bizcity_touch@1` **cho open-crm web**; plugin WordPress hiện tại **không đổi** | hợp đồng mới cho nền mới, không phá site đang chạy |
 | **D018-8** | Comment Facebook là identity **riêng** scope `comment:<page_id>`; chỉ nối với PSID qua private-reply handshake | Meta không khai không gian của `from.id` |
 | **D018-9** | **Nhiều CSDL theo PHASE-039** y nguyên: site = database, `SITE_MODE`, control DB, Provisioning API cùng hợp đồng, xoá mềm, cổng lược đồ | open-setup cấp CRM mà không học hợp đồng mới |
 | **D018-10** | Automation / skill / AI = **Cell qua MCP** (`/mcp` tool từ action `expose.mcp`, ghi cần `confirm_token`). CRM phát sự kiện ra webhook HMAC cho Cell | chủ chốt; R-OC-BRAIN-1 giữ |
@@ -235,7 +236,7 @@ open-crm/
 | Q018-3 | Hub tìm site CRM để gửi touch bằng gì: Hub giữ bảng `site → ingress_url` riêng, hay hỏi registry `/_sites/v1/sites/{id}` của CRM? | Hub giữ bảng riêng, cập nhật khi site `active` (webhook từ Provisioning job) — Hub không đọc control DB |
 | Q018-4 | `from.id` của comment Page và comment Group trùng nhau có coi là cùng người không? | **asserted**, không proven, cho tới khi kiểm được trên Page thử |
 | Q018-5 | ~~Tên repo~~ — **chốt 2026-11-24: repo web = `open-cake`**, plugin WP giữ tên `open-crm`, hai bản song song theo [canon §6](../../canon/BIZCITY-OPEN-CANON-v1.md) | — |
-| Q018-6 | Dữ liệu site WordPress đang dùng Open CRM plugin: chuyển sang web khi nào, hay plugin WP sống mãi làm "bản nhúng"? | plugin WP chạy tới khi web qua golden case; phase chuyển dữ liệu riêng (`crm-ledger@1` → `unified-touch@1` backfill) |
+| Q018-6 | Dữ liệu site WordPress đang dùng Open CRM plugin: chuyển sang web khi nào, hay plugin WP sống mãi làm "bản nhúng"? | plugin WP chạy tới khi web qua golden case; phase chuyển dữ liệu riêng (`crm-ledger@1` → `bizcity_touch@1` backfill) |
 
 ## 9. Đợt việc (W)
 
@@ -243,9 +244,9 @@ open-crm/
 |---|---|---|
 | **W0** | Chủ chốt D/Q; ADR-0001 open-crm "cùng khung open-ketoan, trục contact"; `docs/00-CANON.md` R-OC-* bản 1.0 | ADR được duyệt |
 | **W1** | Repo skeleton (fork platform, module-sdk, ui-kit, cli, selfcheck); `db/migrations/0001–0004` (nền + RLS, care-kernel, outbox, mcp); `submitTouchIn`, resolver, merge; `selfcheck --strict` SC-OC-* xanh | `npm test` + `selfcheck` PASS trên DB test; chưa có kênh |
-| **W2** | `/ingress/v1` nhận `unified-touch@1` ký HMAC; Cell zalo-hub phát `unified-touch` **song song** `inbound_forward` (cờ theo tenant); màn Hộp thư + Danh bạ + Contact 360 đọc sổ | một số Zalo thật ⇒ tin vào / ra hiện ở web, replay không trùng |
+| **W2** | `/ingress/v1` nhận `bizcity_touch@1` ký HMAC; Cell zalo-hub phát `bizcity_touch@1` **song song** `inbound_forward` (cờ theo tenant); màn Hộp thư + Danh bạ + Contact 360 đọc sổ | một số Zalo thật ⇒ tin vào / ra hiện ở web, replay không trùng |
 | **W3** | FB Page + comment qua API chính thức: Cell nhận webhook Meta, phát `comment.received`, `message.received` scope page; `comment.private_reply`; resolver 2b | G1–G4 PASS |
-| **W4** | Mở lại PHASE-017 (fbchat-v2 bridge) phát `unified-touch` cho `facebook_personal` | G5 PASS |
+| **W4** | Mở lại PHASE-017 (fbchat-v2 bridge) phát `bizcity_touch@1` cho `facebook_personal` | G5 PASS |
 | **W5** | `SITE_MODE=multi`, control DB, Provisioning API, open-setup thêm `product` | open-setup tạo site CRM, site A không thấy site B |
 | **W6** | Group feed, màn Kênh đủ 5 thẻ, Ghép / Tách, báo cáo theo kênh, MCP tools R0–R2 | G6–G8 PASS; Cell gọi `/mcp` đọc contact và nháp tin |
 
@@ -255,7 +256,7 @@ Trên một site `cake_<slug>` do open-setup cấp, chạy cùng bản mã với
 
 1. Golden case G1–G8 PASS, có `evidence/golden-fb-<ngày>.md` (log che PSID một phần).
 2. `selfcheck --strict`: sổ chỉ thêm, một cửa, identity duy nhất theo `(channel, scope, external_id)`, không ghép theo tên, RLS FORCE mọi bảng, outbox cùng giao dịch.
-3. Phát lại 1 000 `unified-touch` trùng ⇒ 0 dòng sổ mới; đổi version một event ⇒ đúng một dòng đảo + một dòng mới.
+3. Phát lại 1 000 `bizcity_touch@1` trùng ⇒ 0 dòng sổ mới; đổi version một event ⇒ đúng một dòng đảo + một dòng mới.
 4. `bizcity crm rebuild-state` dựng lại `contact_state` bằng đúng bản đang có.
 5. Không có cookie / token / khoá nào trong database CRM, log API, hay payload outbox.
 6. Site B không đọc được contact site A (test `sid` chéo ⇒ 401; Host lạ ⇒ 404).

@@ -1,27 +1,48 @@
 # AGENTS.md — open-cake
 
-<!-- [2026-11-24 Claude Opus 5.5] INIT — nếp làm việc kế thừa open-ketoan AGENTS.md; luật cấp trên là BIZCITY OPEN CANON. -->
+<!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] INIT — nếp làm việc kế thừa open-ketoan AGENTS.md; luật cấp trên là BIZCITY OPEN CANON. -->
+<!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] AGENTS-0.2 — danh sách "trước khi xong việc" và "tự trượt khi review" theo open-ketoan AGENTS.md + RULE-REVIEW §7.2, thêm kiểm H-CAKE-*. -->
 
-Đọc theo thứ tự: [docs/canon/BIZCITY-OPEN-CANON-v1.md](docs/canon/BIZCITY-OPEN-CANON-v1.md) → [docs/00-CANON.md](docs/00-CANON.md) → ADR-0001 → phase đang mở.
+Đọc theo thứ tự: [canon chung](docs/canon/BIZCITY-OPEN-CANON-v1.md) → [00-CANON](docs/00-CANON.md) → [ADR-0001](docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md) → [architecture/10](docs/architecture/10-ARCHITECTURE.md) → phase đang mở ([phases/README](docs/phases/README.md)).
 
 ## Bốn câu không được quên
 
 1. **`contact_id` là trục.** Không bảng nào khoá theo id kênh.
 2. **Không ghép người theo tên.** Chỉ ghép khi có `proof`.
-3. **Kênh sống ở Cell.** Repo này không có cookie, token, khoá E2EE, không gọi LLM.
-4. **Một bản mã, mỗi site một database.** Không rẽ nhánh `if multi` trong nghiệp vụ.
+3. **Sổ chạm khách chỉ thêm, một cửa `submitTouchIn`.**
+4. **Kênh sống ở Cell.** Repo này không có cookie, token, khoá E2EE, không gọi LLM, không nộp sổ kế toán.
 
-## Nếp
+## Bước 0 — nhận việc (R-FLOW)
 
-- **R-FLOW:** claim việc ở `docs/phases/CLAIMS.md` trước khi code. Trùng phạm vi ⇒ dừng, hỏi.
-- **R-SIG:** mọi sửa đổi chức năng mang dấu `[YYYY-MM-DD HH:MM AM/PM Johnny Chu - Chu Hoàng Anh] <CODE> — …` (giờ máy thật, không ghi tên agent, không sửa dấu cũ).
-- **R-LEAN-4:** Contract → Code → Test → Record. Mỗi màn ≤ 4 bước, 4 trạng thái.
-- **Khung mã:** như open-ketoan — `apps/api`, `apps/web`, `packages/*`, `modules/*`, `db/migrations/*.sql` (SQL là sự thật), `tests/conformance/selfcheck.mjs`. File < 200 dòng, kebab-case, định danh tiếng Anh, chú thích tiếng Việt.
-- **Module mới:** chỉ trong `modules/<key>/`; không đụng `packages/*`.
-- **Trước khi nói xong:** `npm run typecheck`, `npm test`, `node tests/conformance/selfcheck.mjs --strict`.
-- **Bản quyền:** mỗi file mã mới bắt đầu bằng `// Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.`
-- **Số liệu:** chưa có nguồn hiện "—" kèm lý do. Không "Đã kết nối" giả.
+`node scripts/nhan-viec.mjs` → claim trong `docs/phases/CLAIMS.md` bằng PR chỉ tài liệu lên main → mới code. Một phạm vi một người; nhánh ≤ 1 ngày; trả claim trong cùng PR. Trùng phạm vi ⇒ dừng, hỏi.
+
+## Khi viết mã
+
+- Định danh tiếng Anh; chú thích, thông báo, tài liệu tiếng Việt. File < 200 dòng, kebab-case.
+- Mỗi file mã mới: `// Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.` + `// @bizcity-layer <platform|kernel|module|app|web>`.
+- **R-SIG:** mỗi sửa đổi chức năng mang dấu `[YYYY-MM-DD HH:MM AM/PM Johnny Chu - Chu Hoàng Anh] <CODE> — …` theo giờ máy thật (`date '+%Y-%m-%d %I:%M %p'`); **không bao giờ** ghi tên agent hay model; không sửa dấu cũ.
+- Route ghi = `defineAction` + `runAction`; lỗi = `Errors.*`; zod ở cửa; Kysely tham số hoá; migration lấy số bằng `node scripts/so-tiep-theo.mjs migration`.
+- Module mới chỉ ở `modules/<key>/`; không đụng `packages/*`; web module chỉ import `@bizcity/ui-kit`.
+- Chuẩn REST: [70-API-REST](docs/architecture/70-API-REST.md). Chuẩn React: [80-REACT](docs/architecture/80-REACT.md). Log / metric / trace: [30-OBSERVABILITY](docs/architecture/30-OBSERVABILITY.md).
+
+## Trước khi xong việc (chạy theo thứ tự)
+
+1. `node tests/conformance/selfcheck.mjs` — phải PASS (nợ mới **sửa**, không thêm vào `baseline.json`).
+2. `bash scripts/kiem-chuan.sh`
+3. `npm run typecheck`
+4. `npm test` (cần `docker compose up -d db`; luôn chạy trên `cake_test`, không bao giờ DB thật).
+5. `node scripts/so-tiep-theo.mjs kiem` (số migration / ADR không trùng).
+6. `npx bizcity module check <key>` nếu đụng module; `bizcity event check` phải `KẾT LUẬN: PASS` (SKIP ≠ PASS).
+7. Cập nhật tài liệu theo bảng "sửa X ⇒ sửa Y" (00-CANON); đăng ký khoá cài đặt mới; quyền mới đăng ký cùng PR.
+8. Liệt kê file framework đã sửa và xác nhận mỗi sửa có dấu R-SIG (thiếu = KHÔNG ĐẠT).
+9. Đụng care-kernel ⇒ dán khối bằng chứng (`tests/conformance/output/latest/evidence.txt`) vào PR, khai mức K0–K3.
+
+## Tự trượt khi review (KHÔNG ĐẠT)
+
+- Trục chấm T1 (sự thật sổ), T2 (ranh giới kernel), T4 (bảo mật / đơn vị), T5 (kiểm đầu vào), **T-CAKE (trục contact)** = 0; còn phát hiện chặn chưa sửa; selfcheck / test đỏ vì đóng góp.
+- **H-*** kế thừa: H-LEDGER, H-TRIGGER-OFF, H-LEDGERSVC, H-KERNEL-IMPORT, H-CROSS-MODULE, H-REPLY, H-SKIP, H-SECRET, H-MD-TABLE, H-METRIC-LABEL; R-LOG-1..4; R-REV-11 (dọn sổ); thiếu dấu R-SIG.
+- **H-CAKE-***: H-CAKE-CHANNEL-KEY (bảng khoá theo id kênh thay `contact_id`) · H-CAKE-NAME-MERGE (ghép theo tên) · H-CAKE-SECRET-COL (cột cookie / token / khoá) · H-CAKE-LLM (gọi nhà cung cấp LLM) · H-CAKE-LEDGER-INTAKE (nộp `bizcity_ledger_intake@1`) · H-CAKE-PII-LOG (nội dung tin / số điện thoại trong log, metric, sự kiện) · H-CAKE-RESEND (tự gửi lại khi `unknown`).
 
 ## Hai bản song song
 
-Plugin WordPress `open-crm` và `open-cake` **không** chung database, bảng, route. Chung: tên sản phẩm, token UI, luật, hợp đồng. Mỗi phase ghi rõ "áp dụng cho: WP · cake · cả hai".
+Plugin WordPress `open-crm` và `open-cake` **không** chung database, bảng, route. Chung: tên sản phẩm, token UI, luật, hợp đồng. Mỗi phase ghi "áp dụng cho: WP · cake · cả hai".

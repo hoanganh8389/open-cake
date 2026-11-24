@@ -1,6 +1,6 @@
 # open-cake — Bizcity Open Customer Framework
 
-<!-- [2026-11-24 Claude Opus 5.5] INIT — chủ (2026-11-24): tạo repo open-cake; web TypeScript cùng khung open-ketoan; trục contact_id; song song với plugin WordPress open-crm. -->
+<!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] INIT — chủ (2026-11-24): tạo repo open-cake; web TypeScript cùng khung open-ketoan; trục contact_id; song song với plugin WordPress open-crm. -->
 
 > **Open Cake** là bản **web** của Open CRM trong hệ Bizcity: một bản mã, mỗi site một database PostgreSQL, do `bizcity-open-setup` cấp site — cùng khung với [open-ketoan](https://github.com/hoanganh8389/open-ketoan). Trái tim là **sổ chạm khách chỉ thêm** và **`contact_id` là trục duy nhất**: tin nhắn, bình luận, thẻ, việc, đơn, giấy tờ từ **mọi kênh** (Zalo cá nhân, Zalo OA, Facebook cá nhân, Facebook Page, Facebook Group, comment, web, điện thoại) đều rơi về một người.
 >
@@ -12,9 +12,13 @@
 
 | Tài liệu | Một câu |
 |---|---|
-| [docs/canon/BIZCITY-OPEN-CANON-v1.md](docs/canon/BIZCITY-OPEN-CANON-v1.md) | **nguyên tắc chung giữa mọi repo Bizcity** — lời hứa thị trường, một app một trục, năm nguyên tắc sổ, danh tính xuyên app, hợp đồng, hình dáng chuẩn, hai bản song song, nếp làm việc, nghiệm thu hệ |
-| [docs/00-CANON.md](docs/00-CANON.md) | luật riêng `R-CAKE-*` của repo này |
-| [docs/phases/PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md](docs/phases/PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md) | kiến trúc: 10 bảng lõi, `submitTouchIn`, resolver danh tính, hợp đồng `unified-touch@1` / `channel-command@1`, golden case Facebook 4 mặt, nhiều CSDL, đợt W0–W6 |
+| [docs/canon/BIZCITY-OPEN-CANON-v1.md](docs/canon/BIZCITY-OPEN-CANON-v1.md) | **nguyên tắc chung giữa mọi repo Bizcity** — vì sao (per-agent, mã mở + dịch vụ), lời hứa thị trường, một app một trục, **bốn trục dữ liệu** (Master Data · Document · Accounting Events · Contact 360), Twin Brain kiểm chứng, hợp đồng `bizcity_*@N`, chuẩn REST / React / quan sát chung, hai bản song song, nghiệm thu hệ |
+| [docs/00-CANON.md](docs/00-CANON.md) | bốn câu không phá, luật `R-CAKE-*`, bảng luật kế thừa từ open-ketoan, bản đồ tài liệu |
+| [docs/architecture/](docs/architecture/10-ARCHITECTURE.md) | 10 tổng thể · 20 trục dữ liệu · 30 quan sát (Loki · Prometheus · Tempo · Grafana · Redis) · 40 người dùng & bảo mật · 50 triển khai Docker · 60 giao diện · 70 REST nội bộ · 80 React · 90 bài học từ open-ketoan |
+| [docs/contracts/](docs/contracts/README.md) | `bizcity_touch@1` · `bizcity_channel_command@1` · `bizcity_contact@1` |
+| [docs/phases/](docs/phases/README.md) | lộ trình PHASE-001…015, đường găng, golden case Facebook G1–G8 |
+| [docs/ui/](docs/ui/mockup-shots/) | 11 ảnh giao diện chủ duyệt + mã bản mẫu React |
+| [docs/reference/open-crm-wp/](docs/reference/open-crm-wp/README.md) | thiết kế gốc của Open CRM bản WordPress (sổ chăm sóc, kernel, UI lean) |
 | [docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md](docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md) | vì sao cùng khung open-ketoan, vì sao trục là contact |
 | [AGENTS.md](AGENTS.md) | nếp làm việc cho người và agent |
 

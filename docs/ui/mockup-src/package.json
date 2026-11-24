@@ -1,0 +1,20 @@
+{
+  "name": "open-crm-mockups",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Open CRM — bản mẫu giao diện React (PHASE-001…016). Số liệu giả lập.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2",
+    "vite-plugin-singlefile": "^2.0.2"
+  }
+}
