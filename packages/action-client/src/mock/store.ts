@@ -3,7 +3,7 @@
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: kho trong bộ nhớ của bộ giả lập, nạp từ bộ mẫu "Shop Hoa Mai" (GIẢ LẬP).
 //   Thêm một khách "Hương Nguyễn" đến từ Facebook cá nhân để màn Contact 360 diễn được ca vàng G5 (gợi ý cùng người ⇒ Ghép có bằng chứng).
 import type { z } from 'zod';
-import type { ContactLink, ContactSchema, ContactStateSchema, ConversationSchema, IdentitySchema, MessageSchema, TimelineItemSchema, ChannelAccountSchema } from '@open-cake/contracts';
+import type { ContactLink, RecordRow, ContactSchema, ContactStateSchema, ConversationSchema, IdentitySchema, MessageSchema, TimelineItemSchema, ChannelAccountSchema } from '@open-cake/contracts';
 import * as demo from '@open-cake/contracts/demo';
 
 type In<S extends z.ZodTypeAny> = z.input<S>;
@@ -18,6 +18,7 @@ export type Store = {
   messages: Record<string, In<typeof MessageSchema>[]>;
   timeline: Record<string, In<typeof TimelineItemSchema>[]>;
   merges: Record<string, { into: string; until: string; moved: { identities: string[]; conversations: string[] } }>;
+  records: RecordRow[];
   seq: number;
   now: () => Date;
 };
@@ -47,7 +48,22 @@ export function createStore(now: () => Date = () => new Date('2026-11-24T10:30:0
   const timeline: Store['timeline'] = { [demo.contacts[0]!.contactId]: clone(demo.timelineHuong) };
   timeline[c9] = [{ touchId: '88201', contactId: c9, kind: 'message', channel: 'facebook_personal', channelAccountId: demo.fid('A', 5), conversationId: null, direction: 'in', summary: 'Nhắn Facebook cá nhân của chủ shop: hỏi lịch giao', docRef: null, isReversal: false, at: '2026-11-24T10:05:00+07:00' }];
 
-  return { accounts: clone(demo.channelAccounts), contacts, states, meta, identities, links: {}, conversations, messages, timeline, merges: {}, seq: 1000, now };
+  return { accounts: clone(demo.channelAccounts), contacts, states, meta, identities, links: {}, conversations, messages, timeline, merges: {}, records: seedRecords(), seq: 1000, now };
+}
+
+/** Bản ghi lớp mềm mẫu (GIẢ LẬP): tin nhắn nhanh, nhãn, tài khoản ngân hàng — thay các bảng nhỏ của bản WP. */
+function seedRecords(): RecordRow[] {
+  const at = '2026-11-23T09:00:00+07:00';
+  const r = (n: number, type: string, title: string, data: Record<string, unknown>): RecordRow => ({ recordId: `rec-${n}`, type, title, status: 'active', data, updatedAt: at, updatedBy: '7' });
+  return [
+    r(1, 'cake.quick_reply', 'Chào khách mới', { title: 'Chào khách mới', shortcut: '/chao', body: 'Dạ shop chào chị ạ! Chị cần tư vấn mẫu nào ạ?' }),
+    r(2, 'cake.quick_reply', 'Báo phí ship', { title: 'Báo phí ship', shortcut: '/ship', body: 'Đơn từ 2 sản phẩm shop freeship toàn quốc ạ.' }),
+    r(3, 'cake.quick_reply', 'Xin địa chỉ', { title: 'Xin địa chỉ', shortcut: '/dc', body: 'Chị gửi giúp em địa chỉ và số điện thoại nhận hàng nhé!' }),
+    r(4, 'cake.label', 'Khách VIP', { name: 'Khách VIP', tone: 'warn' }),
+    r(5, 'cake.label', 'Đặt hàng', { name: 'Đặt hàng', tone: 'pri' }),
+    r(6, 'cake.label', 'Khách sỉ', { name: 'Khách sỉ', tone: 'out' }),
+    r(7, 'cake.saved_bank', 'Vietcombank', { bank: 'Vietcombank', account_no: '0071000123456', holder: 'NGUYEN THI LAN' }),
+  ];
 }
 
 /** ID giả đúng khuôn ULID cho bản ghi mới tạo trong giả lập. */

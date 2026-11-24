@@ -1,7 +1,7 @@
 # PHASE-003 — Hình thành UI/UX trên hợp đồng (chạy với dữ liệu giả lập)
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — chủ (2026-11-24): hình thành UI/UX trước; giao diện chạy trên action + schema của PHASE-002 với bộ giả lập, chưa cần backend. -->
 
-> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ◐ 2026-11-24 — S003-1..8 xong, S003-10 ảnh build có (Edge headless); còn S003-9 RecordTypeScreen và phép so ≥ 90 % bằng máy · **Phụ thuộc:** 002
+> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☑ 2026-11-24 — S003-1..10 xong (ảnh build bằng Edge headless); nợ chuyển tiếp: phép so ≥ 90 % bằng máy, i18n (R-WEB-11) · **Phụ thuộc:** 002
 > **Mục tiêu:** `apps/web` chạy được các màn lõi **giống ảnh duyệt** ([docs/ui/mockup-shots](../../ui/mockup-shots/)) nhưng mọi dữ liệu đi qua **client action** đúng hợp đồng (`useAction`, `useQueryAction`) với **bộ giả lập** (mock adapter) — đổi sang backend thật = đổi adapter, không sửa màn.
 > **Ngoài phạm vi:** backend, đăng nhập thật, kênh thật.
 
@@ -49,4 +49,12 @@ npm run web:build      → 123 module, js 321 kB (gzip 97 kB), css 28 kB
 
 **Không làm giả:** thanh Send Guard ghi "—" + phase; "Ngắt kết nối" không hiện vì hợp đồng chưa có action; Báo cáo / Chiến dịch / Kịch bản / Công việc / Ứng dụng / Cài đặt hiện thẻ "Chưa có ở bản này" nêu phase; tiêu đề có huy hiệu "Bản giả lập".
 
-**Còn lại:** S003-9 `RecordTypeScreen` tự sinh từ registry lớp mềm · phép so ảnh build với ảnh chuẩn bằng máy (đếm phần tử) · chuỗi giao diện vào `i18n/vi.ts` (R-WEB-11, nợ) · chọn bằng chứng `phone` / `email` khi ghép hiện chưa đối chiếu danh tính thật — máy chủ kiểm ở PHASE-005.
+**Còn lại (nợ chuyển sang PHASE-007):** phép so ảnh build với ảnh chuẩn bằng máy (đếm phần tử) · chuỗi giao diện vào `i18n/vi.ts` (R-WEB-11, nợ) · chọn bằng chứng `phone` / `email` khi ghép hiện chưa đối chiếu danh tính thật — máy chủ kiểm ở PHASE-005.
+
+### S003-9 — RecordTypeScreen (2026-11-24)
+<!-- [2026-11-24 04:17 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-9 xong -->
+
+- Hợp đồng: 4 action `core.record.list|create|update|archive` + `recordDataSchema(spec)` dựng zod từ khai báo trường — máy chủ và form dùng chung một hàm; danh mục app = 23 action (`appCatalog`).
+- Giao diện: `#/settings` liệt kê record_type từ registry; `#/records/<loại>` là màn **tự sinh** (cột, form, kiểm, lưu trữ thay xoá, che trường `pii`). Thêm một loại bản ghi = thêm một khai báo, không viết màn.
+- Tái sử dụng thật: nút ⚡ **Tin nhắn nhanh** trong khung chat đọc `cake.quick_reply` qua chính `core.record.list` — không bảng, không API riêng.
+- Ảnh: [settings](evidence/build-shots/settings.png) · [tin nhắn nhanh](evidence/build-shots/records-quick-reply.png) · [tài khoản ngân hàng](evidence/build-shots/records-saved-bank.png). Kiểm: 42/42 test, typecheck 4 gói 0 lỗi.

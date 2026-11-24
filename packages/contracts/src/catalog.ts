@@ -1,0 +1,9 @@
+// Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
+// @bizcity-layer contracts
+// [2026-11-24 04:17 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-9: danh mục action đầy đủ của app = action cake + action lớp mềm (core.record.*).
+import { createActionCatalog } from './base/action.js';
+import { CAKE_ACTIONS } from './cake/actions.js';
+import { FLEX_ACTIONS } from './flex/records.js';
+
+export const ALL_ACTIONS = [...CAKE_ACTIONS, ...FLEX_ACTIONS] as const;
+export const appCatalog = createActionCatalog(ALL_ACTIONS);

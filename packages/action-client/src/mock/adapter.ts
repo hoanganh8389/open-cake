@@ -2,17 +2,18 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter giả lập — kiểm input bằng spec.input và kiểm output bằng spec.output
 //   ⇒ giao diện chỉ nhận dữ liệu đúng hợp đồng; giả lập lệch hợp đồng thì ném ngay (bắt sớm trôi hợp đồng). Kịch bản 4 trạng thái theo ?mock=.
-import { cakeCatalog, type ActionSpec } from '@open-cake/contracts';
+import { appCatalog, type ActionSpec } from '@open-cake/contracts';
 import { ApiError, type ActionClient, type CallResult } from '../client.js';
 import { contactHandlers } from './handlers-contacts.js';
 import { inboxHandlers } from './handlers-inbox.js';
+import { recordHandlers } from './handlers-records.js';
 import { createStore, isPaged, type Store } from './store.js';
 
 export type MockScenario = 'normal' | 'empty' | 'error' | 'denied' | 'slow';
-const HANDLERS = { ...inboxHandlers, ...contactHandlers };
+const HANDLERS = { ...inboxHandlers, ...contactHandlers, ...recordHandlers };
 
 /** Mọi action trong danh mục phải có handler giả lập (kiểm khi tạo client). */
-export const missingMockHandlers = () => Object.keys(cakeCatalog).filter((id) => !HANDLERS[id]);
+export const missingMockHandlers = () => Object.keys(appCatalog).filter((id) => !HANDLERS[id]);
 
 export function createMockClient(opts: { scenario?: MockScenario; latencyMs?: number; store?: Store } = {}): ActionClient & { store: Store } {
   const store = opts.store ?? createStore();

@@ -15,6 +15,8 @@ import { Contacts } from './screens/Contacts.js';
 import { Dashboard } from './screens/Dashboard.js';
 import { Inbox } from './screens/Inbox.js';
 import { NotYet, States } from './screens/Other.js';
+import { RecordTypeScreen } from './screens/RecordTypeScreen.js';
+import { Settings } from './screens/Settings.js';
 
 const params = new URLSearchParams(location.search);
 const scenario = (params.get('mock') ?? 'normal') as MockScenario;
@@ -30,6 +32,8 @@ function App() {
   else if (screen === 'channels') view = <Channels />;
   else if (screen === 'dashboard') view = <Dashboard />;
   else if (screen === 'states') view = <States />;
+  else if (screen === 'settings') view = <Settings />;
+  else if (screen === 'records' && id) view = <RecordTypeScreen key={id} typeKey={id} />;
   else view = <NotYet id={screen === 'soon' ? query.get('what') ?? '' : screen} />;
   return <Shell screen={screen} account={query.get('account')}>{view}</Shell>;
 }

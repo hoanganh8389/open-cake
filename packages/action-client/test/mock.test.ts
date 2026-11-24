@@ -96,3 +96,19 @@ describe('adapter http — dựng request từ expose.rest', () => {
     expect(buildRequest(conversationTag, { conversationId: 'X1', add: ['a'], remove: [] })).toEqual({ method: 'POST', url: '/api/v1/conversations/X1/tags', body: '{"add":["a"],"remove":[]}' });
   });
 });
+
+describe('lớp mềm core.record.* (R-CANON-15)', async () => {
+  const { recordArchive, recordCreate, recordList, recordUpdate } = await import('@open-cake/contracts');
+  it('tạo / sửa / lưu trữ đúng luật; loại chưa đăng ký bị chặn', async () => {
+    const c = createMockClient();
+    expect((await c.call(recordList, { type: 'cake.quick_reply', includeArchived: false })).data).toHaveLength(3);
+    const r = await c.call(recordCreate, { type: 'cake.quick_reply', data: { title: 'Cảm ơn', body: 'Shop cảm ơn chị ạ' } });
+    expect(r.data.title).toBe('Cảm ơn');
+    await expect(c.call(recordCreate, { type: 'cake.quick_reply', data: { title: '', body: 'x' } })).rejects.toMatchObject({ code: 'VALIDATION_ERROR', field: 'title' });
+    await expect(c.call(recordList, { type: 'cake.unknown', includeArchived: false })).rejects.toMatchObject({ reason: 'CAKE_RECORD_TYPE_UNKNOWN' });
+    await c.call(recordUpdate, { recordId: r.data.recordId, data: { title: 'Cảm ơn chị', body: 'Shop cảm ơn chị ạ' } });
+    await c.call(recordArchive, { recordId: r.data.recordId, archived: true });
+    expect((await c.call(recordList, { type: 'cake.quick_reply', includeArchived: false })).data).toHaveLength(3);
+    expect((await c.call(recordList, { type: 'cake.quick_reply', includeArchived: true })).data.find((x) => x.recordId === r.data.recordId)?.status).toBe('archived');
+  });
+});

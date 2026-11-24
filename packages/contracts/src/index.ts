@@ -13,3 +13,5 @@ export * from './cake/channel-command.js';
 export * from './cake/contact-contract.js';
 export * from './cake/actions.js';
 export * from './flex/registry.js';
+export * from './flex/records.js';
+export * from './catalog.js';
