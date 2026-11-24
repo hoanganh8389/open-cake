@@ -3,10 +3,10 @@
 // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 S016-1/5 — API của open-cake trên @bizcity/platform 0.2.0: request-context + phong bì lỗi của nền,
 //   32 route sinh từ action spec (9 danh mục chạy thật, còn lại 501 CAKE_NOT_ON_SERVER tới phase của nó), health / ready (cổng lược đồ R-SITE-9).
 import Fastify, { type FastifyInstance } from 'fastify';
-import { authPlugin } from '@bizcity/platform/core/auth';
+import { authOf, authPlugin, requirePermission } from '@bizcity/platform/core/auth';
 import { registerErrorHandler } from '@bizcity/platform/core/http';
 import { registerRequestContext } from '@bizcity/platform/core/request-context';
-import { pool } from '@bizcity/platform/db/client';
+import { db, pool } from '@bizcity/platform/db/client';
 import { pendingMigrations } from '@bizcity/platform/db/migrate';
 import { ALL_ACTIONS } from '@open-cake/contracts';
 import { catalogHandlers } from './catalog.js';
@@ -16,7 +16,7 @@ import { registerIngress } from './care/ingress.js';
 import { MIGRATION_SOURCES } from './migrate.js';
 import { registerCakeAuthz } from './auth/authz.js';
 import { registerAuthRoutes } from './auth/routes.js';
-import { registerActions } from './runtime.js';
+import { failure, registerActions } from './runtime.js';
 
 export const VERSION = '0.1.0';
 
@@ -37,6 +37,14 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
   const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
+  // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — tra một bằng chứng theo meta.receipt.evidenceId (trong đơn vị; không có nội dung, chỉ băm).
+  app.get<{ Params: { id: string } }>('/api/v1/evidence/:id', { preHandler: requirePermission('reports:read') }, async (req) => {
+    if (!/^[1-9][0-9]{0,18}$/.test(req.params.id)) throw failure('VALIDATION_ERROR', 'Mã bằng chứng không hợp lệ.', { field: 'id' });
+    const r = await db.selectFrom('audit_logs').select(['id', 'created_at', 'actor', 'actor_kind', 'action', 'object_type', 'object_id', 'result_ok', 'result_code', 'request_id', 'idempotency_key', 'input_hash', 'chain_seq', 'prev_hash', 'hash'])
+      .where('tenant_id', '=', authOf(req).tenantId).where('id', '=', req.params.id).executeTakeFirst();
+    if (!r) throw failure('NOT_FOUND', 'Không tìm thấy bằng chứng.');
+    return { ok: true, data: { ...r, id: String(r.id), created_at: new Date(r.created_at).toISOString() } };
+  });
   app.get('/api/v1/system/actions', { config: { public: true } }, async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
   registerIngress(app, opts.hub);
   return app;

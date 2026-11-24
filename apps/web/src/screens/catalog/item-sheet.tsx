@@ -7,6 +7,7 @@ import { ItemNameSchema, PriceSchema, SkuSchema, TAX_CODES, UNIT_NAMES, catalogC
 import { useAction, useQueryAction } from '@open-cake/action-client';
 import { Btn, Sheet } from '@open-cake/ui-kit';
 import { ActionErrorNote } from '../../app/QueryView.js';
+import { needPermission, useCan } from '../../app/permissions.js';
 import { TAX_LABEL } from './use-catalog.js';
 
 const err = (schema: { safeParse: (v: unknown) => { success: boolean; error?: { issues: { message: string }[] } } }, v: unknown) => schema.safeParse(v).error?.issues[0]?.message;
@@ -49,12 +50,13 @@ export function EditItemSheet({ it, readonly, onClose }: { it: Item; readonly: b
   const [chatName, setChatName] = useState(it.local.displayName ?? '');
   const [sellable, setSellable] = useState(it.local.sellable);
   const up = useAction(catalogItemUpdate);
+  const can = useCan('cake:catalog-sua'); // R-WEB-7
   const local = { ...((chatName || null) !== it.local.displayName ? { displayName: chatName || null } : {}), ...(sellable !== it.local.sellable ? { sellable } : {}) };
   const patch = { ...(!readonly && name !== it.name ? { name } : {}), ...(Object.keys(local).length ? { local } : {}) };
   const nameErr = !readonly && err(ItemNameSchema, name);
   return (
     <Sheet open onClose={onClose} title="Sửa hàng" sub={<><code>{it.sku}</code> · {it.baseUnit} · thuế {TAX_LABEL[it.taxCode]}</>}
-      footer={<><Btn onClick={onClose}>Huỷ</Btn><Btn pri disabled={!Object.keys(patch).length || !!nameErr || up.isPending} onClick={() => up.mutate({ itemId: it.itemId, patch }, { onSuccess: onClose })}>Lưu</Btn></>}>
+      footer={<><Btn onClick={onClose}>Huỷ</Btn><Btn pri disabled={!can || !Object.keys(patch).length || !!nameErr || up.isPending} title={can ? undefined : needPermission('cake:catalog-sua')} onClick={() => up.mutate({ itemId: it.itemId, patch }, { onSuccess: onClose })}>Lưu</Btn></>}>
       <Field label={readonly ? 'Tên hàng (Kế Toán giữ)' : 'Tên hàng *'} error={nameErr}>
         <input className="input mt8" value={name} maxLength={50} disabled={readonly} onChange={(e) => setName(e.target.value)} aria-label="Tên hàng" /></Field>
       <Field label="Tên khi chat"><input className="input mt8" value={chatName} maxLength={200} placeholder="để trống = dùng tên hàng" onChange={(e) => setChatName(e.target.value)} aria-label="Tên khi chat" /></Field>

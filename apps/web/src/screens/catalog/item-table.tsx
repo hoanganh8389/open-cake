@@ -6,12 +6,14 @@ import { catalogItemUpdate, type Item, type PriceRow } from '@open-cake/contract
 import { useAction } from '@open-cake/action-client';
 import { Ic } from '@open-cake/ui-kit';
 import { PriceCell } from './price-cell.js';
+import { needPermission, useCan } from '../../app/permissions.js';
 import { TAX_LABEL } from './use-catalog.js';
 
 function Sellable({ it }: { it: Item }) {
   const up = useAction(catalogItemUpdate);
+  const can = useCan('cake:catalog-sua'); // R-WEB-7
   return (
-    <input type="checkbox" aria-label="Bán trong CRM" checked={it.local.sellable} disabled={up.isPending}
+    <input type="checkbox" aria-label="Bán trong CRM" checked={it.local.sellable} disabled={up.isPending || !can} title={can ? undefined : needPermission('cake:catalog-sua')}
       onClick={(e) => e.stopPropagation()} onChange={(e) => up.mutate({ itemId: it.itemId, patch: { local: { sellable: e.target.checked } } })} />
   );
 }

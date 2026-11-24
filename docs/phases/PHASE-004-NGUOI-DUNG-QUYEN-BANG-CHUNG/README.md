@@ -27,7 +27,9 @@
 | S004-3 | ◐ | JWT của nền (`signSession`, thu hồi `session_version`); khoá API băm + phạm vi `cake:read` (test). Màn tạo / thu hồi khoá chưa |
 | S004-4 | ☑ | `POST /api/v1/auth/wp-sso` — **cùng khuôn vé open-ketoan** (một plugin cấp vé cho cả hai), giới hạn 30 lần sai / 15 phút; web `?sso=<vé>`; đăng nhập dev chỉ khi `CAKE_DEV_AUTH=1` |
 | (40-SECURITY §6) | ☑ | vai CSDL `cake_app` (NOLOGIN, không siêu người dùng), API `DB_SET_ROLE` ⇒ RLS có hiệu lực: test chứng minh siêu người dùng đọc chéo được còn vai ứng dụng thì không; **toàn bộ 93 test chạy dưới vai này** |
-| S004-5..7 | ☐ | phạm vi theo tài khoản kênh, bằng chứng `audit_logs` + `meta.receipt`, màn Nhân viên (cần mockup) |
+| S004-6 | ☑ | mỗi lệnh ghi = một dòng `audit_logs` (chuỗi băm của nền) cùng giao dịch; thất bại ghi `result_ok=false` sau khi quay lui; gửi lặp ⇒ `meta.replayed`, không thêm; `meta.receipt`; `GET /api/v1/evidence/:id` (`reports:read`); không lưu nội dung, chỉ `sha256` đầu vào — `apps/api/test/evidence.http.test.ts` |
+| R-WEB-7 | ☑ | `useCan` + quyền từ `/auth/me`: nút ghi khoá **kèm lý do** (Thêm hàng, giá, Bán trong CRM, lưu hàng, nhãn, gửi / trả lời, Ghép, Tách); ảnh `quyen-viewer-hang-hoa`, `quyen-viewer-hop-thu` |
+| S004-5, S004-7 | ☐ | phạm vi theo tài khoản kênh; màn Nhân viên (cần mockup) |
 
 Ảnh: [evidence/build-shots](evidence/build-shots/) `dang-nhap-dev-hop-thu`, `can-dang-nhap`. Test: `apps/api/test/auth.http.test.ts` (6 ca).
 

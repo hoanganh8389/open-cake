@@ -11,6 +11,7 @@ import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
 import { PricePicker, QuickReplies } from './composer-panels.js';
+import { needPermission, useCan } from '../app/permissions.js';
 
 const LABELS = Object.keys(TAG_LOOK);
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
@@ -47,6 +48,8 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [msgs.data]);
   const isComment = conv.kind === 'comment_thread';
+  const canWrite = useCan('cake:inbox-lap'); // R-WEB-7: gắn nhãn, gửi, trả lời
+  const why = canWrite ? undefined : needPermission('cake:inbox-lap');
   const submit = (mode?: 'public' | 'private') => {
     const t = text.trim();
     if (!t) return;
@@ -74,7 +77,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       <div className="dlabels">
         {LABELS.map((n) => {
           const on = conv.tags.includes(n);
-          return <span key={n} onClick={() => tag.mutate({ conversationId: conv.conversationId, add: on ? [] : [n], remove: on ? [n] : [] })}><Tag name={n} size="lg" on={on} check={on} /></span>;
+          return <span key={n} title={why} style={canWrite ? undefined : { cursor: 'not-allowed', opacity: 0.6 }} onClick={() => canWrite && tag.mutate({ conversationId: conv.conversationId, add: on ? [] : [n], remove: on ? [n] : [] })}><Tag name={n} size="lg" on={on} check={on} /></span>;
         })}
       </div>
       <div style={{ padding: '0 16px' }}><ActionErrorNote error={send.error ?? reply.error ?? tag.error} /></div>
@@ -86,8 +89,8 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
         <textarea className="input" style={{ flex: 1, minHeight: 44, resize: 'none', border: 0, fontSize: 16 }} value={text} disabled={busy}
           placeholder={isComment ? 'Trả lời bình luận… (Enter: trả lời công khai)' : 'Nhập tin, Shift+Enter xuống dòng, Enter gửi…'}
           onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} aria-label="Soạn tin" />
-        {isComment && <Btn out sm disabled={busy || !text.trim()} onClick={() => submit('private')}>Trả lời riêng</Btn>}
-        <Btn pri sm disabled={busy || !text.trim()} onClick={() => submit()}><Ic.send />{isComment ? 'Trả lời' : 'Gửi'}</Btn>
+        {isComment && <Btn out sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit('private')}>Trả lời riêng</Btn>}
+        <Btn pri sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit()}><Ic.send />{isComment ? 'Trả lời' : 'Gửi'}</Btn>
       </div>
       <div className="xs subtle row gap8" style={{ padding: '0 16px 8px' }}>Gửi qua <b>{via.label}</b><ChannelBadge channel={isComment ? 'facebook_comment' : via.channel} /></div>
     </section>

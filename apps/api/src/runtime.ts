@@ -63,31 +63,53 @@ const tenantOf = (): string => {
   return t;
 };
 
-/** Lệnh có Idempotency-Key: cùng khoá + cùng thân ⇒ trả lại kết quả cũ; cùng khoá khác thân ⇒ IDEMPOTENCY_CONFLICT. */
 const ctxOf = (req: FastifyRequest, tx: Db): Ctx => {
   const a = authOf(req);
   return { tx, tenantId: tenantOf(), actor: a.actor, userId: a.kind === 'user' ? a.actor.slice('user:'.length) : null };
 };
 
-async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: Handler): Promise<unknown> {
+// [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — bằng chứng (bizcity_evidence@1, 40-SECURITY §4): mỗi lệnh ghi = MỘT dòng audit_logs (chuỗi băm do trigger
+//   của nền), cùng giao dịch với việc ghi khi thành công; thất bại ghi sau khi đã quay lui (không che lỗi gốc). Không lưu nội dung — chỉ sha256 của đầu vào (PII).
+export type Receipt = { evidenceId: string; hash: string; at: string };
+const objectIdOf = (input: Any, out: unknown): string | null => {
+  const o = (out ?? {}) as Any;
+  return input.conversationId ?? input.contactId ?? input.itemId ?? input.recordId ?? o.itemId ?? o.recordId ?? null;
+};
+async function evidence(conn: Db, req: FastifyRequest, spec: ActionSpec, x: { inputHash: string; key: string | null; objectId: string | null; ok: boolean; code?: string }): Promise<Receipt> {
+  const a = authOf(req);
+  const r = await conn.insertInto('audit_logs').values({
+    tenant_id: tenantOf(), actor: a.actor, actor_kind: a.kind === 'apikey' ? 'apikey' : 'user', action: spec.id, object_type: spec.capability, object_id: x.objectId,
+    before_data: null, after_data: null, module_id: 'cake', request_id: String(req.id), correlation_id: currentRequest()?.correlationId ?? null, idempotency_key: x.key,
+    input_hash: `sha256:${x.inputHash}`, result_ok: x.ok, result_code: x.code ?? null,
+  }).returning(['id', 'hash', 'created_at']).executeTakeFirstOrThrow();
+  return { evidenceId: String(r.id), hash: r.hash ?? '', at: new Date(r.created_at).toISOString() };
+}
+
+/** Lệnh có Idempotency-Key: cùng khoá + cùng thân ⇒ trả lại kết quả cũ (replayed, không ghi bằng chứng mới); cùng khoá khác thân ⇒ IDEMPOTENCY_CONFLICT. */
+async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: Handler): Promise<{ out: unknown; meta: { receipt?: Receipt; replayed?: true } }> {
   const tenantId = tenantOf();
-  const key = req.headers['idempotency-key'];
-  if (typeof key === 'string' && !/^[\x21-\x7e]{8,128}$/.test(key)) throw failure('VALIDATION_ERROR', 'Idempotency-Key phải 8–128 ký tự in được.', { field: 'idempotency-key' });
-  const hash = createHash('sha256').update(JSON.stringify(input)).digest('hex');
-  return db.transaction().execute(async (tx) => {
-    if (typeof key === 'string' && key) {
-      const prev = await tx.selectFrom('action_requests').select(['request_hash', 'response']).where('tenant_id', '=', tenantId).where('action_id', '=', spec.id).where('idem_key', '=', key).executeTakeFirst();
-      if (prev) {
-        if (prev.request_hash !== hash) throw failure('IDEMPOTENCY_CONFLICT', 'Khoá chống gửi lặp đã dùng cho một yêu cầu khác.');
-        return prev.response;
+  const raw = req.headers['idempotency-key'];
+  if (typeof raw === 'string' && !/^[\x21-\x7e]{8,128}$/.test(raw)) throw failure('VALIDATION_ERROR', 'Idempotency-Key phải 8–128 ký tự in được.', { field: 'idempotency-key' });
+  const key = typeof raw === 'string' && raw ? raw : null;
+  const inputHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');
+  try {
+    return await db.transaction().execute(async (tx) => {
+      if (key) {
+        const prev = await tx.selectFrom('action_requests').select(['request_hash', 'response']).where('tenant_id', '=', tenantId).where('action_id', '=', spec.id).where('idem_key', '=', key).executeTakeFirst();
+        if (prev) {
+          if (prev.request_hash !== inputHash) throw failure('IDEMPOTENCY_CONFLICT', 'Khoá chống gửi lặp đã dùng cho một yêu cầu khác.');
+          return { out: prev.response, meta: { replayed: true as const } };
+        }
       }
-    }
-    const out = await h(ctxOf(req, tx), input);
-    if (typeof key === 'string' && key) {
-      await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: hash, status_code: 200, response: JSON.stringify(out) as never, actor: authOf(req).actor } as never).execute();
-    }
-    return out;
-  });
+      const out = await h(ctxOf(req, tx), input);
+      if (key) await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: inputHash, status_code: 200, response: JSON.stringify(out) as never, actor: authOf(req).actor } as never).execute();
+      return { out, meta: { receipt: await evidence(tx, req, spec, { inputHash, key, objectId: objectIdOf(input, out), ok: true }) } };
+    });
+  } catch (e) {
+    const err = fromKernel(e) as { code?: string };
+    try { await evidence(db, req, spec, { inputHash, key, objectId: objectIdOf(input, null), ok: false, code: err.code ?? 'INTERNAL_ERROR' }); } catch { /* bằng chứng thất bại không được che lỗi gốc */ }
+    throw err;
+  }
 }
 
 export function registerActions(app: FastifyInstance, specs: readonly ActionSpec[], handlers: Record<string, Handler>): void {
@@ -104,7 +126,11 @@ export function registerActions(app: FastifyInstance, specs: readonly ActionSpec
         const params = (req.params ?? {}) as Any;
         const body = method === 'GET' ? coerceQuery(spec.input, (req.query ?? {}) as Any) : ((req.body ?? {}) as Any);
         const input = spec.input.parse({ ...body, ...params }) as Any;
-        const out = await (spec.kind === 'command' ? runCommand(spec, req, input, h) : db.transaction().execute((tx) => h(ctxOf(req, tx), input))).catch((e) => { throw fromKernel(e); });
+        if (spec.kind === 'command') {
+          const { out, meta } = await runCommand(spec, req, input, h);
+          return ok(spec.output.parse(out), meta as never);
+        }
+        const out = await db.transaction().execute((tx) => h(ctxOf(req, tx), input)).catch((e) => { throw fromKernel(e); });
         const isPaged = typeof out === 'object' && out !== null && PAGED in out;
         const data = isPaged ? (out as Paged).data : out;
         return ok(spec.output.parse(data), isPaged ? ((out as Paged).meta as never) : undefined);

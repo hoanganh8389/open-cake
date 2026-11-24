@@ -6,12 +6,14 @@ import { PriceSchema, catalogPriceSet } from '@open-cake/contracts';
 import { useAction } from '@open-cake/action-client';
 import { Btn, Ic } from '@open-cake/ui-kit';
 import { vnd } from '../../app/format.js';
+import { needPermission, useCan } from '../../app/permissions.js';
 import { COMPANY } from './use-catalog.js';
 
 export function PriceCell({ itemId, unit, price, readonly }: { itemId: string; unit: string; price: number | null; readonly: boolean }) {
   const [v, setV] = useState<string | null>(null);
   const set = useAction(catalogPriceSet);
-  if (readonly) return <>{price === null ? <span className="subtle">—</span> : vnd(price)}</>;
+  const can = useCan('cake:catalog-gia'); // R-WEB-7
+  if (readonly || !can) return <span title={readonly ? undefined : needPermission('cake:catalog-gia')}>{price === null ? <span className="subtle">—</span> : vnd(price)}</span>;
   if (v === null) {
     return (
       <button type="button" className="price-cell" onClick={(e) => { e.stopPropagation(); setV(price === null ? '' : String(price)); }} title="Sửa giá">

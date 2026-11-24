@@ -10,6 +10,7 @@ import { hhmm } from '../../app/format.js';
 import { useRoute } from '../../app/route.js';
 import { EditItemSheet, NewItemSheet } from './item-sheet.js';
 import { ItemTable } from './item-table.js';
+import { needPermission, useCan } from '../../app/permissions.js';
 import { useCatalogSource, useCompanyPrices } from './use-catalog.js';
 
 const PAGE = 50;
@@ -31,6 +32,7 @@ export function Catalog() {
   const list = useQueryAction(catalogItemList, { q: q || undefined, categoryCode: cat || undefined, page, pageSize: PAGE, includeRetired: false });
   const total = list.meta?.total ?? 0;
   const ro = src.readonly;
+  const canAdd = useCan('cake:catalog-lap'); // R-WEB-7
   const close = () => setQuery({ item: null });
   return (
     <div className="page flush">
@@ -42,7 +44,7 @@ export function Catalog() {
           <option value="">Tất cả nhóm</option>{(cats.data ?? []).filter((c) => c.level === 3).map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
         </select>
         <Search placeholder="Tên hoặc mã…" sm style={{ width: 300 }} value={q} onChange={(v) => setQuery({ q: v, page: null })} />
-        {!ro && <Btn pri onClick={() => setQuery({ item: 'new' })}><Ic.plus />Thêm hàng</Btn>}
+        {!ro && <Btn pri disabled={!canAdd} title={canAdd ? undefined : needPermission('cake:catalog-lap')} onClick={() => setQuery({ item: 'new' })}><Ic.plus />Thêm hàng</Btn>}
       </div>
       <div className="grow" style={{ overflow: 'auto', padding: '0 32px 24px' }}>
         <QueryView q={list} empty={{ title: q || cat ? 'Không có hàng khớp bộ lọc' : 'Chưa có hàng nào', desc: 'Thêm hàng để gửi giá ngay trong chat — không cần Kế Toán.',

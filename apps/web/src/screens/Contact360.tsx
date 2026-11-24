@@ -9,6 +9,7 @@ import { Badge, Btn, Card, ChannelBadge, CHANNEL_LABEL, Face, Ic, Sheet, Tag, cx
 import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { when } from '../app/format.js';
 import { go } from '../app/route.js';
+import { needPermission, useCan } from '../app/permissions.js';
 
 const ME = '7'; // người dùng giả lập (PHASE-004 thay bằng phiên thật)
 const PROOF = [['human', 'Tôi xác nhận là cùng một người'], ['phone', 'Trùng số điện thoại đã xác minh'], ['email', 'Trùng email đã xác minh']] as const;
@@ -34,6 +35,8 @@ export function Contact360({ contactId }: { contactId: string }) {
   const sug = useQueryAction(contactSuggestions, { contactId });
   const merge = useAction(contactMerge);
   const unmerge = useAction(contactUnmerge);
+  const canMerge = useCan('cake:contacts-gop'); // R-WEB-7: ghép / tách là quyền rủi ro cao
+  const whyMerge = canMerge ? undefined : needPermission('cake:contacts-gop');
   const [pick, setPick] = useState<{ id: string; name: string } | null>(null);
   const [proof, setProof] = useState<(typeof PROOF)[number][0]>('human');
   const [merged, setMerged] = useState<{ id: string; name: string; until: string } | null>(null);
@@ -63,7 +66,7 @@ export function Contact360({ contactId }: { contactId: string }) {
               <div className="note ok mb16 row gap8" role="status">
                 Đã ghép <b>{merged.name}</b> vào khách này. Tách lại được tới {when(merged.until)}.
                 <span className="grow" />
-                <Btn sm out disabled={unmerge.isPending} onClick={() => unmerge.mutate({ contactId: merged.id }, { onSuccess: () => setMerged(null) })}>Tách lại</Btn>
+                <Btn sm out disabled={!canMerge || unmerge.isPending} title={whyMerge} onClick={() => unmerge.mutate({ contactId: merged.id }, { onSuccess: () => setMerged(null) })}>Tách lại</Btn>
               </div>
             )}
             <ActionErrorNote error={unmerge.error} />
@@ -78,7 +81,7 @@ export function Contact360({ contactId }: { contactId: string }) {
                       <div key={s.contactId} className="row gap8 mt16">
                         <Face name={s.displayName} size={40} />
                         <div className="grow"><b>{s.displayName}</b><div className="xs subtle">{CHANNEL_LABEL[s.identity.channel]} · {s.identity.externalId}</div></div>
-                        <Btn sm out onClick={() => setPick({ id: s.contactId, name: s.displayName })}>Ghép…</Btn>
+                        <Btn sm out disabled={!canMerge} title={whyMerge} onClick={() => setPick({ id: s.contactId, name: s.displayName })}>Ghép…</Btn>
                       </div>
                     ))}</>}
                   </QueryView>
