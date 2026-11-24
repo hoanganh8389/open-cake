@@ -1,5 +1,5 @@
 {
-  "schema": "bizcity_app@1-draft",
+  "schema": "bizcity_app@1",
   "id": "open-cake",
   "name": "Open Cake (Open CRM bản web)",
   "repo": "hoanganh8389/open-cake",
@@ -18,7 +18,7 @@
     "outbox": ["touch"],
     "reconcile": ["RC-SPINE-partner"]
   },
-  "contracts": ["bizcity_spine@1-draft", "bizcity_contact@1", "bizcity_touch@1", "bizcity_channel_command@1", "bizcity_master_data@1"],
+  "contracts": ["bizcity_spine@1", "bizcity_contact@1", "bizcity_touch@1", "bizcity_channel_command@1", "bizcity_master_data@1"],
   "docs": { "canon": "docs/canon/README.md" },
   "notes": "Chủ trục contact_id và sổ chạm khách. Khách phát sinh công nợ: gọi PUT /api/v1/partners/:code với code = CAKE-<contact_id>, lưu partner_ref một chiều (R-MD-1). Giai đoạn W1 chưa có máy chủ: replica item và outbox vào ở PHASE-016."
 }
