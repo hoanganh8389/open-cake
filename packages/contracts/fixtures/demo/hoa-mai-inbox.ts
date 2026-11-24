@@ -16,8 +16,8 @@ const rows: C[] = [
   [2, 3, 2, 'dm', 'Anh Khoa - sỉ HN', 'Anh lấy 20 bộ, báo giá sỉ giúp anh nha', '10:16', 2, ['Khách sỉ'], 'in'],
   [3, 1, 3, 'dm', 'Lê Thảo Vy', '[Hình ảnh]', '10:03', 1, ['Đặt hàng'], 'in'],
   [4, 2, 5, 'dm', 'Quỳnh Chi (phụ kiện)', 'Lấy 2 cái có freeship không shop?', '09:42', 0, ['Khách VIP'], 'out'],
-  [5, 4, 1, 'dm', 'Chị Hương (váy hoa)', 'Còn hàng không shop?', '08:00', 0, ['Khách VIP'], 'out'],
-  [6, 4, 1, 'comment_thread', 'Bình luận: Váy hoa Thu – Đông', 'Váy hoa này giá sao shop?', '07:40', 0, [], 'out'],
+  [5, 4, 1, 'dm', 'Chị Hương (váy hoa)', 'Còn hàng không shop?', '08:00', 1, ['Khách VIP'], 'in'],
+  [6, 4, 1, 'comment_thread', 'Bình luận: Váy hoa Thu – Đông', 'Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!', '07:45', 0, [], 'out'],
   [7, 1, 4, 'dm', 'Phạm Gia Bảo', 'File: Bao-gia-si-T10.pdf', '08:20', 0, ['Chờ phản hồi'], 'out'],
   [8, 2, 6, 'dm', 'Võ Thanh Tùng', 'Mẫu này còn size 42 không ạ?', '07:20', 0, [], 'out'],
   [9, 1, 7, 'dm', 'Hoàng Mỹ Linh', 'Cảm ơn shop, váy đẹp lắm ạ', '05:30', 0, ['Đặt hàng'], 'out'],
@@ -40,7 +40,15 @@ const thread1: Mm[] = [
   [false, '10:28', 'Dạ chị chuyển khoản rồi nhé, em check giúp chị'],
 ];
 
+const one = (conv: number, n: number, out: boolean, time: string, text: string): Message => ({
+  messageId: fid('M', n), conversationId: fid('V', conv), direction: out ? 'out' : 'in', text, attachments: [], at: at(time),
+  e2ee: false, delivery: out ? 'sent' : null, reaction: null, sentByUserId: out ? '7' : null,
+});
+
 export const messagesByConversation: Record<string, Message[]> = {
+  // Ca vàng G1–G4: bình luận dưới bài → shop trả lời riêng → khách nhắn Fanpage (thread mở từ trả lời riêng)
+  [fid('V', 6)]: [one(6, 61, false, '07:40', 'Váy hoa này giá sao shop?'), one(6, 62, true, '07:45', 'Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!')],
+  [fid('V', 5)]: [one(5, 51, true, '07:45', 'Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!'), one(5, 52, false, '08:00', 'Còn hàng không shop?')],
   [fid('V', 1)]: thread1.map(([out, time, text, extra], i) => ({
     messageId: fid('M', i + 1), conversationId: fid('V', 1), direction: out ? 'out' : 'in', text, attachments: [], at: at(time),
     e2ee: false, delivery: out ? 'sent' : null, reaction: null, sentByUserId: out ? '7' : null, ...extra,

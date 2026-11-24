@@ -15,8 +15,8 @@ type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { pri?: boolean; out?:
 export function Btn({ pri, out, ghost, danger, sm, icon, block, className, children, type = 'button', ...rest }: BtnProps) {
   return <button type={type} className={cx('btn', pri && 'pri', out && 'out', ghost && 'ghost', danger && 'danger', sm && 'sm', icon && 'icon', block && 'block', className)} {...rest}>{children}</button>;
 }
-export function Badge({ tone, dot, children, className, style }: { tone?: string; dot?: boolean; children?: ReactNode; className?: string; style?: CSSProperties }) {
-  return <span className={cx('badge', tone, className)} style={style}>{dot && <i className="dot" />}{children}</span>;
+export function Badge({ tone, dot, children, className, style, title }: { tone?: string; dot?: boolean; children?: ReactNode; className?: string; style?: CSSProperties; title?: string }) {
+  return <span className={cx('badge', tone, className)} style={style} title={title}>{dot && <i className="dot" />}{children}</span>;
 }
 export function Chip({ on, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { on?: boolean }) {
   return <button type="button" className={cx('chip', on && 'on')} {...rest}>{children}</button>;

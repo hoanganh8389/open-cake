@@ -6,7 +6,18 @@
 >
 > **Định hướng:** *Lõi khách hàng ổn định — Kênh sống ở Cell — Hợp đồng rõ ràng — Dữ liệu do người dùng kiểm soát.*
 
-**Trạng thái:** 🟡 khởi tạo — mới có tài liệu kiến trúc và canon, **chưa có mã**. Bản đang chạy của Open CRM là plugin WordPress [`open-crm`](https://github.com/hoanganh8389/open-crm); hai bản song song theo [BIZCITY OPEN CANON §10](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) (ở open-hub).
+**Trạng thái:** 🟡 W1 — nền hợp đồng (PHASE-002 ☑) và giao diện 6 màn trên hợp đồng với dữ liệu giả lập (PHASE-003 ◐). **Chưa có máy chủ** (PHASE-016 / 007). Bản đang chạy của Open CRM là plugin WordPress [`open-crm`](https://github.com/hoanganh8389/open-crm); hai bản song song theo [BIZCITY OPEN CANON §10](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) (ở open-hub).
+
+## Chạy thử (giả lập, chưa cần máy chủ)
+
+```bash
+npm install
+npm test            # 38 test hợp đồng + bộ giả lập
+npm run typecheck
+npm run web:dev     # http://localhost:5173/#/inbox — thêm ?mock=empty|error|denied|slow để xem 4 trạng thái
+```
+
+Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Contact 360 ca vàng Facebook) · `#/channels` · `#/dashboard` · `#/states`.
 
 ## Đọc theo thứ tự
 
