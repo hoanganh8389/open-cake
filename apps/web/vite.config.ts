@@ -3,4 +3,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({ plugins: [react()], server: { port: 5173 } });
+// [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — dev: /api sang API cục bộ (npm run api:dev hoặc compose).
+export default defineConfig({ plugins: [react()], server: { port: 5173, proxy: { '/api': 'http://localhost:8120' } } });

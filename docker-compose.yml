@@ -2,13 +2,51 @@
 # [2026-11-24 04:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — compose project "cake": hiện chỉ có web (bộ giả lập).
 #   PHASE-016 thêm db (postgres:16), db-migrate, api, redis (profile) theo architecture/50-DEPLOYMENT.md.
 #   Cổng mặc định 8110 (8088 ketoan, 8096–8099 okt-* đã dùng trên máy này).
+# [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 S016-6 — thêm db · db-migrate · api: migration nền @bizcity/platform + open-cake một trình chạy;
+#   API chỉ lên khi migrate xong; web chuyển /api sang api. Mở http://127.0.0.1:8110/?api=mix ⇒ Hàng hoá chạy máy chủ thật, màn khác còn giả lập.
+#   CAKE_SEED_DEV=1 (mặc định, máy dev) gieo đơn vị "hoa-mai" + bảng giá + nhóm hàng GIẢ LẬP; bản thật đặt 0. Redis (profile) để sau.
 name: cake
 
+x-log: &log { driver: json-file, options: { max-size: "10m", max-file: "3" } }
+x-db-env: &dbenv
+  DATABASE_URL: postgres://cake:${DB_PASSWORD:-cake-dev}@db:5432/cake
+  CAKE_TENANT: ${CAKE_TENANT:-hoa-mai}
+  JWT_SECRET: ${JWT_SECRET:?Đặt JWT_SECRET trong .env (xem .env.example) — nền chặn khoá mặc định ở bản production}
+
 services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_DB: cake, POSTGRES_USER: cake, POSTGRES_PASSWORD: "${DB_PASSWORD:-cake-dev}" }
+    volumes: [cake-db:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U cake -d cake"], interval: 3s, timeout: 3s, retries: 30 }
+    restart: unless-stopped
+    logging: *log
+
+  db-migrate:
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    image: open-cake-api:0.1.0
+    environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}" }
+    command: ["sh", "-c", "node --conditions=cake-dist dist/migrate.js && if [ \"$$CAKE_SEED_DEV\" = 1 ]; then node --conditions=cake-dist dist/seed-dev.js; fi"]
+    depends_on: { db: { condition: service_healthy } }
+    restart: "no"
+    logging: *log
+
+  api:
+    image: open-cake-api:0.1.0
+    environment: { <<: *dbenv, LOG_LEVEL: "${LOG_LEVEL:-info}" }
+    depends_on: { db-migrate: { condition: service_completed_successfully } }
+    ports:
+      - "${API_BIND:-127.0.0.1}:${API_PORT:-8120}:8120"
+    restart: unless-stopped
+    logging: *log
+
   web:
     build: { context: ., dockerfile: docker/web.Dockerfile }
     image: open-cake-web:0.1.0
     ports:
       - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8110}:80"
     restart: unless-stopped
-    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
+    logging: *log
+
+volumes:
+  cake-db:

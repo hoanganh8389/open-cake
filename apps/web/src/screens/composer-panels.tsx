@@ -37,6 +37,7 @@ export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
   const items = useQueryAction(catalogItemList, { q: q || undefined, sellableOnly: true, page: 1, pageSize: 8, includeRetired: false });
   const prices = useCompanyPrices();
   const rows = (items.data ?? []).flatMap((it) => { const p = prices.byItem.get(it.itemId); return p ? [{ it, p }] : []; });
+  // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chờ đủ hàng + giá rồi mới quyết "trống" (máy chủ thật trả hai lời gọi lệch nhau; giả lập thì không lộ).
   const pick = (i: number) => { const r = rows[i]; if (r) onPick(quoteLine(r.it, r.p.price, r.p.unit)); };
   return (
     <Panel>
@@ -47,7 +48,7 @@ export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
       }}>
         <Search placeholder="Tìm hàng để gửi giá…" sm value={q} onChange={(v) => { setQ(v); setAt(0); }} />
       </div>
-      <QueryView q={{ ...items, data: items.data ? rows : undefined }} empty={{ title: q ? 'Không có hàng khớp' : 'Chưa có hàng có giá', action: <Btn sm out onClick={() => go('catalog')}>Mở Hàng hoá</Btn> }}>
+      <QueryView q={{ ...items, isLoading: items.isLoading || prices.isLoading, error: items.error ?? prices.error, data: items.data && prices.data ? rows : undefined }} empty={{ title: q ? 'Không có hàng khớp' : 'Chưa có hàng có giá', action: <Btn sm out onClick={() => go('catalog')}>Mở Hàng hoá</Btn> }}>
         {(rs) => <>{rs.map(({ it, p }, i) => (
           <button type="button" key={it.itemId} className={`pick-row${i === at ? ' on' : ''}`} onMouseEnter={() => setAt(i)} onClick={() => pick(i)}>
             <b style={{ fontWeight: 500 }}>{it.local.displayName ?? it.name}</b><span className="xs subtle">{it.sku}</span><span className="p">{vnd(p.price)} / {p.unit}</span>

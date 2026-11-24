@@ -2,13 +2,16 @@
 # [2026-11-24 04:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — ảnh web open-cake: build Vite (Node 22) → phục vụ tĩnh bằng nginx 1.27.
 # Bản này chạy bộ giả lập (chưa có API — PHASE-016); cùng khuôn docker/web.Dockerfile của open-ketoan.
 
+# [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chép đủ package.json của mọi workspace (care-kernel, api) để npm ci khớp lockfile.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/contracts/package.json packages/contracts/
+COPY packages/care-kernel/package.json packages/care-kernel/
 COPY packages/ui-kit/package.json packages/ui-kit/
 COPY packages/action-client/package.json packages/action-client/
 COPY apps/web/package.json apps/web/
+COPY apps/api/package.json apps/api/
 RUN npm ci --no-audit --no-fund
 COPY tsconfig.base.json vitest.config.ts ./
 COPY packages packages

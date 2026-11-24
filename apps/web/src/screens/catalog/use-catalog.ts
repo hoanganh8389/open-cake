@@ -16,7 +16,7 @@ export function useCatalogSource() {
 
 /** Giá công ty theo ĐVT bán chính, tra theo itemId — một lần gọi cho cả bảng (không gọi từng hàng). */
 export function useCompanyPrices(enabled = true) {
-  const q = useQueryAction(catalogPriceList, { priceListCode: COMPANY, page: 1, pageSize: 500 }, { enabled });
+  const q = useQueryAction(catalogPriceList, { priceListCode: COMPANY, page: 1, pageSize: 200 }, { enabled });
   const byItem = useMemo(() => new Map<string, PriceRow>((q.data ?? []).filter((p) => p.isDefaultUnit).map((p) => [p.itemId, p])), [q.data]);
   return { ...q, byItem };
 }

@@ -9,8 +9,13 @@ export interface CallResult<S extends ActionSpec> { data: ActionOutput<S>; meta:
 export interface CallOptions { idempotencyKey?: string; signal?: AbortSignal }
 
 export interface ActionClient {
-  readonly kind: 'mock' | 'http';
+  readonly kind: 'mock' | 'http' | 'mix';
   call<S extends ActionSpec>(spec: S, input: ActionInput<S>, opts?: CallOptions): Promise<CallResult<S>>;
+}
+
+// [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chọn adapter theo năng lực: năng lực đã có máy chủ đi http, còn lại giả lập (máy chủ lên từng phần, giao diện không đổi).
+export function routeByCapability(routes: Record<string, ActionClient>, fallback: ActionClient): ActionClient {
+  return { kind: 'mix', call: (spec, input, opts) => (routes[spec.capability] ?? fallback).call(spec, input, opts) };
 }
 
 /** Lỗi theo phong bì bizcity_api@1: mã chung + lý do cụ thể + gợi ý + mã tra cứu. */

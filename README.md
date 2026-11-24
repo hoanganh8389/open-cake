@@ -8,25 +8,30 @@
 
 **Trạng thái:** 🟡 W1 — nền hợp đồng (PHASE-002 ☑) và giao diện 6 màn trên hợp đồng với dữ liệu giả lập (PHASE-003 ◐). **Chưa có máy chủ** (PHASE-016 / 007). Bản đang chạy của Open CRM là plugin WordPress [`open-crm`](https://github.com/hoanganh8389/open-crm); hai bản song song theo [BIZCITY OPEN CANON §10](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) (ở open-hub).
 
-## Chạy thử (giả lập, chưa cần máy chủ)
+## Chạy thử
+
+<!-- [2026-11-24 08:16 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — có API + Postgres; danh mục chạy máy chủ thật, màn khác còn giả lập. -->
 
 ```bash
 npm install
-npm test            # 38 test hợp đồng + bộ giả lập
+npm test            # hợp đồng + bộ giả lập; thêm TEST_DATABASE_URL=postgres://… để chạy cả test tích hợp API trên Postgres
 npm run typecheck
-npm run web:dev     # http://localhost:5173/#/inbox — thêm ?mock=empty|error|denied|slow để xem 4 trạng thái
+npm run web:dev     # http://localhost:5173/#/inbox — ?mock=empty|error|denied|slow xem 4 trạng thái
 ```
 
-Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Contact 360 ca vàng Facebook) · `#/channels` · `#/dashboard` · `#/states`.
+Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Contact 360 ca vàng Facebook) · `#/catalog` · `#/channels` · `#/dashboard` · `#/settings`.
 
-**Bằng Docker** (cạnh ketoan / okt-* trên cùng máy):
+**Bằng Docker** — web + api + Postgres (cạnh ketoan / okt-* trên cùng máy):
 
 ```bash
-docker compose up -d --build   # project "cake", container cake-web-1
-# mở http://127.0.0.1:8110/#/inbox   (đổi cổng: WEB_PORT=8120 docker compose up -d)
+cp .env.example .env            # đặt JWT_SECRET (bắt buộc — nền chặn khoá mặc định)
+docker compose up -d --build    # db · db-migrate (nền @bizcity/platform + open-cake, gieo dữ liệu GIẢ LẬP) · api · web
+# http://127.0.0.1:8110/?api=mix#/catalog   Hàng hoá chạy máy chủ thật, màn khác còn giả lập
+# http://127.0.0.1:8110/#/inbox             toàn bộ giả lập (như trước)
+# http://127.0.0.1:8120/api/v1/system/health/ready   API trực tiếp
 ```
 
-Ảnh `open-cake-web` chạy lại test + typecheck khi build. Hiện chỉ có web (bộ giả lập); db / api vào ở PHASE-016.
+`?api=`: không có = giả lập · `mix` = năng lực đã có máy chủ (`cake.catalog`) đi API · `http` = mọi màn đi API (màn chưa có máy chủ báo `CAKE_NOT_ON_SERVER`). Ảnh `open-cake-web` chạy lại test + typecheck khi build. API dựng trên `@bizcity/platform` [v0.2.0](https://github.com/hoanganh8389/bizcity-platform/releases/tag/v0.2.0).
 
 ## Đọc theo thứ tự
 

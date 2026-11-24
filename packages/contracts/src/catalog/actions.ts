@@ -72,7 +72,7 @@ export const catalogPriceSet = defineActionSpec({
 });
 export const catalogPriceList = defineActionSpec({
   id: 'cake.catalog_price.list', capability: 'cake.catalog', title: 'Giá theo bảng giá', kind: 'query',
-  input: z.object({ priceListCode: z.string(), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(500).default(200) }),
+  input: z.object({ priceListCode: z.string(), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(200).default(200) }), // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — trần 200 = trần meta của phong bì bizcity_api@1 (máy chủ thật lộ lệch)
   output: z.array(PriceRowSchema), permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/prices', mcp: 'read', ui: true },
 });
 export const catalogSourceGet = defineActionSpec({

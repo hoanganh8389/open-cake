@@ -65,3 +65,19 @@ describe('ItemRef trên dây (SPINE R-SPINE-1, R-SPINE-9)', () => {
   });
   it('đã gắn ⇒ chỉ id của chủ', () => expect(itemRefOf({ ...base, sync: { ...sync, source: 'ketoan', extId: '01JKT000000000000000000001' } })).toEqual({ id: '01JKT000000000000000000001' }));
 });
+
+// [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chốt chặn: action nhận pageSize lớn hơn trần meta của phong bì ⇒ máy chủ trả "không đúng hợp đồng" (đã lộ ở bảng Gửi giá).
+describe('trần pageSize của action ≤ trần meta phong bì bizcity_api@1', () => {
+  it('mọi action có pageSize', async () => {
+    const { PageMetaSchema } = await import('../src/index.js');
+    const envMax = (PageMetaSchema.shape.pageSize as unknown as { maxValue: number }).maxValue;
+    const bad = ALL_ACTIONS.flatMap((a) => {
+      let s: any = a.input; // eslint-disable-line @typescript-eslint/no-explicit-any
+      while (s?._def?.innerType) s = s._def.innerType;
+      let f = s?.shape?.pageSize;
+      while (f?._def?.innerType) f = f._def.innerType;
+      return f && (f.maxValue ?? Infinity) > envMax ? [`${a.id}: ${f.maxValue}`] : [];
+    });
+    expect(bad).toEqual([]);
+  });
+});

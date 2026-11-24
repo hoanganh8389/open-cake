@@ -43,6 +43,8 @@ export const CAKE_REASONS = {
   CAKE_CATALOG_READONLY: { code: 'CONFLICT', message: 'Danh mục đang lấy từ Kế Toán: cột này chỉ sửa ở Kế Toán.', hint: 'Sửa ở Open Kế Toán, hoặc chuyển nguồn danh mục về "local" ở Cài đặt.' },
   CAKE_SKU_TAKEN: { code: 'CONFLICT', message: 'Mã hàng đã có (kể cả hàng đã xoá).', hint: 'Chọn mã khác (H-2).' },
   CAKE_ITEM_NAME_TAKEN: { code: 'CONFLICT', message: 'Tên hàng đã có.', hint: 'Tên hàng phải duy nhất, không phân biệt hoa thường (H-7).' },
+  // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — action có hợp đồng nhưng máy chủ chưa làm (giao diện đang dùng bộ giả lập cho màn này).
+  CAKE_NOT_ON_SERVER: { code: 'CAPABILITY_MISSING', message: 'Máy chủ chưa có chức năng này.', hint: 'Màn này đang chạy bằng bộ giả lập; chức năng sẽ có ở phase kế tiếp.' },
   CAKE_RECORD_TYPE_UNKNOWN: { code: 'VALIDATION_ERROR', message: 'Loại bản ghi chưa đăng ký.', hint: 'Thêm record_type vào registry trước khi ghi.' },
 } as const satisfies Record<string, { code: ErrorCode; message: string; hint: string }>;
 

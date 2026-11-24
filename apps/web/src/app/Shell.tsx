@@ -74,6 +74,7 @@ function TitleBar() {
     <header className="titlebar">
       <span className="brand">Open CRM</span><span className="ver">open-cake 0.1 · Shop Hoa Mai</span>
       {client.kind === 'mock' && <span className="badge warn" title="Dữ liệu giả lập theo hợp đồng — chưa nối máy chủ (PHASE-007)">Bản giả lập</span>}
+      {client.kind === 'mix' && <span className="badge warn" title="Hàng hoá chạy máy chủ thật; màn khác còn giả lập (PHASE-007)">Một phần giả lập</span>}
       <span className="grow" />
       <button type="button" className="ib" title="Kênh" onClick={() => go('channels')}><Ic.link style={{ width: 18, height: 18 }} /></button>
       <button type="button" className="ib" title="Bốn trạng thái" onClick={() => go('states')}><Ic.layers style={{ width: 18, height: 18 }} /></button>

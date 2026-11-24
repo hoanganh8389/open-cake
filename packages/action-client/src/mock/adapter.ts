@@ -2,7 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter giả lập — kiểm input bằng spec.input và kiểm output bằng spec.output
 //   ⇒ giao diện chỉ nhận dữ liệu đúng hợp đồng; giả lập lệch hợp đồng thì ném ngay (bắt sớm trôi hợp đồng). Kịch bản 4 trạng thái theo ?mock=.
-import { appCatalog, type ActionSpec } from '@open-cake/contracts';
+import { apiSuccess, appCatalog, type ActionSpec } from '@open-cake/contracts';
 import { ApiError, type ActionClient, type CallResult } from '../client.js';
 import { contactHandlers } from './handlers-contacts.js';
 import { inboxHandlers } from './handlers-inbox.js';
@@ -42,9 +42,10 @@ export function createMockClient(opts: { scenario?: MockScenario; latencyMs?: nu
       const raw = isPaged(out) ? out.data : out;
       const meta = isPaged(out) ? out.meta : {};
       const data = scenario === 'empty' && spec.kind === 'query' && Array.isArray(raw) ? [] : raw;
-      const checked = spec.output.safeParse(data);
+      // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — kiểm CẢ phong bì (data + meta) như createHttpClient: giả lập không được dễ dãi hơn máy chủ thật.
+      const checked = apiSuccess(spec.output).safeParse({ ok: true, data, ...(isPaged(out) ? { meta } : {}) });
       if (!checked.success) throw new Error(`giả lập trả sai hợp đồng ở ${spec.id}: ${checked.error.issues[0]?.path.join('.')} ${checked.error.issues[0]?.message}`);
-      return { data: checked.data, meta: { ...meta, requestId } } as CallResult<S>;
+      return { data: checked.data.data, meta: { ...meta, requestId } } as CallResult<S>;
     },
   };
 }
