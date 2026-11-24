@@ -1,6 +1,6 @@
 # open-cake · 00 — CANON
 
-> **Luật cấp trên:** [BIZCITY OPEN CANON 1.2.0-draft ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) + [chuẩn tái sử dụng](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-TAI-SU-DUNG-NANG-LUC.md) + [chuẩn dữ liệu](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-DU-LIEU-TRUC-VA-LOP-MEM.md) — đọc trước. Mâu thuẫn ⇒ sửa file này.
+> **Luật cấp trên:** [BIZCITY OPEN CANON 1.3.0-draft ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) + [chuẩn tái sử dụng](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-TAI-SU-DUNG-NANG-LUC.md) + [chuẩn dữ liệu](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-DU-LIEU-TRUC-VA-LOP-MEM.md) — đọc trước. Mâu thuẫn ⇒ sửa file này.
 > **Phiên bản:** 0.2.0-draft · 2026-11-24 · nháp chờ chủ duyệt.
 
 <!-- [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — theo bizcity_spine@1.1 (chủ duyệt Q-017-1/2): MASTER-4 dùng slug tenant; thêm MASTER-6 (ItemRef), MASTER-7 (cột riêng ở lớp mềm). -->

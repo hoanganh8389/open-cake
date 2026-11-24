@@ -27,9 +27,11 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [013](PHASE-013-MCP-TWIN-BRAIN/README.md) MCP | W6 | Twin Brain đọc / nháp / gửi có xác nhận | cake · twin-brain | — | ☐ |
 | [014](PHASE-014-NHIEU-SITE-OPEN-SETUP/README.md) Nhiều site | W6 | máy nhiều site của platform cho cake; open-setup `product` | cake · open-setup · router | — | ☐ |
 | [015](PHASE-015-KIEM-CHUNG-PHAT-HANH/README.md) Kiểm chứng | W7 | golden G1–G8, DOD-SYS, thử tải, phát hành | cả hai | G1–G8 | ☐ |
-| [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ◐ P2b-1 (platform PR #4) + 0103 lớp mềm ☑ |
+| [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ◐ P2b-1..5 ☑ (bizcity-platform **v0.2.0**) + 0103 lớp mềm ☑; apps/api ☐ |
 | [017](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/README.md) **Danh mục độc lập** | W1 | hàng · nhóm · ĐVT · bảng giá của riêng Cake theo chuẩn H-* open-ketoan, `catalog_source local|ketoan`, một cổng ghi (ADR-0004) | cake | — | ☑ 2026-11-24 (64 test, 8 ảnh build; SPINE 1.1 ở platform PR #2) |
 | *(open-ketoan)* PHASE-041 tách gói | — | P0 / P1 / P3 / P6 trong open-ketoan | open-ketoan | — | 💤 hoãn (#616, #617 bản nháp) |
+
+**Đánh giá gần nhất:** [DANH-GIA-TIEN-DO-2026-11-24.md](DANH-GIA-TIEN-DO-2026-11-24.md) — hợp đồng + UI xong; máy chủ / DB nối thật / đăng nhập / quan sát chưa bắt đầu.
 
 ## Thứ tự làm
 
