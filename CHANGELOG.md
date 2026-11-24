@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- 2026-11-24 — PHASE-017 S017-7/8 (chủ duyệt mockup): theo `bizcity_spine@1.1` — cột riêng của hàng sang lớp mềm `cake.item.*`, `itemRefOf` (khoá cục bộ, không bịa id), tenant slug, `ext_version`; tạo hàng kèm giá một lần gọi; màn Hàng hoá gọn một màn (sửa giá trên dòng, ⚠ thiếu chuẩn, Kế Toán giữ ⇒ chỉ "Bán trong CRM"); Gửi giá trong chat; Cài đặt › Nguồn danh mục; `bizcity.app.json` khai danh mục cục bộ; 64 test.
 - 2026-11-24 — PHASE-017 S017-5/6: migration 0102 danh mục (8 bảng, RLS FORCE, kiểm trên Postgres 16); màn Hàng hoá & Bảng giá (form kiểm bằng schema hợp đồng, cảnh báo CAT-*, khoá cột kế toán khi nguồn ketoan); action `cake.catalog_price.list`; 4 ảnh build.
 - 2026-11-24 — PHASE-017 danh mục độc lập sẵn ánh xạ (ADR-0004): chuẩn H-* open-ketoan ở hợp đồng (ĐVT, thuế, SKU, tên, giá), hàng / nhóm / bảng giá / liên kết đơn vị với khối ánh xạ chung, cổng ghi `catalogWriteGate`, 8 action `cake.catalog_*`, giả lập + hàng mẫu; 00-CANON: R-CAKE-SIB-1/3 → R-CAKE-MASTER-1..5; 61 test.
 - 2026-11-24 — PHASE-005 care-kernel (logic thuần): `@open-cake/care-kernel` — một cửa submitTouchIn, sổ chạm khách chỉ thêm (dòng đảo), resolver danh tính có bằng chứng, ghép / tách, contact_state dựng lại từ sổ; MemoryRepo có giao dịch; 9 test (ca vàng G1–G4 bằng fixture thật).

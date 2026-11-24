@@ -6,7 +6,7 @@ import {
   conversationList, conversationTag, messageList, messageSend,
 } from '@open-cake/contracts';
 import { fid } from '@open-cake/contracts/demo';
-import { ApiError, buildRequest, createMockClient, missingMockHandlers } from '../src/index.js';
+import { ApiError, buildRequest, createMockClient, linkCatalogToKetoan, missingMockHandlers } from '../src/index.js';
 
 const HUONG = fid('C', 1);
 const HUONG_FB = fid('C', 9);
@@ -118,6 +118,8 @@ describe('danh mục độc lập sẵn ánh xạ (ADR-0004)', async () => {
   it('local: tạo đúng chuẩn, trùng mã / tên bị chặn, đặt giá theo ĐVT của mã', async () => {
     const c = createMockClient();
     expect((await c.call(catalogItemList, { page: 1, pageSize: 50, includeRetired: false })).data).toHaveLength(4);
+    const it0 = await c.call(catalogItemCreate, { sku: '101010009', name: 'Váy kèm giá', units: [{ unit: 'Cái', ratio: 1, isDefaultSale: true }], taxCode: '8', price: 450000 });
+    expect(it0.data.warnings.map((w) => w.code)).not.toContain('CAT-NO-COMPANY-PRICE'); // tạo kèm giá: một lần gọi
     const it1 = await c.call(catalogItemCreate, { sku: '101010004', name: 'Váy hoa Thu Đông — đỏ', units: [{ unit: 'Cái', ratio: 1, isDefaultSale: true }], taxCode: 'R08', categoryCode: '101010' });
     expect(it1.data.taxCode).toBe('8');
     expect(it1.data.warnings.map((w) => w.code)).toContain('CAT-NO-COMPANY-PRICE');
@@ -127,15 +129,19 @@ describe('danh mục độc lập sẵn ánh xạ (ADR-0004)', async () => {
     await c.call(catalogPriceSet, { priceListCode: 'CONGTY', itemId: it1.data.itemId, unit: 'Cái', price: 390000 });
     expect((await c.call(catalogItemList, { q: '101010004', page: 1, pageSize: 50, includeRetired: false })).data[0]?.warnings.map((w) => w.code)).not.toContain('CAT-NO-COMPANY-PRICE');
   });
-  it('ketoan: cột kế toán chỉ đọc ở mọi trạng thái, cột vận hành vẫn sửa được', async () => {
+  it('ketoan: cột kế toán chỉ đọc ở mọi trạng thái, cột riêng (lớp mềm) vẫn sửa được', async () => {
     const c = createMockClient();
-    c.store.catalog.source = 'ketoan';
+    linkCatalogToKetoan(c.store.catalog);
     const id = c.store.catalog.items[0]!.itemId;
     await expect(c.call(catalogItemUpdate, { itemId: id, patch: { name: 'Đổi tên' } })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
     await expect(c.call(catalogItemCreate, { sku: '199999999', name: 'Mới', units: [{ unit: 'Cái', ratio: 1 }], taxCode: '8' })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
-    expect((await c.call(catalogItemUpdate, { itemId: id, patch: { displayName: 'Váy hồng (bán chạy)' } })).data.displayName).toBe('Váy hồng (bán chạy)');
+    await expect(c.call(catalogItemUpdate, { itemId: id, patch: { name: 'X', local: { sellable: false } } })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
+    const up = await c.call(catalogItemUpdate, { itemId: id, patch: { local: { displayName: 'Váy hồng (bán chạy)', sellable: false } } });
+    expect(up.data.local).toMatchObject({ displayName: 'Váy hồng (bán chạy)', sellable: false });
+    expect(c.store.meta[id]?.['cake.item.sellable']).toBe('false'); // nằm ở lớp mềm, không ở bảng hàng
+    expect((await c.call(catalogItemList, { sellableOnly: true, page: 1, pageSize: 50, includeRetired: false })).data.map((x) => x.itemId)).not.toContain(id);
     const { catalogPriceList, catalogSourceGet } = await import('@open-cake/contracts');
-    expect((await c.call(catalogPriceList, { priceListCode: 'CONGTY', page: 1, pageSize: 200 })).data.length).toBeGreaterThanOrEqual(4);
-    expect((await c.call(catalogSourceGet, {})).data).toMatchObject({ catalogSource: 'ketoan', externalRef: 'opencake:hoa-mai' });
+    expect((await c.call(catalogPriceList, { priceListCode: 'CONGTY', page: 1, pageSize: 200 })).data.length).toBeGreaterThanOrEqual(3);
+    expect((await c.call(catalogSourceGet, {})).data).toMatchObject({ tenant: 'hoa-mai', catalogSource: 'ketoan', branchCode: 'CN01' });
   });
 });

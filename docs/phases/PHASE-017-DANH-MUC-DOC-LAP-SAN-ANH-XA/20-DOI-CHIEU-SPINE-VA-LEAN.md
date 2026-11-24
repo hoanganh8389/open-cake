@@ -47,8 +47,8 @@
 | `mockup-gui-gia.png` | Gửi giá trong chat — chọn hàng, chèn vào ô soạn |
 | `mockup-nguon.png` | Cài đặt › Nguồn danh mục + mã đơn vị |
 
-## 5. Câu hỏi chờ chủ
+## 5. Câu hỏi — đã chốt (chủ, 2026-11-24 05:40 PM: "đồng ý đề xuất, duyệt mockup và code")
 
-- **Q-017-1** `uom` trên dây: sửa SPINE cho nhận tên ĐVT có dấu của Kế Toán (đề xuất), hay thêm `uom_code` ASCII?
-- **Q-017-2** `partner.code` từ Cake: số điện thoại đã xác minh trước (đề xuất, khớp open-pos) hay luôn `CAKE-<contact_id>` như bảng SPINE?
-- **Q-017-3** Duyệt 5 mockup để code.
+- **Q-017-1** ☑ sửa SPINE: `uom` = tên ĐVT có dấu của chủ — bizcity-platform PR #2 (SPINE 1.1.0-draft).
+- **Q-017-2** ☑ SĐT đã xác minh → `CAKE-<contact_id>` → `KHACH-LE` — cùng PR #2; `bizcity.app.json` `notes` đã sửa.
+- **Q-017-3** ☑ duyệt; ảnh build tương ứng: `catalog-items`, `catalog-price-edit`, `catalog-new`, `catalog-edit`, `catalog-ketoan`, `settings-catalog-source`, `inbox-price-picker`, `inbox-price-inserted`.

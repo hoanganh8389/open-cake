@@ -5,11 +5,13 @@
 import { CAKE_RECORD_TYPES } from '@open-cake/contracts';
 import { Badge, Card, Gate, Ic } from '@open-cake/ui-kit';
 import { go } from '../app/route.js';
+import { CatalogSourceSettings } from './catalog/source-settings.js';
 
 export function Settings() {
   return (
     <div className="page">
       <h1 className="h1 mb24">Cài đặt</h1>
+      <CatalogSourceSettings />
       <h3 className="h3 mb16">Danh mục nhỏ (lớp dữ liệu mềm)</h3>
       <div className="grid g3 mb24">
         {CAKE_RECORD_TYPES.map((r) => (

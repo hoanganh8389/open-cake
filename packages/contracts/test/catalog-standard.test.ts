@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // [2026-11-24 04:58 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — chuẩn hàng hoá H-* nằm trong hợp đồng: dữ liệu độc lập vẫn ánh xạ được sang open-ketoan.
 import { describe, expect, it } from 'vitest';
-import { ALL_ACTIONS, ItemUnitsSchema, SkuSchema, TaxCodeSchema, catalogItemCreate, catalogWriteGate, itemWarnings, skuShapeProblem } from '../src/index.js';
+import { ALL_ACTIONS, CAKE_META_KEYS, ITEM_LOCAL_META, ItemUnitsSchema, SkuSchema, TaxCodeSchema, catalogItemCreate, catalogWriteGate, itemRefOf, itemWarnings, skuShapeProblem } from '../src/index.js';
 
 const ok = (r: { success: boolean }) => r.success;
 describe('chuẩn mã / tên / ĐVT / thuế (H-1…H-13)', () => {
@@ -41,10 +41,27 @@ describe('chuẩn mã / tên / ĐVT / thuế (H-1…H-13)', () => {
 });
 
 describe('cổng ghi duy nhất theo nguồn danh mục (R-OKT-CONN-4)', () => {
-  it('local: ghi mọi cột; ketoan: chặn cột kế toán, cho cột vận hành', () => {
+  it('local: ghi mọi cột; ketoan: chặn mọi cột kế toán, chỉ cho `local` (lớp mềm)', () => {
     expect(catalogWriteGate('local', ['name', 'taxCode'])).toEqual({ ok: true });
-    expect(catalogWriteGate('ketoan', ['name', 'taxCode', 'displayName'])).toEqual({ ok: false, blocked: ['name', 'taxCode'] });
-    expect(catalogWriteGate('ketoan', ['displayName', 'isSellableInCrm'])).toEqual({ ok: true });
+    expect(catalogWriteGate('ketoan', ['name', 'taxCode', 'local'])).toEqual({ ok: false, blocked: ['name', 'taxCode'] });
+    expect(catalogWriteGate('ketoan', ['local'])).toEqual({ ok: true });
+  });
+  it('cột riêng của Cake là khoá lớp mềm đã đăng ký (R-SPINE-5, R-CANON-15)', () => {
+    const keys = new Set(CAKE_META_KEYS.filter((m) => m.entityType === 'item').map((m) => m.key));
+    for (const k of Object.values(ITEM_LOCAL_META)) expect(keys.has(k), k).toBe(true);
   });
   it('danh mục app = 19 cake + 4 lớp mềm + 9 danh mục', () => expect(ALL_ACTIONS.length).toBe(32));
+});
+
+// [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — ItemRef trên dây theo bizcity_spine@1 §3.
+describe('ItemRef trên dây (SPINE R-SPINE-1, R-SPINE-9)', () => {
+  const base = { itemId: '01JDAP00000000000000000001', sku: '101010001' };
+  const sync = { source: 'local' as const, extId: null, extVersion: null, extSyncedAt: null, pushStatus: 'local' as const, pushError: null };
+  it('chưa gắn Kế Toán ⇒ khoá cục bộ + mã, KHÔNG có ô id', () => {
+    const r = itemRefOf({ ...base, sync });
+    expect(r).toEqual({ local: 'cake:item:01JDAP00000000000000000001', code: '101010001' });
+    expect('id' in r).toBe(false);
+    expect((r as { local: string }).local).toMatch(/^[a-z][a-z0-9-]*:[a-z][a-z0-9_-]*:[A-Za-z0-9_.-]{1,64}$/); // khuôn local_key của SPINE
+  });
+  it('đã gắn ⇒ chỉ id của chủ', () => expect(itemRefOf({ ...base, sync: { ...sync, source: 'ketoan', extId: '01JKT000000000000000000001' } })).toEqual({ id: '01JKT000000000000000000001' }));
 });

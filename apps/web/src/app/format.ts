@@ -8,3 +8,4 @@ export const ddmm = (iso: string) => part(iso, { day: '2-digit', month: '2-digit
 export const ddmmyyyy = (isoDate: string) => { const [y, m, d] = isoDate.slice(0, 10).split('-'); return `${d}/${m}/${y}`; };
 export const when = (iso: string) => `${ddmm(iso)} ${hhmm(iso)}`;
 export const bytes = (n?: number) => (n === undefined ? '' : n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${(n / 1024).toFixed(2)} KB`);
+export const vnd = (n: number) => `${n.toLocaleString('vi-VN')}đ`; // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — tiền VNĐ, dùng chung danh mục + chat

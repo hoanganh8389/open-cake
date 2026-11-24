@@ -3,6 +3,7 @@
 > **Luật cấp trên:** [BIZCITY OPEN CANON 1.2.0-draft ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) + [chuẩn tái sử dụng](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-TAI-SU-DUNG-NANG-LUC.md) + [chuẩn dữ liệu](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-DU-LIEU-TRUC-VA-LOP-MEM.md) — đọc trước. Mâu thuẫn ⇒ sửa file này.
 > **Phiên bản:** 0.2.0-draft · 2026-11-24 · nháp chờ chủ duyệt.
 
+<!-- [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — theo bizcity_spine@1.1 (chủ duyệt Q-017-1/2): MASTER-4 dùng slug tenant; thêm MASTER-6 (ItemRef), MASTER-7 (cột riêng ở lớp mềm). -->
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] INIT — CANON 0.1: luật R-CAKE-* kế thừa R-OC-* của plugin WP, đổi nền sang PostgreSQL / TypeScript, thêm luật danh tính. -->
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] CANON-0.2 — bảng luật kế thừa nguyên từ open-ketoan (R-LOG, R-SEC, R-TEN, R-DB, R-API, R-OUTBOX, R-CACHE, R-DIAG, R-DOC-CONT, R-MD, R-BOUND, R-QG, R-GATE, R-REL, R-REV, R-SIG, R-FLOW, R-SITE, R-BLOCK); luật riêng R-CAKE-*; bản đồ tài liệu kiến trúc. -->
 
@@ -46,9 +47,11 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 | **R-CAKE-MASTER-1** | **Độc lập trước** (ADR-0004): Cake có danh mục riêng — hàng, mã, ĐVT, nhóm, bảng giá — chạy đầy đủ không cần Kế Toán; nguồn theo đơn vị `catalog_source` = `local` · `ketoan` |
 | **R-CAKE-MASTER-2** | **Sẵn ánh xạ**: hình dữ liệu theo chuẩn open-ketoan ngay từ đầu — `item_id` ULID, mã có hiệu lực (đóng / mở), chuẩn H-1…H-18 của open-pos (E chặn ở hợp đồng, W thành cảnh báo `CAT-*`); mọi bảng đồng bộ mang khối `source · ext_id · ext_synced_at · ext_hash · push_status` |
 | **R-CAKE-MASTER-3** | **Một chủ tại một thời điểm**: `ketoan` ⇒ cột kế toán chỉ đọc qua MỘT cổng ghi (`catalogWriteGate`) ở mọi trạng thái kết nối; cột vận hành của Cake vẫn sửa; kéo một chiều, chỉ đẩy mã mới; không đồng bộ hai chiều (R-MD-1, R-OKT-CONN-4) |
-| **R-CAKE-MASTER-4** | Đơn vị Cake ↔ đơn vị Kế Toán qua `tenant_links`; `okt_tenant_id` đọc từ health của khoá, không gõ tay; `external_ref = opencake:<site>` |
+| **R-CAKE-MASTER-4** | Đơn vị Cake ↔ đơn vị Kế Toán qua `tenant_links`; trên dây đơn vị là **slug** `tenant` (trục tenant của `bizcity_spine@1`), chi nhánh `branch_code`; id nội bộ của Kế Toán không giữ, không lộ |
 | **R-CAKE-SIB-2** | Không nộp `bizcity_ledger_intake@1`. Báo giá, cơ hội, yêu cầu đặt hàng là chứng từ nghiệp vụ của Cake, không là sự thật tiền |
 | **R-CAKE-MASTER-5** | Khách ↔ đối tượng công nợ: mã gửi Kế Toán = số điện thoại đã xác minh (khớp open-pos), không có thì `CAKE-<contact_id>`, vãng lai `KHACH-LE`; lưu ở `contact_links`; tên / MST sau khi liên kết do Kế Toán giữ |
+| **R-CAKE-MASTER-6** | `itemId` của Cake là **khoá cục bộ**: gửi sang app khác bằng `itemRefOf()` — chưa gắn ⇒ `{local: "cake:item:<itemId>", code: <sku>}`, đã gắn ⇒ `{id: <item_id của Kế Toán>}`; không bao giờ đặt `itemId` của Cake vào ô `id` (R-SPINE-1, R-SPINE-9) |
+| **R-CAKE-MASTER-7** | Cột riêng của Cake trên hàng (tên khi chat, bán trong CRM, ảnh, mô tả) ở **lớp mềm** `entity_meta` `cake.item.*`, không ở bảng hàng; bảng hàng chỉ có cột theo chuẩn Kế Toán (R-SPINE-5/10, R-CANON-15) |
 | **R-CAKE-SITE-1** | Site = database `cake_<slug>`; `SITE_MODE`; control DB `cake_control`; `/_sites/v1` cùng `bizcity_site_provisioning@1` (R-SITE-1..13 áp nguyên) |
 | **R-CAKE-TEN-1** | Mọi bảng `tenant_id` + RLS FORCE; không nhận `tenantId` / `siteId` từ input (R-TEN-1) |
 | **R-CAKE-MOD-1** | Module = `modules/<key>/bizcity.module.json`, schema `mod_<key>`, đọc lõi qua `bizcity_read.*`, không import module khác (R-BOUND-1..10) |
@@ -68,7 +71,7 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 | API | R-API-1..12 | RULE-API.md | [70-API-REST](architecture/70-API-REST.md) |
 | Hạ tầng | R-CACHE-1..6 · R-OUTBOX-1..7 · R-BAK-1..6 | RULE-INFRASTRUCTURE.md | Redis tuỳ chọn |
 | Chứng từ | R-DOC-CONT-0..9 | RULE-DOCUMENT-CONTINUITY.md | `cake.order_request`, `cake.quote` |
-| Danh mục | R-MD-1..10 | RULE-MASTER-DATA.md | R-CAKE-MASTER-1..5 (ADR-0004), R-CAKE-SIB-2 |
+| Danh mục | R-MD-1..10 | RULE-MASTER-DATA.md | R-CAKE-MASTER-1..7 (ADR-0004, SPINE 1.1), R-CAKE-SIB-2 |
 | Ranh giới | R-BOUND-1..10 | RULE-MODULE-BOUNDARY.md | R-WEB-1 |
 | Cổng | R-GATE-1..11 · R-BLOCK-1..6 | RULE-GATE.md · RULE-BLOCKED.md | finding `CAKE-*` |
 | Chất lượng | R-QG-1..10 | RULE-QUALITY-GATE.md | DB `cake_test` |

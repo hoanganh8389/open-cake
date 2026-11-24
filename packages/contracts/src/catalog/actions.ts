@@ -2,10 +2,12 @@
 // @bizcity-layer contracts
 // [2026-11-24 04:58 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — action danh mục (05:03 PM: thêm cake.catalog_price.list cho màn Bảng giá — một lần gọi, không gọi từng hàng) độc lập (ADR-0004). Tạo / sửa hàng kiểm chuẩn H-* ngay ở cửa;
 //   khi nguồn = ketoan, sửa cột kế toán bị chặn bằng CAKE_CATALOG_READONLY (cổng ghi duy nhất).
+// [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — gọn: tạo hàng kèm giá công ty trong MỘT lần gọi; sửa hàng = cột kế toán + `local` (lớp mềm);
+//   lọc sellableOnly cho Gửi giá trong chat; nguồn danh mục trả CatalogSourceInfo (tenant slug).
 import { z } from 'zod';
 import { defineActionSpec } from '../base/action.js';
 import { ULID_RE } from '../cake/channel.js';
-import { CategorySchema, ItemSchema, PriceListSchema, PriceRowSchema, TenantLinkSchema } from './entities.js';
+import { CatalogSourceInfoSchema, CategorySchema, ItemLocalSchema, ItemSchema, PriceListSchema, PriceRowSchema } from './entities.js';
 import { ItemNameSchema, ItemUnitsSchema, PriceSchema, SkuSchema, TaxCodeSchema, skuShapeProblem } from './standard.js';
 
 const ItemCreateInput = z.object({
@@ -18,7 +20,7 @@ const ItemCreateInput = z.object({
   itemKind: ItemSchema.shape.itemKind.default('goods'),
   noSale: z.boolean().default(false),
   barcodes: z.array(z.string().min(1).max(160)).max(20).default([]),
-  displayName: z.string().max(200).nullable().default(null),
+  price: PriceSchema.optional(), // giá bán công ty (gồm VAT) theo ĐVT bán chính
 }).superRefine((v, ctx) => {
   const p = skuShapeProblem(v.sku, v.parentSku);
   if (p) ctx.addIssue({ code: 'custom', path: ['sku'], message: p });
@@ -26,7 +28,7 @@ const ItemCreateInput = z.object({
 
 export const catalogItemList = defineActionSpec({
   id: 'cake.catalog_item.list', capability: 'cake.catalog', title: 'Danh sách hàng hoá', kind: 'query',
-  input: z.object({ q: z.string().max(100).optional(), categoryCode: z.string().optional(), includeRetired: z.boolean().default(false), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(200).default(50) }),
+  input: z.object({ q: z.string().max(100).optional(), categoryCode: z.string().optional(), sellableOnly: z.boolean().default(false), includeRetired: z.boolean().default(false), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(200).default(50) }),
   output: z.array(ItemSchema), permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/items', mcp: 'read', ui: true },
 });
 export const catalogItemGet = defineActionSpec({
@@ -46,8 +48,7 @@ export const catalogItemUpdate = defineActionSpec({
     itemId: z.string().regex(ULID_RE),
     patch: z.object({
       name: ItemNameSchema.optional(), taxCode: TaxCodeSchema.optional(), categoryCode: z.string().nullable().optional(), noSale: z.boolean().optional(),
-      units: ItemUnitsSchema.optional(), displayName: z.string().max(200).nullable().optional(), isSellableInCrm: z.boolean().optional(),
-      imageUrl: z.string().max(1000).nullable().optional(), description: z.string().max(20000).nullable().optional(),
+      units: ItemUnitsSchema.optional(), local: ItemLocalSchema.partial().optional(),
     }).strict().refine((p) => Object.keys(p).length > 0, 'Không có gì để sửa'),
   }),
   output: ItemSchema, permission: 'cake:catalog-sua', risk: 'low', idempotent: true,
@@ -76,7 +77,7 @@ export const catalogPriceList = defineActionSpec({
 });
 export const catalogSourceGet = defineActionSpec({
   id: 'cake.catalog_source.get', capability: 'cake.catalog', title: 'Nguồn danh mục & liên kết Kế Toán', kind: 'query',
-  input: z.object({}), output: TenantLinkSchema, permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/source', mcp: 'read', ui: true },
+  input: z.object({}), output: CatalogSourceInfoSchema, permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/source', mcp: 'read', ui: true },
 });
 
 export const CATALOG_ACTIONS = [catalogItemList, catalogItemGet, catalogItemCreate, catalogItemUpdate, catalogCategoryList, catalogPriceListList, catalogPriceSet, catalogPriceList, catalogSourceGet] as const;

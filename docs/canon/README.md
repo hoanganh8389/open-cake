@@ -13,9 +13,9 @@
 | | |
 |---|---|
 | Làm chủ | `contact` (`contact_id` ULID, `contact_identities` có `proof`), `touch` (sổ chạm khách, chỉ thêm), chứng từ `cake.<loại>:<id>` |
-| Dùng | `tenant`, `user` (`sub = wp:<id>` qua SSO), `item` (bản sao khi cần gợi ý hàng), `partner` (gửi `code = CAKE-<contact_id>`, lưu `partner_ref` một chiều — R-MD-1) |
+| Dùng | `tenant` (slug, ví dụ `hoa-mai`), `user` (`sub = wp:<id>` qua SSO), `item` + `uom` (danh mục **cục bộ** chạy một mình, ràng buộc muộn với `item_id` của Kế Toán — R-SPINE-9), `branch` (`branch_code` khi bán), `partner` (gửi `code` = SĐT đã xác minh, không có thì `CAKE-<contact_id>`, vãng lai `KHACH-LE`; lưu `partner_ref` một chiều — R-MD-1) |
 | Gửi sau | sự kiện sổ chạm khách qua outbox; `Idempotency-Key = <doc_ref>@<version>` |
-| Đối chiếu | `RC-SPINE-partner`: mọi `partner_ref` của cake tra được ở open-ketoan |
+| Đối chiếu | `RC-SPINE-partner` (mọi `partner_ref` tra được ở open-ketoan), `RC-SPINE-item`, `RC-SPINE-uom` (hàng / ĐVT đã gắn khớp phiên bản của chủ) |
 | Hình thức tham chiếu | app khác nói tới khách của cake bằng `ContactRef {id}` hoặc `{identity: {kind, value, proof}}` — **không bao giờ** bằng tên (R-CANON-3, R-SPINE-2) |
 
 Giai đoạn W1 (chưa có máy chủ): các mục bản sao / outbox / đối chiếu vào ở PHASE-016 cùng DB và API; manifest khai trước để bộ kiểm và trang bizcity.vn thấy đúng vai.

@@ -2,13 +2,15 @@
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: khung chat theo ảnh duyệt (inbox.png): đầu hội thoại · tin (cake.message.list) · dải nhãn
 //   (cake.conversation.tag) · ô soạn gửi thật (cake.message.send) — lỗi hiện dưới ô soạn với lý do CAKE_*; comment có nút Trả lời riêng (cake.comment.reply).
+// [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-7 — thêm nút Gửi giá; Tin nhắn nhanh + Gửi giá tách ra composer-panels.tsx (một khuôn bảng chọn).
 import { useEffect, useRef, useState } from 'react';
-import { commentReply, conversationTag, messageList, messageSend, recordList, type Conversation, type Message } from '@open-cake/contracts';
+import { commentReply, conversationTag, messageList, messageSend, type Conversation, type Message } from '@open-cake/contracts';
 import { useAction, useQueryAction } from '@open-cake/action-client';
 import { Btn, ChannelBadge, Face, GroupAvatar, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
 import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
+import { PricePicker, QuickReplies } from './composer-panels.js';
 
 const LABELS = Object.keys(TAG_LOOK);
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
@@ -39,9 +41,9 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const reply = useAction(commentReply);
   const tag = useAction(conversationTag);
   const [text, setText] = useState('');
-  const [quick, setQuick] = useState(false);
-  // Tin nhắn nhanh = bản ghi lớp mềm cake.quick_reply — dùng lại core.record.list, không có bảng / API riêng (R-CANON-14/15).
-  const replies = useQueryAction(recordList, { type: 'cake.quick_reply', includeArchived: false }, { enabled: quick });
+  const [panel, setPanel] = useState<'quick' | 'price' | null>(null);
+  const insert = (t: string) => { setText((cur) => (cur.trim() ? `${cur.trimEnd()} ${t}` : t)); setPanel(null); };
+  const toggle = (k: 'quick' | 'price') => setPanel(panel === k ? null : k);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [msgs.data]);
   const isComment = conv.kind === 'comment_thread';
@@ -76,19 +78,11 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
         })}
       </div>
       <div style={{ padding: '0 16px' }}><ActionErrorNote error={send.error ?? reply.error ?? tag.error} /></div>
-      {quick && (
-        <div className="card" style={{ margin: '0 16px 8px', padding: 8 }}>
-          <QueryView q={replies} empty={{ title: 'Chưa có tin nhắn nhanh', action: <Btn sm out onClick={() => go('records/cake.quick_reply')}>Thêm ở Cài đặt</Btn> }}>
-            {(rs) => <>{rs.map((r) => (
-              <button type="button" key={r.recordId} className="pitem" style={{ width: '100%', textAlign: 'left' }} onClick={() => { setText(String(r.data.body ?? '')); setQuick(false); }}>
-                <div><b>{r.title}</b> <span className="xs subtle">{String(r.data.shortcut ?? '')}</span><span>{String(r.data.body ?? '')}</span></div>
-              </button>
-            ))}</>}
-          </QueryView>
-        </div>
-      )}
+      {panel === 'quick' && <QuickReplies onPick={insert} />}
+      {panel === 'price' && <PricePicker onPick={insert} />}
       <div className="dinput" style={{ gap: 8 }}>
-        <Btn ghost icon title="Tin nhắn nhanh" onClick={() => setQuick(!quick)}><Ic.bolt /></Btn>
+        <Btn ghost icon title="Tin nhắn nhanh" className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
+        <Btn ghost icon title="Gửi giá" className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
         <textarea className="input" style={{ flex: 1, minHeight: 44, resize: 'none', border: 0, fontSize: 16 }} value={text} disabled={busy}
           placeholder={isComment ? 'Trả lời bình luận… (Enter: trả lời công khai)' : 'Nhập tin, Shift+Enter xuống dòng, Enter gửi…'}
           onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} aria-label="Soạn tin" />

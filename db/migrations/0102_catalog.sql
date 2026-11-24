@@ -1,9 +1,11 @@
 -- [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — S017-5: danh mục độc lập sẵn ánh xạ (ADR-0004, R-CAKE-MASTER-1..5, canon R-CANON-16).
+-- [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — theo bizcity_spine@1.1 (chưa áp ở site nào nên sửa thẳng): cột riêng của Cake (tên khi chat, bán trong CRM,
+--   ảnh, mô tả) ra khỏi bảng hàng ⇒ entity_meta cake.item.* (R-SPINE-5/10); ext_hash → ext_version (digest {id, version}); tenant_links dùng slug tenant, không giữ id nội bộ Kế Toán.
 -- =============================================================================
 -- 0102 Danh mục của Cake: nhóm · hàng · mã có hiệu lực · ĐVT · bảng giá · giá · liên kết đơn vị · liên kết khách.
 --      Chạy một mình (catalog_source = local) nhưng hình đúng chuẩn open-ketoan / open-pos (H-1…H-18):
 --        item_id ULID (khuôn items.item_id) · mã đóng / mở theo hiệu lực · đúng một ĐVT tỉ lệ 1 · giá gồm VAT 2 số lẻ.
---      Mọi bảng đồng bộ mang cùng khối ánh xạ: source · ext_id · ext_synced_at · ext_hash · push_status · push_error.
+--      Mọi bảng đồng bộ mang cùng khối ánh xạ: source · ext_id · ext_version · ext_synced_at · push_status · push_error.
 --      Khi catalog_source = ketoan: cột kế toán chỉ ghi qua MỘT cổng (catalogWriteGate ở tầng ứng dụng) — không hai chủ cùng lúc.
 --      Mọi bảng: tenant_id + RLS FORCE (R-CAKE-TEN-1).
 -- =============================================================================
@@ -15,12 +17,11 @@ CREATE TABLE catalog_categories (
   name           text        NOT NULL CHECK (length(name) BETWEEN 1 AND 100),
   parent_code    text,
   level          smallint    NOT NULL CHECK (level BETWEEN 1 AND 3),
-  kind           text        NOT NULL DEFAULT 'group' CHECK (kind IN ('group', 'brand', 'industry', 'type')),
   is_active      boolean     NOT NULL DEFAULT true,
   source         text        NOT NULL DEFAULT 'local' CHECK (source IN ('local', 'ketoan')),
   ext_id         text,
   ext_synced_at  timestamptz,
-  ext_hash       text,
+  ext_version    integer     CHECK (ext_version IS NULL OR ext_version >= 1),
   push_status    text        NOT NULL DEFAULT 'local' CHECK (push_status IN ('local', 'sent', 'accepted', 'rejected')),
   push_error     text,
   updated_at     timestamptz NOT NULL DEFAULT now(),
@@ -36,7 +37,7 @@ CREATE TABLE catalog_items (
   tenant_id          bigint      NOT NULL,
   sku                text        NOT NULL CHECK (sku ~ '^[0-9A-Z]{1,64}$'),          -- ảnh chụp mã hiện hành (H-1…H-5)
   name               text        NOT NULL CHECK (length(name) BETWEEN 1 AND 50),     -- H-7
-  base_unit          text        NOT NULL,
+  base_unit          text        NOT NULL CHECK (base_unit ~ '^[^\s]{1,20}$'),  -- tên ĐVT của chủ, có dấu (SPINE 1.1 uom)
   category_code      text,
   item_kind          text        CHECK (item_kind IN ('goods','material','finished','service','tool','asset','gift','packaging','other')),
   tax_code           text        NOT NULL CHECK (tax_code IN ('KCT', '0', '5', '8', '10', 'KKKN')), -- H-11
@@ -44,16 +45,12 @@ CREATE TABLE catalog_items (
   parent_item_id     text        REFERENCES catalog_items (item_id),
   status             text        NOT NULL DEFAULT 'active' CHECK (status IN ('draft', 'active', 'retired')),
   no_sale            boolean     NOT NULL DEFAULT false,
-  -- cột vận hành của Cake: sửa được cả khi nguồn = ketoan
-  display_name       text        CHECK (length(display_name) <= 200),
-  is_sellable_in_crm boolean     NOT NULL DEFAULT true,
-  image_url          text,
-  description        text,
+  -- cột riêng của Cake (tên khi chat, bán trong CRM, ảnh, mô tả) KHÔNG ở đây: entity_meta cake.item.* (R-SPINE-5/10)
   -- khối ánh xạ
   source             text        NOT NULL DEFAULT 'local' CHECK (source IN ('local', 'ketoan')),
-  ext_id             text,       -- items.item_id của Kế Toán
+  ext_id             text,       -- items.item_id của Kế Toán; itemId của Cake là khoá cục bộ, trên dây gửi {local:'cake:item:<id>', code} tới khi có ext_id
   ext_synced_at      timestamptz,
-  ext_hash           text,
+  ext_version        integer     CHECK (ext_version IS NULL OR ext_version >= 1),
   push_status        text        NOT NULL DEFAULT 'local' CHECK (push_status IN ('local', 'sent', 'accepted', 'rejected')),
   push_error         text,
   created_at         timestamptz NOT NULL DEFAULT now(),
@@ -85,7 +82,7 @@ CREATE UNIQUE INDEX catalog_item_codes_one_live_sku ON catalog_item_codes (tenan
 CREATE TABLE catalog_item_units (
   tenant_id        bigint      NOT NULL,
   item_id          text        NOT NULL REFERENCES catalog_items (item_id),
-  unit             text        NOT NULL CHECK (length(unit) BETWEEN 1 AND 32), -- tên ngoài 40 tên chuẩn ⇒ cảnh báo CAT-UNIT-NONSTD (H-9), không chặn
+  unit             text        NOT NULL CHECK (unit ~ '^[^\s]{1,20}$'), -- tên ngoài 40 tên chuẩn ⇒ cảnh báo CAT-UNIT-NONSTD (H-9), không chặn
   ratio            numeric(18,6) NOT NULL CHECK (ratio > 0),
   is_default_sale  boolean     NOT NULL DEFAULT false,
   weight_kg        numeric(12,3) CHECK (weight_kg IS NULL OR weight_kg >= 0),
@@ -105,7 +102,7 @@ CREATE TABLE catalog_price_lists (
   source         text        NOT NULL DEFAULT 'local' CHECK (source IN ('local', 'ketoan')),
   ext_id         text,
   ext_synced_at  timestamptz,
-  ext_hash       text,
+  ext_version    integer     CHECK (ext_version IS NULL OR ext_version >= 1),
   push_status    text        NOT NULL DEFAULT 'local' CHECK (push_status IN ('local', 'sent', 'accepted', 'rejected')),
   push_error     text,
   PRIMARY KEY (tenant_id, code)
@@ -129,16 +126,15 @@ COMMENT ON TABLE catalog_prices IS 'Giá gồm VAT theo (bảng giá, hàng, ĐV
 -- ── Liên kết đơn vị Cake ↔ Kế Toán ────────────────────────────────────────────
 CREATE TABLE tenant_links (
   tenant_id          bigint      PRIMARY KEY,
+  tenant             text        NOT NULL CHECK (tenant ~ '^[a-z][a-z0-9-]{1,30}$'),   -- slug site = trục tenant SPINE; id nội bộ Kế Toán không giữ, không lộ
   catalog_source     text        NOT NULL DEFAULT 'local' CHECK (catalog_source IN ('local', 'ketoan')),
   okt_base_url       text,
-  okt_tenant_id      text,       -- đọc từ health của khoá, không gõ tay (R-CAKE-MASTER-4)
-  branch_code        text,
-  external_ref       text        CHECK (external_ref IS NULL OR external_ref ~ '^opencake:[a-z0-9-]+$'),
+  branch_code        text        CHECK (branch_code IS NULL OR branch_code ~ '^[A-Z0-9_.-]{1,20}$'),
   connected_at       timestamptz,
   last_health_ok_at  timestamptz,
   paused             boolean     NOT NULL DEFAULT false,
   feed_cursor        jsonb,      -- con trỏ kéo meta / products / prices (PHASE-010)
-  CHECK (catalog_source = 'local' OR (okt_base_url IS NOT NULL AND okt_tenant_id IS NOT NULL))
+  CHECK (catalog_source = 'local' OR (okt_base_url IS NOT NULL AND connected_at IS NOT NULL))
 );
 COMMENT ON TABLE tenant_links IS 'Nguồn danh mục của đơn vị và liên kết sang Kế Toán. Không giữ khoá bí mật ở đây (khoá ở vault).';
 

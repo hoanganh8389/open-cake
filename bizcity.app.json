@@ -8,17 +8,49 @@
   "license": "GPL-2.0-or-later",
   "paid": false,
   "axes": {
-    "owns": ["contact", "touch", "document"],
-    "uses": ["tenant", "user", "item", "partner"],
-    "replica": ["item"]
+    "owns": [
+      "contact",
+      "touch",
+      "document"
+    ],
+    "uses": [
+      "tenant",
+      "user",
+      "item",
+      "uom",
+      "branch",
+      "partner"
+    ],
+    "replica": [
+      "item",
+      "uom"
+    ],
+    "local": [
+      "item",
+      "uom"
+    ]
   },
   "sync": {
     "pull_via": "open-ketoan",
     "push_via": "open-ketoan",
-    "outbox": ["touch"],
-    "reconcile": ["RC-SPINE-partner"]
+    "outbox": [
+      "touch"
+    ],
+    "reconcile": [
+      "RC-SPINE-partner",
+      "RC-SPINE-item",
+      "RC-SPINE-uom"
+    ]
   },
-  "contracts": ["bizcity_spine@1", "bizcity_contact@1", "bizcity_touch@1", "bizcity_channel_command@1", "bizcity_master_data@1"],
-  "docs": { "canon": "docs/canon/README.md" },
-  "notes": "Chủ trục contact_id và sổ chạm khách. Khách phát sinh công nợ: gọi PUT /api/v1/partners/:code với code = CAKE-<contact_id>, lưu partner_ref một chiều (R-MD-1). Giai đoạn W1 chưa có máy chủ: replica item và outbox vào ở PHASE-016."
+  "contracts": [
+    "bizcity_spine@1",
+    "bizcity_contact@1",
+    "bizcity_touch@1",
+    "bizcity_channel_command@1",
+    "bizcity_master_data@1"
+  ],
+  "docs": {
+    "canon": "docs/canon/README.md"
+  },
+  "notes": "Chủ contact_id và sổ chạm khách. Danh mục hàng chạy một mình (catalog_source local) theo chuẩn Kế Toán, ràng buộc muộn với item_id của Kế Toán (R-SPINE-9); itemId của Cake là khoá cục bộ. Mã đối tượng công nợ: SĐT đã xác minh, không có thì CAKE-<contact_id>, vãng lai KHACH-LE."
 }

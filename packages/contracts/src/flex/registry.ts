@@ -24,7 +24,7 @@ const noForbidden = (k: string) => !FORBIDDEN_META_WORDS.some((w) => k.split(/[.
 export const MetaKeySpecSchema = z.object({
   store: z.enum(['entity_meta', 'user_meta', 'options']),
   key: z.string().regex(/^(bizcity\.)?[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/).refine(noForbidden, 'khoá chứa từ cấm ở lớp mềm (R-DATA-2)'),
-  entityType: z.enum(['contact', 'conversation', 'channel_account', 'document']).optional(),
+  entityType: z.enum(['contact', 'conversation', 'channel_account', 'document', 'item']).optional(),
   scopes: z.array(z.enum(['tenant', 'channel_account', 'user'])).optional(),
   field: FieldSpecSchema,
   indexed: z.boolean().default(false),
@@ -61,6 +61,11 @@ export const CAKE_META_KEYS: MetaKeySpec[] = [
   { store: 'entity_meta', key: 'cake.contact.real_name', entityType: 'contact', field: { key: 'real_name', label: 'Tên thật', type: 'string', required: false, pii: true, max: 200 }, indexed: false, ownerApp: 'cake' },
   { store: 'entity_meta', key: 'cake.contact.source', entityType: 'contact', field: { key: 'source', label: 'Biết shop qua', type: 'string', required: false, pii: false, max: 100 }, indexed: false, ownerApp: 'cake' },
   { store: 'entity_meta', key: 'cake.contact.size', entityType: 'contact', field: { key: 'size', label: 'Size hay mặc', type: 'string', required: false, pii: false, max: 20 }, indexed: false, ownerApp: 'cake' },
+  // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — cột riêng của Cake trên hàng (SPINE R-SPINE-5/10): không nằm trong bảng hàng theo chuẩn Kế Toán.
+  { store: 'entity_meta', key: 'cake.item.display_name', entityType: 'item', field: { key: 'display_name', label: 'Tên khi chat', type: 'string', required: false, pii: false, max: 200 }, indexed: false, ownerApp: 'cake' },
+  { store: 'entity_meta', key: 'cake.item.sellable', entityType: 'item', field: { key: 'sellable', label: 'Bán trong CRM', type: 'bool', required: false, pii: false }, indexed: true, ownerApp: 'cake' },
+  { store: 'entity_meta', key: 'cake.item.image_url', entityType: 'item', field: { key: 'image_url', label: 'Ảnh', type: 'string', required: false, pii: false, max: 1000 }, indexed: false, ownerApp: 'cake' },
+  { store: 'entity_meta', key: 'cake.item.description', entityType: 'item', field: { key: 'description', label: 'Mô tả', type: 'text', required: false, pii: false, max: 20000 }, indexed: false, ownerApp: 'cake' },
   { store: 'user_meta', key: 'cake.inbox.filters', field: { key: 'filters', label: 'Bộ lọc đã lưu', type: 'json', required: false, pii: false }, indexed: false, ownerApp: 'cake' },
   { store: 'user_meta', key: 'cake.contacts.columns', field: { key: 'columns', label: 'Cột hiện', type: 'string[]', required: false, pii: false }, indexed: false, ownerApp: 'cake' },
   { store: 'options', key: 'bizcity.cake.send_cap_per_hour', scopes: ['tenant', 'channel_account'], field: { key: 'send_cap_per_hour', label: 'Trần gửi mỗi giờ', type: 'int', required: true, pii: false }, indexed: false, ownerApp: 'cake' },

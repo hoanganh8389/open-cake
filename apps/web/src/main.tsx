@@ -10,7 +10,7 @@ import '@open-cake/ui-kit/tokens.css';
 import '@open-cake/ui-kit/chat.css';
 import { Shell } from './app/Shell.js';
 import { useRoute } from './app/route.js';
-import { Catalog } from './screens/Catalog.js';
+import { Catalog } from './screens/catalog/index.js';
 import { Channels } from './screens/Channels.js';
 import { Contact360 } from './screens/Contact360.js';
 import { Contacts } from './screens/Contacts.js';

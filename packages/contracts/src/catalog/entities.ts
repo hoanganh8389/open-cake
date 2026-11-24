@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer contracts
 // [2026-11-24 04:58 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — danh mục độc lập sẵn ánh xạ (ADR-0004): hàng, mã, ĐVT, nhóm, bảng giá, giá, liên kết đơn vị.
-//   Mỗi bảng đồng bộ mang cùng khối ánh xạ MasterSync (khuôn open-pos-backend); item_id cùng khuôn ULID với open-ketoan items.item_id.
+// [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — theo bizcity_spine@1.1: itemId của Cake là KHOÁ CỤC BỘ (R-SPINE-1/9) — trên dây đi bằng itemRefOf();
+//   cột riêng của Cake (tên hiển thị, bán trong CRM, ảnh, mô tả) ở lớp mềm entity_meta cake.item.* (R-SPINE-5/10, R-CANON-15); đơn vị = slug tenant (không lộ id nội bộ Kế Toán).
 import { z } from 'zod';
 import { ULID_RE } from '../cake/channel.js';
 import { CatalogWarningSchema, ItemNameSchema, ItemUnitInputSchema, PriceSchema, SkuSchema, TaxCodeSchema } from './standard.js';
@@ -12,12 +13,12 @@ const iso = z.string().datetime({ offset: true });
 export const CatalogSourceSchema = z.enum(['local', 'ketoan']);
 export type CatalogSource = z.infer<typeof CatalogSourceSchema>;
 
-/** Khối ánh xạ chung — giống nhau ở mọi bảng đồng bộ. */
+/** Khối ánh xạ chung — cột tối thiểu của bản sao theo SPINE §4 (id chủ · phiên bản · lúc đồng bộ). */
 export const MasterSyncSchema = z.object({
   source: CatalogSourceSchema,
-  extId: z.string().nullable(), // items.item_id | partners.code | price_lists.code | item_classes.code
+  extId: z.string().nullable(), // id của chủ: items.item_id | price_lists.code | item_classes.code
+  extVersion: z.number().int().min(1).nullable(), // đối chiếu digest {id, version}
   extSyncedAt: iso.nullable(),
-  extHash: z.string().nullable(),
   pushStatus: z.enum(['local', 'sent', 'accepted', 'rejected']),
   pushError: z.string().nullable(),
 });
@@ -28,7 +29,6 @@ export const CategorySchema = z.object({
   name: z.string().min(1).max(100),
   parentCode: z.string().nullable(),
   level: z.number().int().min(1).max(3),
-  kind: z.enum(['group', 'brand', 'industry', 'type']),
   isActive: z.boolean(),
   sync: MasterSyncSchema,
 });
@@ -41,12 +41,23 @@ export const ItemCodeSchema = z.object({
   validTo: iso.nullable(),
 });
 
+/** Cột riêng của Cake — lớp mềm entity_meta cake.item.*; sửa được ở mọi nguồn (chủ không chạm, R-SPINE-10). */
+export const ItemLocalSchema = z.object({
+  displayName: z.string().max(200).nullable(), // tên gọi khi chat
+  sellable: z.boolean(), // hiện khi gửi giá trong chat
+  imageUrl: z.string().max(1000).nullable(),
+  description: z.string().max(20000).nullable(),
+});
+export type ItemLocal = z.infer<typeof ItemLocalSchema>;
+export const ITEM_LOCAL_META: Record<keyof ItemLocal, string> = {
+  displayName: 'cake.item.display_name', sellable: 'cake.item.sellable', imageUrl: 'cake.item.image_url', description: 'cake.item.description',
+};
+
 export const ItemSchema = z.object({
-  itemId: z.string().regex(ULID_RE), // khuôn items.item_id; khi ánh xạ ⇒ sync.extId = item_id của Kế Toán
-  sku: SkuSchema, // mã hiện hành (ảnh chụp từ itemCodes kind sku)
+  itemId: z.string().regex(ULID_RE), // khoá cục bộ của Cake; id của Kế Toán ở sync.extId
+  sku: SkuSchema, // mã hiện hành (ảnh chụp từ codes kind sku)
   name: ItemNameSchema,
-  displayName: z.string().max(200).nullable(), // cột vận hành của Cake — sửa được cả khi nguồn ketoan
-  baseUnit: z.string().min(1).max(32),
+  baseUnit: z.string().min(1).max(20),
   categoryCode: z.string().nullable(),
   itemKind: z.enum(['goods', 'material', 'finished', 'service', 'tool', 'asset', 'gift', 'packaging', 'other']).nullable(),
   taxCode: TaxCodeSchema,
@@ -54,12 +65,10 @@ export const ItemSchema = z.object({
   parentItemId: z.string().regex(ULID_RE).nullable(),
   status: z.enum(['draft', 'active', 'retired']),
   noSale: z.boolean(),
-  isSellableInCrm: z.boolean(), // vận hành
-  imageUrl: z.string().max(1000).nullable(),
-  description: z.string().max(20000).nullable(),
   codes: z.array(ItemCodeSchema),
   units: z.array(ItemUnitInputSchema),
   sync: MasterSyncSchema,
+  local: ItemLocalSchema,
   warnings: z.array(CatalogWarningSchema),
   updatedAt: iso,
 });
@@ -84,26 +93,26 @@ export const PriceRowSchema = z.object({
 });
 export type PriceRow = z.infer<typeof PriceRowSchema>;
 
-/** Liên kết đơn vị Cake ↔ đơn vị Kế Toán. okt_tenant_id đọc từ health của khoá, không gõ tay. */
-export const TenantLinkSchema = z.object({
+/** Nguồn danh mục + đơn vị. tenant = slug site (SPINE trục tenant); tenant_id bigint của Kế Toán không lộ ra dây. */
+export const CatalogSourceInfoSchema = z.object({
+  tenant: z.string().regex(/^[a-z][a-z0-9-]{1,30}$/),
   catalogSource: CatalogSourceSchema,
-  oktBaseUrl: z.string().url().nullable(),
-  oktTenantId: z.string().nullable(),
-  branchCode: z.string().nullable(),
-  externalRef: z.string().regex(/^opencake:[a-z0-9-]+$/).nullable(),
-  connectedAt: iso.nullable(),
-  lastHealthOkAt: iso.nullable(),
-  paused: z.boolean(),
+  branchCode: z.string().regex(/^[A-Z0-9_.-]{1,20}$/).nullable(), // SPINE trục branch
+  ketoan: z.object({ baseUrl: z.string().url(), connectedAt: iso, lastSyncAt: iso.nullable(), paused: z.boolean() }).nullable(),
 });
-export type TenantLink = z.infer<typeof TenantLinkSchema>;
+export type CatalogSourceInfo = z.infer<typeof CatalogSourceInfoSchema>;
 
-/** Cột kế toán: chỉ đọc khi nguồn = ketoan (một cổng ghi — R-OKT-CONN-4). Còn lại là cột vận hành của Cake. */
+/** Cột kế toán: chỉ đọc khi nguồn = ketoan. Mọi thứ ngoài `local` là cột kế toán (một danh sách, một cổng). */
 export const ERP_ITEM_FIELDS = ['sku', 'name', 'baseUnit', 'categoryCode', 'itemKind', 'taxCode', 'parentItemId', 'status', 'noSale', 'units', 'codes'] as const;
-export const OPERATIONAL_ITEM_FIELDS = ['displayName', 'isSellableInCrm', 'imageUrl', 'description'] as const;
 
-/** Cổng ghi duy nhất: nguồn ketoan ⇒ chặn mọi cột kế toán, ở MỌI trạng thái kết nối (kể cả mất kết nối / tạm dừng). */
+/** Cổng ghi duy nhất (R-CAKE-MASTER-3): nguồn ketoan ⇒ chặn mọi cột kế toán, ở MỌI trạng thái kết nối. */
 export function catalogWriteGate(source: CatalogSource, changedFields: readonly string[]): { ok: true } | { ok: false; blocked: string[] } {
   if (source === 'local') return { ok: true };
-  const blocked = changedFields.filter((f) => (ERP_ITEM_FIELDS as readonly string[]).includes(f));
+  const blocked = changedFields.filter((f) => f !== 'local');
   return blocked.length ? { ok: false, blocked } : { ok: true };
 }
+
+/** ItemRef trên dây (SPINE §3): đã gắn Kế Toán ⇒ {id}; chưa ⇒ khoá cục bộ + mã (R-SPINE-1: không đưa itemId của Cake vào ô id). */
+export type ItemRef = { id: string } | { local: string; code: string };
+export const itemRefOf = (it: Pick<Item, 'itemId' | 'sku' | 'sync'>): ItemRef =>
+  (it.sync.extId ? { id: it.sync.extId } : { local: `cake:item:${it.itemId}`, code: it.sku });
