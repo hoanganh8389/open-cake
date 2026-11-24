@@ -1,0 +1,14 @@
+# Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
+# [2026-11-24 04:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — compose project "cake": hiện chỉ có web (bộ giả lập).
+#   PHASE-016 thêm db (postgres:16), db-migrate, api, redis (profile) theo architecture/50-DEPLOYMENT.md.
+#   Cổng mặc định 8110 (8088 ketoan, 8096–8099 okt-* đã dùng trên máy này).
+name: cake
+
+services:
+  web:
+    build: { context: ., dockerfile: docker/web.Dockerfile }
+    image: open-cake-web:0.1.0
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8110}:80"
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }

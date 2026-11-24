@@ -9,7 +9,7 @@
 | `db` | `postgres:16-alpine` | volume `pgdata`; tạo vai `cake_app` (không siêu người dùng) ở init |
 | `db-migrate` | ảnh `api`, `node dist/db/setup.js` | chạy một lần; `SITE_MODE=multi` ⇒ template trước rồi từng site (R-SITE-8) |
 | `api` | `docker/api.Dockerfile` (node:22-alpine, tầng build → conformance → runtime, `NODE_OPTIONS=--enable-source-maps`) | cổng nội bộ 4200; healthcheck `/api/v1/system/health/ready` |
-| `web` | `docker/web.Dockerfile` (nginx:1.27-alpine) | `${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8098}:80`; proxy `/api/`, `/mcp`, `/ingress/`, `/_sites/`, `/metrics` (chặn ngoài) → `api:4200`; cho phép nhúng iframe wp-admin theo `FRAME_ANCESTORS` |
+| `web` | `docker/web.Dockerfile` (nginx:1.27-alpine) | `${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8110}:80`; proxy `/api/`, `/mcp`, `/ingress/`, `/_sites/`, `/metrics` (chặn ngoài) → `api:4200`; cho phép nhúng iframe wp-admin theo `FRAME_ANCESTORS` |
 | `redis` | `redis:7-alpine`, **profile `redis`** | `docker compose --profile redis up -d` |
 
 Compose project `cake` (khác `ketoan`, `zalo-hub`); log json-file 10m × 3; volume `appdata`, `logs` (`LOG_HOST_DIR`). Giám sát: `infrastructure/monitoring/docker-compose.monitoring.yml`; sao lưu: `infrastructure/backup/docker-compose.pitr.yml`.
@@ -36,7 +36,7 @@ Compose project `cake` (khác `ketoan`, `zalo-hub`); log json-file 10m × 3; vol
 git clone https://github.com/hoanganh8389/open-cake && cd open-cake
 cp .env.example .env    # đặt JWT_SECRET, DB_PASSWORD, DB_APP_PASSWORD
 docker compose up -d && docker compose logs -f db-migrate
-# mở http://127.0.0.1:8098/app — đăng nhập SEED_ADMIN_EMAIL
+# mở http://127.0.0.1:8110/ — đăng nhập SEED_ADMIN_EMAIL
 ```
 
 ## 4. Nhiều site + open-setup

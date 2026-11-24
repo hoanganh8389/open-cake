@@ -29,7 +29,7 @@
 
 | Container | Công nghệ | Vai | Cổng |
 |---|---|---|---|
-| `web` | nginx 1.27 + bản build Vite | phục vụ `/app/*`, proxy `/api/`, `/mcp`, `/ingress/`, `/_sites/` → `api` | 8098 (mặc định, khác 8088 của Kế Toán) |
+| `web` | nginx 1.27 + bản build Vite | phục vụ `/app/*`, proxy `/api/`, `/mcp`, `/ingress/`, `/_sites/` → `api` | 8110 (mặc định; 8088 ketoan, 8096–8099 okt-* đã dùng trên máy dev) |
 | `api` | Node 22, Fastify 5, Kysely, pg, zod, jose, pino, OpenTelemetry | REST `/api/v1`, MCP `/mcp`, nhận `/ingress/v1/touch`, Provisioning `/_sites/v1`, `/metrics`; chạy dispatcher outbox + đồng hồ theo vòng `forEachSite` | 4200 (nội bộ) |
 | `db` | PostgreSQL 16 | `cake_control` (registry) · `cake_template` · `cake_<slug>` × N | 5432 nội bộ |
 | `db-migrate` | ảnh `api`, chạy một lần | migration template rồi từng site | — |

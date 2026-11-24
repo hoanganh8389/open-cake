@@ -19,6 +19,15 @@ npm run web:dev     # http://localhost:5173/#/inbox — thêm ?mock=empty|error|
 
 Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Contact 360 ca vàng Facebook) · `#/channels` · `#/dashboard` · `#/states`.
 
+**Bằng Docker** (cạnh ketoan / okt-* trên cùng máy):
+
+```bash
+docker compose up -d --build   # project "cake", container cake-web-1
+# mở http://127.0.0.1:8110/#/inbox   (đổi cổng: WEB_PORT=8120 docker compose up -d)
+```
+
+Ảnh `open-cake-web` chạy lại test + typecheck khi build. Hiện chỉ có web (bộ giả lập); db / api vào ở PHASE-016.
+
 ## Đọc theo thứ tự
 
 | Tài liệu | Một câu |
