@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-7: Kênh (màn mới) — tài khoản kênh của doanh nghiệp (cake.channel.list) + sheet Kết nối kênh 4 bước
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-7: Kênh (màn mới) — tài khoản kênh của doanh nghiệp (cake.channel.list) + sheet Kết nối kênh 4 bước
 //   (architecture/60-UI §3): ① khoá biz-… ② chọn kênh ③ cake.channel.connect_start ④ thắng nhỏ cake.channel.test — "Đã kết nối" chỉ khi có bằng chứng hai chiều.
 import { useState } from 'react';
 import { ACCOUNT_CHANNELS, channelConnectStart, channelList, channelTest, type AccountChannel } from '@open-cake/contracts';

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: điểm vào web. Chọn adapter: giả lập (mặc định ở phase này, ?mock=empty|error|denied|slow)
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: điểm vào web. Chọn adapter: giả lập (mặc định ở phase này, ?mock=empty|error|denied|slow)
 //   hoặc http (?api=http, dùng ở PHASE-007). Màn không biết adapter nào đang chạy.
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';

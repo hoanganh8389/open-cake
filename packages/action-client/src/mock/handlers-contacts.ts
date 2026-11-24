@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: handler giả lập cho khách / Contact 360 / ghép — đúng luật R-CAKE-ID-2
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: handler giả lập cho khách / Contact 360 / ghép — đúng luật R-CAKE-ID-2
 //   (ghép cần bằng chứng, đã kiểm ở schema), UNMERGE trong thời hạn, chuyển danh tính + hội thoại, không sửa dòng sổ cũ.
 import { ApiError } from '../client.js';
 import { sliceCursor } from './handlers-inbox.js';

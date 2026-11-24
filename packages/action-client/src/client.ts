@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: cổng duy nhất màn dùng để lấy / ghi dữ liệu (SC-REUSE-3: không fetch ngoài client).
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: cổng duy nhất màn dùng để lấy / ghi dữ liệu (SC-REUSE-3: không fetch ngoài client).
 //   Đổi giả lập ↔ máy chủ thật = đổi adapter, không sửa màn.
 import { CAKE_REASONS, type ActionInput, type ActionOutput, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: hook React trên react-query (R-WEB-3): dữ liệu máy chủ chỉ ở cache react-query,
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: hook React trên react-query (R-WEB-3): dữ liệu máy chủ chỉ ở cache react-query,
 //   khoá cache = ['cake', action id, input]; ghi xong thì làm mới mọi query cùng năng lực (capability).
 import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';

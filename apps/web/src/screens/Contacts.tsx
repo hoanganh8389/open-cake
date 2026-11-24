@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-5: Danh bạ theo ảnh duyệt (contacts.png) trên cake.contact.list — lọc nhãn / giới tính / sinh nhật /
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-5: Danh bạ theo ảnh duyệt (contacts.png) trên cake.contact.list — lọc nhãn / giới tính / sinh nhật /
 //   tìm, sắp xếp, phân trang số, tất cả trên URL. Bấm dòng ⇒ Contact 360. Thanh trạng thái Send Guard chưa có nguồn ⇒ ghi rõ, không số giả.
 import { contactList } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';

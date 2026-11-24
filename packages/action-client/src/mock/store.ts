@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: kho trong bộ nhớ của bộ giả lập, nạp từ bộ mẫu "Shop Hoa Mai" (GIẢ LẬP).
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: kho trong bộ nhớ của bộ giả lập, nạp từ bộ mẫu "Shop Hoa Mai" (GIẢ LẬP).
 //   Thêm một khách "Hương Nguyễn" đến từ Facebook cá nhân để màn Contact 360 diễn được ca vàng G5 (gợi ý cùng người ⇒ Ghép có bằng chứng).
 import type { z } from 'zod';
 import type { ContactLink, ContactSchema, ContactStateSchema, ConversationSchema, IdentitySchema, MessageSchema, TimelineItemSchema, ChannelAccountSchema } from '@open-cake/contracts';

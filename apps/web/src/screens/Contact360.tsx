@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-6: Contact 360 (màn mới) — một contact_id, dòng thời gian mọi kênh (cake.contact.timeline),
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-6: Contact 360 (màn mới) — một contact_id, dòng thời gian mọi kênh (cake.contact.timeline),
 //   danh tính + độ tin + bằng chứng (R-CAKE-UI-6), gợi ý cùng người (cake.contact.suggestions) và Ghép có bằng chứng / Tách lại (cake.contact.merge / unmerge).
 import { useState } from 'react';
 import { contactGet, contactMerge, contactSuggestions, contactTimeline, contactUnmerge, type Identity } from '@open-cake/contracts';

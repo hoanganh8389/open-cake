@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: thành phần kiểu Deplao từ bản mẫu duyệt (deplao.jsx): avatar minh hoạ, nhãn nền đặc,
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: thành phần kiểu Deplao từ bản mẫu duyệt (deplao.jsx): avatar minh hoạ, nhãn nền đặc,
 //   huy hiệu kênh — nay theo enum kênh của hợp đồng (zalo_* / facebook_*), không theo id tài khoản bản mẫu. Thêm ChannelBadge chữ (R-CAKE-UI-5).
 import type { CSSProperties } from 'react';
 

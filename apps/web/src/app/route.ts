@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: URL là nguồn vị trí duy nhất (R-WEB-2): `#/màn/tham-số?k=v` — F5 về đúng chỗ, link dán được.
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: URL là nguồn vị trí duy nhất (R-WEB-2): `#/màn/tham-số?k=v` — F5 về đúng chỗ, link dán được.
 import { useCallback, useEffect, useState } from 'react';
 
 export type Route = { path: string[]; query: URLSearchParams };

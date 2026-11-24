@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: bộ thành phần chép từ bản mẫu duyệt (ui.jsx), giữ nguyên class để ra đúng ảnh;
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: bộ thành phần chép từ bản mẫu duyệt (ui.jsx), giữ nguyên class để ra đúng ảnh;
 //   thêm kiểu, ô tìm kiếm điều khiển được, phân trang bấm được, trạng thái lỗi có mã tra cứu (R-WEB-5).
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { Ic, type Icon } from './icons.js';

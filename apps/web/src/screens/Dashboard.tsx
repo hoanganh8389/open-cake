@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-8: Tổng quan tài khoản theo ảnh duyệt (dashboard.png) trên cake.channel.list.
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-8: Tổng quan tài khoản theo ảnh duyệt (dashboard.png) trên cake.channel.list.
 //   Ngắt kết nối chưa có action ở hợp đồng ⇒ không hiện nút giả; tài khoản chưa nối ⇒ "Kết nối lại" mở sheet Kết nối kênh.
 import { channelList } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';

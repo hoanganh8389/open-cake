@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter giả lập — kiểm input bằng spec.input và kiểm output bằng spec.output
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter giả lập — kiểm input bằng spec.input và kiểm output bằng spec.output
 //   ⇒ giao diện chỉ nhận dữ liệu đúng hợp đồng; giả lập lệch hợp đồng thì ném ngay (bắt sớm trôi hợp đồng). Kịch bản 4 trạng thái theo ?mock=.
 import { cakeCatalog, type ActionSpec } from '@open-cake/contracts';
 import { ApiError, type ActionClient, type CallResult } from '../client.js';

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: Hộp thư 3 cột theo ảnh duyệt (inbox.png). Danh sách = cake.conversation.list theo tài khoản kênh
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: Hộp thư 3 cột theo ảnh duyệt (inbox.png). Danh sách = cake.conversation.list theo tài khoản kênh
 //   trên URL (?account=&conv=&filter=); cột thông tin dẫn sang Contact 360 — một người, mọi kênh (trục contact_id).
 import { useState } from 'react';
 import { channelList, contactGet, conversationList } from '@open-cake/contracts';

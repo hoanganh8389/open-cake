@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter http — dựng request từ expose.rest của spec, đọc phong bì bizcity_api@1.
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: adapter http — dựng request từ expose.rest của spec, đọc phong bì bizcity_api@1.
 //   Chưa có máy chủ ở phase này; PHASE-007 bật adapter này.
 import { ApiFailureSchema, apiSuccess, type ActionSpec } from '@open-cake/contracts';
 import { ApiError, newIdempotencyKey, type ActionClient, type CallResult } from './client.js';

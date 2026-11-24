@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: khung theo ảnh duyệt — thanh tiêu đề · rail tài khoản kênh (từ cake.channel.list) + 6 mục.
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: khung theo ảnh duyệt — thanh tiêu đề · rail tài khoản kênh (từ cake.channel.list) + 6 mục.
 //   Rail: mỗi avatar = một channel_account, huy hiệu theo enum kênh, số chưa đọc thật; "+" mở Kết nối kênh.
 import { useState, type ReactNode } from 'react';
 import { channelList } from '@open-cake/contracts';

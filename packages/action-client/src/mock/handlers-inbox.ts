@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: handler giả lập cho kênh + hộp thư — làm đúng luật hợp đồng để giao diện gặp đúng lỗi
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: handler giả lập cho kênh + hộp thư — làm đúng luật hợp đồng để giao diện gặp đúng lỗi
 //   sẽ gặp ở máy chủ thật (CAKE_CHANNEL_NOT_CONNECTED, CAKE_WINDOW_CLOSED); không thay được máy chủ, chỉ thay được dữ liệu.
 import { ApiError } from '../client.js';
 import { byTimeDesc, iso, nextId, paged, type Store } from './store.js';

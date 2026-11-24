@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — định dạng ngày giờ theo giờ Việt Nam (dữ liệu trên dây là ISO có múi giờ).
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — định dạng ngày giờ theo giờ Việt Nam (dữ liệu trên dây là ISO có múi giờ).
 const TZ = 'Asia/Ho_Chi_Minh';
 export const hhmm = (iso: string) => new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
 const part = (iso: string, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-GB', { ...o, timeZone: TZ }).format(new Date(iso));

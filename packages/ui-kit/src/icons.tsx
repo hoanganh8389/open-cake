@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: bộ biểu tượng nét 1.8 chép nguyên từ bản mẫu duyệt (docs/ui/mockup-src/src/ui.jsx), thêm kiểu.
+// [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: bộ biểu tượng nét 1.8 chép nguyên từ bản mẫu duyệt (docs/ui/mockup-src/src/ui.jsx), thêm kiểu.
 import type { ReactNode, SVGProps } from 'react';
 
 export type IconProps = SVGProps<SVGSVGElement>;

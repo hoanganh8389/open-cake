@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
-# [2026-11-24 04:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — ảnh web open-cake: build Vite (Node 22) → phục vụ tĩnh bằng nginx 1.27.
+# [2026-11-24 04:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — ảnh web open-cake: build Vite (Node 22) → phục vụ tĩnh bằng nginx 1.27.
 # Bản này chạy bộ giả lập (chưa có API — PHASE-016); cùng khuôn docker/web.Dockerfile của open-ketoan.
 
 FROM node:22-alpine AS build

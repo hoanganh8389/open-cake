@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — màn chưa tới phase nói rõ vì sao + phase nào (R-NO-FAKE, R-BLOCK-1) thay vì số giả;
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — màn chưa tới phase nói rõ vì sao + phase nào (R-NO-FAKE, R-BLOCK-1) thay vì số giả;
 //   trang "Bốn trạng thái" để duyệt bộ thành phần (S003-1).
 import { Btn, Card, Gate, Ic, State } from '@open-cake/ui-kit';
 

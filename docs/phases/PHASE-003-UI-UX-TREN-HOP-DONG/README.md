@@ -25,7 +25,7 @@
 `npm run dev -w apps/web` mở được 6 màn với bộ giả lập; ảnh build 4 màn có ảnh chuẩn đạt ≥ 90 % phần tử chính; không màn nào gọi `fetch` ngoài `ActionClient`; không `alert/confirm/prompt`; mọi màn có đủ 4 trạng thái (bật bằng `?mock=empty|error|denied`).
 
 ## Bằng chứng (2026-11-24)
-<!-- [2026-11-24 04:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1..8 xong; ảnh build ở evidence/build-shots/ -->
+<!-- [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1..8 xong; ảnh build ở evidence/build-shots/ -->
 
 ```text
 npx vitest run         → 3 tệp, 38/38 qua (contracts 25 · action-client 13)

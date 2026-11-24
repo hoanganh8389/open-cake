@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
-// [2026-11-24 04:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: một chỗ quyết bốn trạng thái cho mọi khối dữ liệu (R-WEB-5): đang tải · lỗi (mã tra cứu) ·
+// [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: một chỗ quyết bốn trạng thái cho mọi khối dữ liệu (R-WEB-5): đang tải · lỗi (mã tra cứu) ·
 //   không có quyền · trống (có lý do + nút) — màn không tự viết lại logic này.
 import type { ReactNode } from 'react';
 import { ApiError } from '@open-cake/action-client';
