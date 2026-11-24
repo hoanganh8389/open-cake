@@ -1,6 +1,6 @@
 # open-cake · 00 — CANON
 
-> **Luật cấp trên:** [BIZCITY OPEN CANON v1](canon/BIZCITY-OPEN-CANON-v1.md) — đọc trước. Mâu thuẫn ⇒ sửa file này.
+> **Luật cấp trên:** [BIZCITY OPEN CANON 1.2.0-draft ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) + [chuẩn tái sử dụng](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-TAI-SU-DUNG-NANG-LUC.md) + [chuẩn dữ liệu](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/CHUAN-DU-LIEU-TRUC-VA-LOP-MEM.md) — đọc trước. Mâu thuẫn ⇒ sửa file này.
 > **Phiên bản:** 0.2.0-draft · 2026-11-24 · nháp chờ chủ duyệt.
 
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] INIT — CANON 0.1: luật R-CAKE-* kế thừa R-OC-* của plugin WP, đổi nền sang PostgreSQL / TypeScript, thêm luật danh tính. -->
@@ -80,6 +80,7 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 
 | Mã | Ở đâu |
 |---|---|
+| R-CANON-14 tái sử dụng (một action ⇒ mọi cửa) · R-CANON-15 trục cứng + lớp mềm (`options`, `user_meta`, `entity_meta`, `record_types`) | [15-CAPABILITIES-AND-FLEX-DATA](architecture/15-CAPABILITIES-AND-FLEX-DATA.md) |
 | R-API-* + phần thêm cake | [70-API-REST](architecture/70-API-REST.md) |
 | R-WEB-1..15 | [80-REACT](architecture/80-REACT.md) |
 | R-CAKE-UI-1..9 | [60-UI](architecture/60-UI.md) |

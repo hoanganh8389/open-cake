@@ -37,7 +37,7 @@ Quy ước cột theo `bizcity_data@1` / R-DB-*: `id bigint generated always as 
 
 `tenants` · `users` · `user_role_assignments` · `tenant_roles` · `tenant_role_rules` · `api_keys` · `audit_logs` (hash-chain) · `action_requests` · `mcp_confirm_tokens` · `event_outbox` · `event_deliveries` · `event_consumptions` · `setting_values` · `business_documents` · `document_versions` · `document_links` · `document_attachments` · `diagnostic_runs`.
 
-**Mười một bảng care-kernel + hạ tầng chung.** Pipeline, việc, chiến dịch, báo cáo = module (`mod_<key>`).
+**Mười một bảng care-kernel + hạ tầng chung.** Pipeline, việc, chiến dịch, báo cáo = module (`mod_<key>`). Dữ liệu ít, vụn, hay đổi (mẫu tin nhanh, nhãn, sinh nhật, size, bộ lọc lưu…) **không** thêm bảng: dùng lớp mềm `setting_values` · `user_meta` · `entity_meta` · `record_types` + `records` có registry — xem [15-CAPABILITIES-AND-FLEX-DATA](15-CAPABILITIES-AND-FLEX-DATA.md) (R-CANON-15).
 
 ## 2. Kênh (enum `channel`)
 

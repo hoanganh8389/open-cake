@@ -11,7 +11,7 @@
 |---|---|---|
 | S002-1 | npm workspaces `apps/{api,web}`, `packages/{contracts,platform,care-kernel,module-sdk,ui-kit,cli}`, `modules/`; Node ≥ 22.12, TS strict | root `package.json` |
 | S002-2 | fork `packages/platform`, `module-sdk`, `ui-kit`, `cli` + `UPSTREAM.md` (commit 6ad77b6, danh sách file, phần đã đổi); `scripts/so-upstream.mjs` báo trôi | `packages/*` |
-| S002-3 | `db/migrations/0001…` nền tảng: tenants, users, roles, api_keys, audit_logs, action_requests, setting_values, event_outbox / deliveries / consumptions, mcp_confirm_tokens, business_documents / versions / links / attachments, diagnostic_runs + RLS FORCE | 0001, 0035–0041, 0045, 0158 |
+| S002-3 | `db/migrations/0001…` nền tảng: tenants, users, roles, api_keys, audit_logs, action_requests, setting_values, **user_meta, entity_meta, record_types, records (lớp mềm R-CANON-15 + registry)**, event_outbox / deliveries / consumptions, mcp_confirm_tokens, business_documents / versions / links / attachments, diagnostic_runs + RLS FORCE | 0001, 0035–0041, 0045, 0158 |
 | S002-4 | ngữ cảnh site ở chế độ một site (`SITE_MODE=single`, Database Router một pool) — cùng đường mã với multi (R-SITE-5) | PHASE-039 B1 |
 | S002-5 | `/api/v1/system/health`, `/health/ready`, `/capabilities`; phong bì + `Errors.*` | `bizcity_api@1` |
 | S002-6 | `docker/{api,web}.Dockerfile`, `nginx.conf`, `docker-compose.yml` (db, db-migrate, api, web, redis profile), `.env.example` | docker/ |

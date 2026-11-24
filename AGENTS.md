@@ -3,7 +3,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] INIT — nếp làm việc kế thừa open-ketoan AGENTS.md; luật cấp trên là BIZCITY OPEN CANON. -->
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] AGENTS-0.2 — danh sách "trước khi xong việc" và "tự trượt khi review" theo open-ketoan AGENTS.md + RULE-REVIEW §7.2, thêm kiểm H-CAKE-*. -->
 
-Đọc theo thứ tự: [canon chung](docs/canon/BIZCITY-OPEN-CANON-v1.md) → [00-CANON](docs/00-CANON.md) → [ADR-0001](docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md) → [architecture/10](docs/architecture/10-ARCHITECTURE.md) → phase đang mở ([phases/README](docs/phases/README.md)).
+Đọc theo thứ tự: [canon chung ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/README.md) (canon, B2B, tái sử dụng, dữ liệu) → [00-CANON](docs/00-CANON.md) → [ADR-0001](docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md) → [architecture/10](docs/architecture/10-ARCHITECTURE.md) → phase đang mở ([phases/README](docs/phases/README.md)).
 
 ## Bốn câu không được quên
 

@@ -6,13 +6,13 @@
 >
 > **Định hướng:** *Lõi khách hàng ổn định — Kênh sống ở Cell — Hợp đồng rõ ràng — Dữ liệu do người dùng kiểm soát.*
 
-**Trạng thái:** 🟡 khởi tạo — mới có tài liệu kiến trúc và canon, **chưa có mã**. Bản đang chạy của Open CRM là plugin WordPress [`open-crm`](https://github.com/hoanganh8389/open-crm); hai bản song song theo [BIZCITY OPEN CANON §6](docs/canon/BIZCITY-OPEN-CANON-v1.md).
+**Trạng thái:** 🟡 khởi tạo — mới có tài liệu kiến trúc và canon, **chưa có mã**. Bản đang chạy của Open CRM là plugin WordPress [`open-crm`](https://github.com/hoanganh8389/open-crm); hai bản song song theo [BIZCITY OPEN CANON §10](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/BIZCITY-OPEN-CANON-v1.md) (ở open-hub).
 
 ## Đọc theo thứ tự
 
 | Tài liệu | Một câu |
 |---|---|
-| [docs/canon/BIZCITY-OPEN-CANON-v1.md](docs/canon/BIZCITY-OPEN-CANON-v1.md) | **nguyên tắc chung giữa mọi repo Bizcity** — vì sao (per-agent, mã mở + dịch vụ), lời hứa thị trường, một app một trục, **bốn trục dữ liệu** (Master Data · Document · Accounting Events · Contact 360), Twin Brain kiểm chứng, hợp đồng `bizcity_*@N`, chuẩn REST / React / quan sát chung, hai bản song song, nghiệm thu hệ |
+| [**Canon chung ở open-hub**](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/README.md) | **nguyên tắc chung giữa mọi repo Bizcity** (bản chủ ở repo điều phối open-hub; thêm mô hình B2B, hai repo điều phối open-hub / open-setup, chuẩn tái sử dụng năng lực, chuẩn dữ liệu trục cứng + lớp mềm) — vì sao (per-agent, mã mở + dịch vụ), lời hứa thị trường, một app một trục, **bốn trục dữ liệu** (Master Data · Document · Accounting Events · Contact 360), Twin Brain kiểm chứng, hợp đồng `bizcity_*@N`, chuẩn REST / React / quan sát chung, hai bản song song, nghiệm thu hệ |
 | [docs/00-CANON.md](docs/00-CANON.md) | bốn câu không phá, luật `R-CAKE-*`, bảng luật kế thừa từ open-ketoan, bản đồ tài liệu |
 | [docs/architecture/](docs/architecture/10-ARCHITECTURE.md) | 10 tổng thể · 20 trục dữ liệu · 30 quan sát (Loki · Prometheus · Tempo · Grafana · Redis) · 40 người dùng & bảo mật · 50 triển khai Docker · 60 giao diện · 70 REST nội bộ · 80 React · 90 bài học từ open-ketoan |
 | [docs/contracts/](docs/contracts/README.md) | `bizcity_touch@1` · `bizcity_channel_command@1` · `bizcity_contact@1` |
