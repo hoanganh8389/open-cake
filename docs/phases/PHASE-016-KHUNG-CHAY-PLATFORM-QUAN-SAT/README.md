@@ -13,9 +13,9 @@
 
 | Bước | Ở đâu | Gỡ điểm chặn | TT |
 |---|---|---|---|
-| **P2b-1** trình chạy migration chung: nhiều nguồn (`sources`), trùng tên ⇒ dừng, cổng `hooks`; phần riêng Kế Toán tách ra `migrate-ketoan-legacy.ts` | bizcity-platform [PR #4](https://github.com/hoanganh8389/bizcity-platform/pull/4) | #2 `adoptBaseline` | ◐ chờ duyệt (5 test trên Postgres thật) |
+| **P2b-1** trình chạy migration chung: nhiều nguồn (`sources`), trùng tên ⇒ dừng, cổng `hooks`; phần riêng Kế Toán tách ra `migrate-ketoan-legacy.ts` | bizcity-platform [PR #4](https://github.com/hoanganh8389/bizcity-platform/pull/4) | #2 `adoptBaseline` | ☑ đã merge 2026-11-24 (5 test trên Postgres thật) |
 | **S016-2b (DB)** `0103_flex.sql`: `user_meta`, `entity_meta` (có `item`, 3 chỉ mục khoá indexed), `record_types`, `records` + RLS FORCE | open-cake | — | ☑ áp bằng trình chạy P2b-1: 0101–0103 một lần, chạy lại 0; 4 ca sai bị chặn; truy vấn meta dùng chỉ mục |
-| P2b-2 gom migration nền 00xx (tenants, users, roles, api_keys, audit_logs, setting_values, event_outbox, business_documents…) | bizcity-platform | #4 bảng nền rải trong migration Kế Toán | ☐ |
+| **P2b-2** migration nền `0001_platform_nen_tang.sql` (26 bảng nền + 16 hàm, RLS FORCE) gom từ open-ketoan 6ad77b6, bỏ phần kế toán; `PLATFORM_MIGRATIONS_DIR` | bizcity-platform [PR #5](https://github.com/hoanganh8389/bizcity-platform/pull/5) | #4 bảng nền rải trong migration Kế Toán | ◐ chờ duyệt — nền + 0101–0103 của cake áp một lần, 48 bảng; 6 test |
 | P2b-3 cổng vai / quyền (`registerRoles`, `registerPermissions`) | bizcity-platform | #3 quyền viết cứng theo kế toán | ☐ |
 | P2b-4 kiểu `Database` mở rộng theo app (generic / `withTables`) | bizcity-platform | #1 `Database` cố định | ☐ |
 | P2b-5 phát hành 0.2.0 lên GitHub Packages (workflow theo tag) | bizcity-platform | — | ☐ |
