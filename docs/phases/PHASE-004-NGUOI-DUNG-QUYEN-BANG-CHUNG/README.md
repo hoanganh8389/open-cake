@@ -30,7 +30,7 @@
 | S004-6 | ☑ | mỗi lệnh ghi = một dòng `audit_logs` (chuỗi băm của nền) cùng giao dịch; thất bại ghi `result_ok=false` sau khi quay lui; gửi lặp ⇒ `meta.replayed`, không thêm; `meta.receipt`; `GET /api/v1/evidence/:id` (`reports:read`); không lưu nội dung, chỉ `sha256` đầu vào — `apps/api/test/evidence.http.test.ts` |
 | R-WEB-7 | ☑ | `useCan` + quyền từ `/auth/me`: nút ghi khoá **kèm lý do** (Thêm hàng, giá, Bán trong CRM, lưu hàng, nhãn, gửi / trả lời, Ghép, Tách); ảnh `quyen-viewer-hang-hoa`, `quyen-viewer-hop-thu` |
 | S004-5 | ☑ | bảng `channel_account_members` (0104, RLS FORCE); quyền `cake:all-inbox-xem` (rủi ro cao — manager / owner); một chỗ quyết phạm vi `apps/api/src/care/scope.ts`: danh sách kênh / hội thoại lọc theo tài khoản được giao **hoặc** hội thoại được giao; đọc tin, gắn nhãn, giao trên hội thoại ngoài phạm vi ⇒ 404; dòng thời gian vẫn hiện chạm nhưng **ẩn nội dung tin**; `cake.channel.members` / `members_set` (chỉ nhận nhân viên đang hoạt động của đơn vị) — `apps/api/test/scope.http.test.ts` (5 ca) |
-| S004-7 | ◐ | **mockup đã duyệt** (chưa code màn): [mockup/index.html](mockup/index.html) — ảnh `mockup-nhan-vien`, `mockup-sua-nhan-vien`, `mockup-ngung`, `mockup-moi`, `mockup-vai-quyen`, `mockup-vai-rieng` |
+| S004-7 | ☑ | màn thật theo [mockup đã duyệt](mockup/index.html): 8 action `cake.staff.*` / `cake.role.*` trên bảng của nền, test `apps/api/test/staff.http.test.ts` (5 ca, Postgres thật, vai ứng dụng); ảnh `man-nhan-vien`, `man-sua-nhan-vien`, `man-moi-nhan-vien`, `man-vai-quyen` (bản giả lập) |
 
 Ảnh: [evidence/build-shots](evidence/build-shots/) `dang-nhap-dev-hop-thu`, `can-dang-nhap`. Test: `apps/api/test/auth.http.test.ts` (6 ca).
 

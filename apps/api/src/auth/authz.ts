@@ -36,7 +36,8 @@ export function registerCakeAuthz(): void {
     registerModulePermissions(module, [...perms].filter(([k]) => k.startsWith(`${module}:`))
       .map(([key, v]) => ({ key, label: v.label, risk: v.risk === 'high' ? 'high' as const : 'low' as const })));
   }
-  const all = [...perms.keys()];
+  // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — vai lấy quyền của app (cake: / core:); quyền NỀN (users:write, settings:write…) cộng đích danh từng vai, không kéo theo sổ action.
+  const all = [...perms.keys()].filter((p) => p.startsWith('cake:') || p.startsWith('core:'));
   const view = all.filter(isView);
   const viewNoInbox = view.filter((p) => p !== 'cake:inbox-xem'); // nội dung tin là dữ liệu cá nhân: chỉ agent / manager / owner (40-SECURITY §2)
   registerRoles('cake', [

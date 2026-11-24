@@ -12,6 +12,9 @@ export type Store = {
   accounts: In<typeof ChannelAccountSchema>[];
   // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — thành viên tài khoản kênh (GIẢ LẬP).
   members: Record<string, string[]>;
+  // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai riêng (GIẢ LẬP), tạo lười ở handlers-staff.
+  staff?: { userId: string; email: string; name: string; role: string; active: boolean; lastLoginAt: string | null }[];
+  customRoles?: { key: string; label: string; baseRole: string; active: boolean; allow: string[]; deny: string[] }[];
   contacts: In<typeof ContactSchema>[];
   states: Record<string, In<typeof ContactStateSchema>>;
   meta: Record<string, Record<string, string>>;

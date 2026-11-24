@@ -74,7 +74,7 @@ const ctxOf = (req: FastifyRequest, tx: Db): Ctx => {
 export type Receipt = { evidenceId: string; hash: string; at: string };
 const objectIdOf = (input: Any, out: unknown): string | null => {
   const o = (out ?? {}) as Any;
-  return input.conversationId ?? input.contactId ?? input.itemId ?? input.recordId ?? o.itemId ?? o.recordId ?? null;
+  return input.conversationId ?? input.contactId ?? input.itemId ?? input.recordId ?? input.userId ?? input.roleKey ?? o.itemId ?? o.recordId ?? o.userId ?? o.key ?? null; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — + nhân viên / vai
 };
 async function evidence(conn: Db, req: FastifyRequest, spec: ActionSpec, x: { inputHash: string; key: string | null; objectId: string | null; ok: boolean; code?: string }): Promise<Receipt> {
   const a = authOf(req);

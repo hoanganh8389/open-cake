@@ -50,7 +50,7 @@ Nguồn sự thật: `apps/api/src/auth/authz.ts` (sinh từ `ALL_ACTIONS`). B�
 | `cake:inbox-xem` · `cake:inbox-lap` | | ✓ | ✓ | ✓ | | |
 | `cake:all-inbox-xem` | ⚠ | ✓ | ✓ | | | |
 | `cake:contacts-xem` · `cake:contacts-sua` | | ✓ | ✓ | ✓ | ✓ | xem |
-| `cake:contacts-gop` · `cake:contacts-xuat` | ⚠ | ✓ | ✓ | | | |
+| `cake:contacts-gop` (`cake:contacts-xuat` khai khi có action xuất danh bạ — sổ quyền sinh từ action, chưa có thì chưa có quyền) | ⚠ | ✓ | ✓ | | | |
 | `cake:catalog-xem` · `-lap` · `-sua` · `-gia` | | ✓ | ✓ | xem | ✓ | xem |
 | `cake:channels-xem` | | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `cake:channels-lap` · `cake:channels-xoa` (kết nối kênh) | ⚠ | ✓ | | | | |
@@ -60,7 +60,18 @@ Nguồn sự thật: `apps/api/src/auth/authz.ts` (sinh từ `ALL_ACTIONS`). B�
 
 Thêm: `review:read` (auditor), `devtools:read` (developer), `core:records-*` theo registry lớp mềm.
 
-### 2.4 Phạm vi xem hội thoại
+### 2.4 Màn và action (S004-7)
+
+<!-- [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — màn thật theo mockup đã duyệt. -->
+
+| Màn | Action | Quyền | Ghi |
+|---|---|---|---|
+| **Cài đặt › Nhân viên** (`#/staff`) | `cake.staff.list` · `.invite` · `.update` · `.set_active` | `users:write` | một vai (vai hệ thống hoặc vai riêng) + tài khoản kênh; chọn vai riêng ⇒ `users.role` = vai nền của nó + một lần gán `tenant_role_id` |
+| **Cài đặt › Vai & quyền** (`#/staff?tab=roles`) | `cake.role.list` (`users:write`) · `cake.role.create` · `.update` (đổi tên, tắt) · `.rule_set` (Cho / Cấm / bỏ) | `settings:write` | vai riêng có khoá `r-…` (có dấu "-", không bao giờ trùng vai hệ thống) |
+
+Máy chủ (`apps/api/src/auth/staff.ts`) kiểm R-CAKE-AUTHZ-5: không cấp vai `owner`, không sửa / ngưng Chủ, không tự sửa mình, không cấp / sửa người có quyền mình không có. Vai kỹ thuật `auditor`, `developer` không hiện ở màn (vẫn có trong sổ).
+
+### 2.5 Phạm vi xem hội thoại
 
 Nhân viên không có `cake:all-inbox-xem` chỉ thấy hội thoại của **tài khoản kênh được giao** (`channel_account_members`) hoặc hội thoại **giao cho mình** (`assignee_user_id`). Một chỗ quyết: `apps/api/src/care/scope.ts`. Ngoài phạm vi ⇒ 404 (không lộ là có); dòng thời gian khách vẫn hiện chạm nhưng ẩn nội dung tin. Khoá API không có quyền này ⇒ không thấy hội thoại.
 

@@ -5,6 +5,7 @@ import { createActionCatalog } from './base/action.js';
 import { CAKE_ACTIONS } from './cake/actions.js';
 import { FLEX_ACTIONS } from './flex/records.js';
 import { CATALOG_ACTIONS } from './catalog/actions.js';
+import { STAFF_ACTIONS } from './cake/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7
 
-export const ALL_ACTIONS = [...CAKE_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
+export const ALL_ACTIONS = [...CAKE_ACTIONS, ...STAFF_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
 export const appCatalog = createActionCatalog(ALL_ACTIONS);

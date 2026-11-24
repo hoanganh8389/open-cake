@@ -25,7 +25,14 @@ export function Settings() {
         ))}
       </div>
       <div className="col gap16">
-        <Gate need="Nhân viên & quyền" why="Vai, quyền cake:*, giao tài khoản kênh — PHASE-004." />
+        {/* [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — Nhân viên & quyền đã có màn thật. */}
+        <Card>
+          <button type="button" className="row gap16" style={{ width: '100%', textAlign: 'left' }} onClick={() => go('staff')}>
+            <div className="icon-circle"><Ic.users /></div>
+            <div className="grow"><div className="h3">Nhân viên &amp; quyền</div><div className="xs subtle mt8">Mời, đổi vai, giao tài khoản kênh, ngưng · vai riêng Cho / Cấm</div></div>
+            <Ic.chevron style={{ width: 18, height: 18, transform: 'rotate(-90deg)' }} />
+          </button>
+        </Card>
         <Gate need="Trần gửi (Send Guard)" why="Trần mỗi giờ, giờ được gửi, danh sách không nhận — PHASE-011." />
       </div>
     </div>

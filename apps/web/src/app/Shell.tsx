@@ -29,7 +29,7 @@ const WORK = [
 function Rail({ screen, account }: { screen: string; account: string | null }) {
   const [launcher, setLauncher] = useState(false);
   const accounts = useQueryAction(channelList, {});
-  const activeTop = NAV.find((n) => n.id === screen || ('children' in n && (n.children as readonly string[]).includes(screen)))?.id ?? (screen === 'channels' ? 'dashboard' : screen === 'records' ? 'settings' : undefined);
+  const activeTop = NAV.find((n) => n.id === screen || ('children' in n && (n.children as readonly string[]).includes(screen)))?.id ?? (screen === 'channels' ? 'dashboard' : screen === 'records' || screen === 'staff' ? 'settings' : undefined);
   return (
     <aside className="rail">
       <div className="accounts">
