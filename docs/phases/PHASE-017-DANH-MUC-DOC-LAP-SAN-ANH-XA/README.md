@@ -13,7 +13,7 @@
 | S017-2 | `catalog/entities.ts` — hàng, mã có hiệu lực, nhóm 3 cấp, bảng giá, dòng giá; khối ánh xạ `MasterSync` chung; `tenant_links`; **một cổng ghi** `catalogWriteGate` | ☑ |
 | S017-3 | `catalog/actions.ts` — 8 action `cake.catalog_*` (REST + MCP đọc + UI), quyền `cake:catalog-xem · lap · sua · gia`; lý do `CAKE_CATALOG_READONLY`, `CAKE_SKU_TAKEN`, `CAKE_ITEM_NAME_TAKEN` | ☑ |
 | S017-4 | Bộ giả lập `handlers-catalog.ts` + hàng mẫu Shop Hoa Mai; test chuẩn H-* và cổng ghi | ☑ |
-| S017-5 | Migration `db/migrations/0102_catalog.sql`: `catalog_categories`, `catalog_items`, `catalog_item_codes`, `catalog_item_units`, `catalog_price_lists`, `catalog_prices`, `tenant_links`, `contact_links` + RLS FORCE; kiểm trên Postgres 16 | ☐ |
+| S017-5 | Migration `db/migrations/0102_catalog.sql`: `catalog_categories`, `catalog_items`, `catalog_item_codes`, `catalog_item_units`, `catalog_price_lists`, `catalog_prices`, `tenant_links`, `contact_links` + RLS FORCE; kiểm trên Postgres 16 | ☑ 7 ràng buộc sai bị chặn (giá sai ĐVT, trùng tên, SKU thường, hai ĐVT gốc, hai bảng giá công ty, nguồn ketoan thiếu liên kết, SKU cấp lại), RLS tách đơn vị |
 | S017-6 | Màn **Hàng hoá** (danh sách, tạo / sửa theo chuẩn, cảnh báo `CAT-*`, nhãn "Lấy từ Kế Toán" khi chỉ đọc) và **Bảng giá** trong `apps/web` + ảnh build | ☐ |
 | S017-7 | Báo giá trong chat dùng bảng giá Cake (thẻ hàng ở InboxChat) | ☐ |
 
