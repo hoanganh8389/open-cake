@@ -1,7 +1,7 @@
 # PHASE-004 — Người dùng, quyền `cake:*`, khoá API, SSO WordPress, bằng chứng
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
-> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☐ · **Phụ thuộc:** 002
+> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☑ 2026-11-24 (việc SSO của nền ở 40-SECURITY §3.4 để sau — chủ chốt) · **Phụ thuộc:** 002
 > **Mục tiêu:** đăng nhập (mật khẩu + SSO từ WordPress), vai và quyền `cake:*`, khoá API site, mọi hành động ghi có một bản ghi bằng chứng hash-chain. Chi tiết: [40-SECURITY-USERS](../../architecture/40-SECURITY-USERS.md).
 
 ## Đầu ra
@@ -24,7 +24,7 @@
 |---|---|---|
 | S004-1 | ☑ | quyền `cake:*` + `core:records-*` SINH từ action spec + registry (`apps/api/src/auth/authz.ts`); mỗi route kiểm `requirePermission(spec.permission)` |
 | S004-2 | ☑ | 7 vai hệ thống (owner của nền + 6 vai Cake qua `registerRoles`); `cake:inbox-xem` chỉ agent / manager / owner. Vai riêng `tenant_roles` + ma trận Cho / Cấm: màn Vai & quyền (S004-7) |
-| S004-3 | ◐ | JWT của nền (`signSession`, thu hồi `session_version`); khoá API băm + phạm vi `cake:read`. **Máy chủ xong** (2026-11-24 11:49 PM): `cake.apikey.list` / `.create` / `.revoke` (`settings:write`) trên `api_keys` của nền — khoá `kc_…` hiện **một lần**, runtime ẩn `secret` khỏi `action_requests` (test kiểm DB không có khoá rõ), thu hồi ⇒ 401 ngay. **Mockup chờ duyệt**: [mockup/index.html#khoa-api](mockup/index.html) — ảnh `mockup-khoa-api`, `mockup-tao-khoa`, `mockup-hien-khoa`, `mockup-thu-hoi-khoa` |
+| S004-3 | ☑ | JWT của nền (`signSession`, thu hồi `session_version`); khoá API băm + phạm vi `cake:read`. **Máy chủ xong** (2026-11-24 11:49 PM): `cake.apikey.list` / `.create` / `.revoke` (`settings:write`) trên `api_keys` của nền — khoá `kc_…` hiện **một lần**, runtime ẩn `secret` khỏi `action_requests` (test kiểm DB không có khoá rõ), thu hồi ⇒ 401 ngay. Màn **Khoá API** (tab thứ ba `#/staff?tab=keys`) theo [mockup đã duyệt](mockup/index.html): ảnh `man-khoa-api`, `man-tao-khoa`, `man-thu-hoi-khoa` (bản giả lập; sheet hiện khoá một lần chỉ tới được sau khi tạo — hành vi kiểm ở test). Màn Nhân viên tách thành `apps/web/src/screens/staff/` (mọi tệp < 200 dòng) |
 | S004-4 | ☑ | `POST /api/v1/auth/wp-sso` — **cùng khuôn vé open-ketoan** (một plugin cấp vé cho cả hai), giới hạn 30 lần sai / 15 phút; web `?sso=<vé>`; đăng nhập dev chỉ khi `CAKE_DEV_AUTH=1` |
 | (40-SECURITY §6) | ☑ | vai CSDL `cake_app` (NOLOGIN, không siêu người dùng), API `DB_SET_ROLE` ⇒ RLS có hiệu lực: test chứng minh siêu người dùng đọc chéo được còn vai ứng dụng thì không; **toàn bộ 100 test chạy dưới vai này** |
 | S004-6 | ☑ | mỗi lệnh ghi = một dòng `audit_logs` (chuỗi băm của nền) cùng giao dịch; thất bại ghi `result_ok=false` sau khi quay lui; gửi lặp ⇒ `meta.replayed`, không thêm; `meta.receipt`; `GET /api/v1/evidence/:id` (`reports:read`); không lưu nội dung, chỉ `sha256` đầu vào — `apps/api/test/evidence.http.test.ts` |
