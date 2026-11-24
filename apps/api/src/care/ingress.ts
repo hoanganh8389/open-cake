@@ -9,8 +9,8 @@ import type { FastifyInstance } from 'fastify';
 import { ok } from '@bizcity/platform/core/http';
 import { currentRequest } from '@bizcity/platform/core/request-context';
 import { db } from '@bizcity/platform/db/client';
-import { KernelError, submitTouchIn } from '@open-cake/care-kernel';
-import { cakeError, failure, newUlid } from '../runtime.js';
+import { submitTouchIn } from '@open-cake/care-kernel';
+import { cakeError, failure, fromKernel, newUlid } from '../runtime.js';
 import { PgCareRepo } from './pg-care-repo.js';
 
 export const INGRESS_MAX_BYTES = 256 * 1024;
@@ -31,9 +31,6 @@ function verify(headers: Record<string, unknown>, raw: string, key: string, secr
   if (Math.abs(nowS - t) > INGRESS_SKEW_S) throw cakeError('CAKE_SIGNATURE_INVALID', 'Chữ ký Hub lệch giờ quá 300 giây.');
   if (!same(m[2]!, createHmac('sha256', secret).update(`${t}.${raw}`).digest('hex'))) throw cakeError('CAKE_SIGNATURE_INVALID');
 }
-
-/** Lỗi của kernel ⇒ lỗi phong bì chung (cùng reason / hint). */
-export const fromKernel = (e: unknown) => (e instanceof KernelError ? failure(e.code, e.message, { ...(e.reason ? { reason: e.reason } : {}), ...(e.hint ? { hint: e.hint } : {}) }) : e);
 
 export function registerIngress(app: FastifyInstance, opts: { key?: string; secret?: string; now?: () => number } = {}): void {
   const key = opts.key ?? process.env.CAKE_HUB_KEY ?? '';

@@ -9,6 +9,7 @@ import { pool } from '@bizcity/platform/db/client';
 import { pendingMigrations } from '@bizcity/platform/db/migrate';
 import { ALL_ACTIONS } from '@open-cake/contracts';
 import { catalogHandlers } from './catalog.js';
+import { careCommandHandlers } from './care/commands.js';
 import { inboxHandlers } from './care/inbox.js';
 import { registerIngress } from './care/ingress.js';
 import { MIGRATION_SOURCES } from './migrate.js';
@@ -28,7 +29,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   });
   await useDevTenant(app, opts.tenant ?? process.env.CAKE_TENANT ?? 'hoa-mai');
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
-  const handlers = { ...catalogHandlers, ...inboxHandlers };
+  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
   app.get('/api/v1/system/actions', async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
   registerIngress(app, opts.hub);

@@ -11,6 +11,7 @@ import { AppError } from '@bizcity/platform/core/errors';
 import { ok } from '@bizcity/platform/core/http';
 import { currentRequest } from '@bizcity/platform/core/request-context';
 import { db, type Db } from '@bizcity/platform/db/client';
+import { KernelError } from '@open-cake/care-kernel';
 import { CAKE_REASONS, ERROR_CATALOG, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
 
 export type Ctx = { tx: Db; tenantId: string };
@@ -27,6 +28,8 @@ export function cakeError(reason: CakeReason, message?: string, extra: Record<st
   return new AppError(r.code as never, message ?? r.message, ERROR_CATALOG[r.code], { reason, hint: r.hint, ...extra });
 }
 export const failure = (code: ErrorCode, message: string, extra: Record<string, unknown> = {}) => new AppError(code as never, message, ERROR_CATALOG[code], extra);
+// [2026-11-24 08:49 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — lỗi của kernel ⇒ phong bì chung (cùng reason / hint), một chỗ cho mọi action và cổng nhận.
+export const fromKernel = (e: unknown) => (e instanceof KernelError ? failure(e.code, e.message, { ...(e.reason ? { reason: e.reason } : {}), ...(e.hint ? { hint: e.hint } : {}) }) : e);
 
 /** ULID Crockford: 48 bit thời gian + 80 bit ngẫu nhiên (khoá cục bộ của Cake — R-CAKE-MASTER-6). */
 const CROCK = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -94,7 +97,7 @@ export function registerActions(app: FastifyInstance, specs: readonly ActionSpec
         const params = (req.params ?? {}) as Any;
         const body = method === 'GET' ? coerceQuery(spec.input, (req.query ?? {}) as Any) : ((req.body ?? {}) as Any);
         const input = spec.input.parse({ ...body, ...params }) as Any;
-        const out = spec.kind === 'command' ? await runCommand(spec, req, input, h) : await db.transaction().execute((tx) => h({ tx, tenantId: tenantOf() }, input));
+        const out = await (spec.kind === 'command' ? runCommand(spec, req, input, h) : db.transaction().execute((tx) => h({ tx, tenantId: tenantOf() }, input))).catch((e) => { throw fromKernel(e); });
         const isPaged = typeof out === 'object' && out !== null && PAGED in out;
         const data = isPaged ? (out as Paged).data : out;
         return ok(spec.output.parse(data), isPaged ? ((out as Paged).meta as never) : undefined);

@@ -76,6 +76,30 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
     expect(chans.find((x) => x.channel === 'zalo_personal')!.unread).toBe(2); // Anh Khoa 1 (sau tin ra) + Thảo Vy 1
   });
 
+  // [2026-11-24 08:49 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — 4 lệnh ghi không cần Cell qua HTTP, đi qua sổ.
+  it('gắn nhãn, giao việc, ghép (cần bằng chứng) và tách khách qua API', async () => {
+    const { conversationList, conversationTag, conversationAssign, contactList, contactMerge, contactUnmerge, contactGet } = await C();
+    const convs = (await c.call(conversationList, { filter: 'all', limit: 50 })).data;
+    const khoa = convs.find((v) => v.title === 'Anh Khoa - sỉ HN')!;
+    const huong = convs.find((v) => v.title === 'Nguyễn Thu Hương')!;
+    expect((await c.call(conversationTag, { conversationId: khoa.conversationId, add: ['Khách sỉ'], remove: [] })).data.tags).toEqual(['Khách sỉ']);
+    expect((await c.call(contactList, { tag: 'Khách sỉ', sort: 'name', page: 1, pageSize: 50 })).data.map((r) => r.contact.displayName)).toEqual(['Anh Khoa - sỉ HN']);
+    await c.call(conversationAssign, { conversationId: khoa.conversationId, userId: 'wp:12' });
+    expect((await c.call(conversationList, { filter: 'mine', limit: 50 })).data.map((v) => v.conversationId)).toEqual([khoa.conversationId]);
+    // ghép theo TÊN bị chặn ở cả hai lớp: hợp đồng phía web (trước khi gửi) và máy chủ (gọi thẳng, bỏ qua web)
+    await expect(c.call(contactMerge, { contactId: khoa.contactId, intoContactId: huong.contactId, proof: { kind: 'name' } } as never)).rejects.toThrow(/received 'name'/);
+    const raw = await app.inject({ method: 'POST', url: `/api/v1/contacts/${khoa.contactId}/merge`, payload: { intoContactId: huong.contactId, proof: { kind: 'name' } } });
+    expect([raw.statusCode, raw.json().error.code]).toEqual([400, 'VALIDATION_ERROR']);
+    const before = (await c.call(contactList, { sort: 'name', page: 1, pageSize: 50 })).meta?.total as number;
+    const m = await c.call(contactMerge, { contactId: khoa.contactId, intoContactId: huong.contactId, proof: { kind: 'human', userId: '7' } });
+    expect(m.data.intoContactId).toBe(huong.contactId);
+    expect((await c.call(contactList, { sort: 'name', page: 1, pageSize: 50 })).meta?.total).toBe(before - 1);
+    expect((await c.call(contactGet, { contactId: huong.contactId })).data.identities.map((d) => d.channel).sort()).toEqual(['facebook_comment', 'facebook_page', 'zalo_personal']);
+    await c.call(contactUnmerge, { contactId: khoa.contactId });
+    expect((await c.call(contactGet, { contactId: khoa.contactId })).data.contact.status).toBe('active');
+    expect((await c.call(contactList, { sort: 'name', page: 1, pageSize: 50 })).meta?.total).toBe(before);
+  });
+
   it('lệnh gửi tin chưa có máy chủ ⇒ 501 CAKE_NOT_ON_SERVER (Cell / Hub ở PHASE-006, 008)', async () => {
     const { messageSend, conversationList } = await C();
     const v = (await c.call(conversationList, { filter: 'all', limit: 1 })).data[0]!;

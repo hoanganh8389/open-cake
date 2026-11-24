@@ -10,7 +10,7 @@ import type { Channel, Confidence, Proof } from '@open-cake/contracts';
 export type ContactRow = { contactId: string; kind: 'person' | 'org'; displayName: string; status: 'active' | 'merged' | 'archived'; mergedInto: string | null; createdAt: string };
 export type IdentityRow = { identityId: string; contactId: string; channel: Channel; scope: string; externalId: string; displayName: string | null; confidence: Confidence; proof: Proof | null; validFrom: string; validTo: string | null };
 export type AccountRow = { channelAccountId: string; channel: string; kind: 'personal' | 'page' | 'group' | 'oa'; externalAccountId: string; label: string; status: string };
-export type ConversationRow = { conversationId: string; channelAccountId: string; externalThreadId: string; contactId: string; kind: 'dm' | 'comment_thread' | 'group_thread'; anchor: { postId: string; commentId?: string; parentId?: string } | null; lastAt: string | null; lastDirection: 'in' | 'out' | null; windowUntil: string | null };
+export type ConversationRow = { conversationId: string; channelAccountId: string; externalThreadId: string; contactId: string; kind: 'dm' | 'comment_thread' | 'group_thread'; anchor: { postId: string; commentId?: string; parentId?: string } | null; lastAt: string | null; lastDirection: 'in' | 'out' | null; windowUntil: string | null; assigneeUserId?: string | null };
 export type EventRow = { eventId: string; source: string; docKey: string; version: number; type: string; payload: unknown; receivedAt: string; actor: string };
 export type LedgerRow = {
   touchId: number; eventId: string; contactId: string; conversationId: string | null; channelAccountId: string | null; channel: Channel | null;
@@ -46,6 +46,7 @@ export interface CareRepo {
   deleteIdentityRow(identityId: string): Promise<void>; // chỉ dùng khi tách lại dòng do chính lần ghép tạo ra
   // kênh, hội thoại, tin
   findAccount(externalAccountId: string, kind: AccountRow['kind']): Promise<AccountRow | undefined>;
+  getConversation(conversationId: string): Promise<ConversationRow | undefined>;
   findConversation(channelAccountId: string, externalThreadId: string): Promise<ConversationRow | undefined>;
   findCommentConversation(channelAccountId: string, commentId: string): Promise<ConversationRow | undefined>;
   conversationsOf(contactId: string): Promise<ConversationRow[]>;

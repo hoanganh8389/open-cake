@@ -25,8 +25,9 @@
 | Phần | TT | Bằng chứng |
 |---|---|---|
 | Đọc: `channel.list`, `conversation.list`, `message.list`, `contact.list`, `contact.get`, `contact.timeline`, `contact.suggestions` | ☑ máy chủ (`apps/api/src/care/inbox.ts`) | test tích hợp G1 qua API; ảnh [evidence/build-shots](evidence/build-shots/) `api-hop-thu`, `api-danh-ba`, `api-contact-360` |
-| `?api=mix` theo `GET /api/v1/system/actions` (16 / 32 action) | ☑ | không viết cứng năng lực ở web |
-| Ghi: gửi tin, trả lời bình luận, gắn nhãn, giao việc, ghép / tách | ☐ | 501 `CAKE_NOT_ON_SERVER`; gửi tin cần Cell / Hub (PHASE-006, 008); ghép / tách dùng kernel đã có (`mergeContacts`) — việc kế tiếp |
+| `?api=mix` theo `GET /api/v1/system/actions` (20 / 32 action) | ☑ | không viết cứng năng lực ở web |
+| Ghi không cần Cell: gắn / gỡ nhãn, giao hội thoại, ghép (bằng chứng bắt buộc), tách — qua kernel (`tagContact`, `assignConversation`, `mergeContacts`, `unmergeContact`), mỗi lệnh có dòng sổ | ☑ | 11 kịch bản kernel trên bộ nhớ + Postgres; test HTTP (ghép theo tên bị chặn cả ở web lẫn máy chủ); ảnh `api-gan-nhan-sau-tai-lai` (nhãn còn sau khi tải lại) |
+| Gửi tin, trả lời bình luận | ☐ | cần Cell / Hub (PHASE-006, 008) — 501 `CAKE_NOT_ON_SERVER` |
 | SSE, cuộn vô hạn + ảo hoá, `ErrorBoundary`, `i18n`, phím tắt (R-WEB-8..11, 15) | ☐ | — |
 
 ## Xong khi

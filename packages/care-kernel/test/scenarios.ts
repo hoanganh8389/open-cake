@@ -6,7 +6,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { KernelError, computeState, effectiveRows, mergeContacts, sameState, submitTouchIn, unmergeContact, type AccountRow, type KernelDeps, type LedgerRow } from '../src/index.js';
+import { KernelError, assignConversation, computeState, effectiveRows, mergeContacts, sameState, submitTouchIn, tagContact, unmergeContact, type AccountRow, type KernelDeps, type LedgerRow } from '../src/index.js';
 
 export interface Probe {
   ledger(): Promise<LedgerRow[]>;
@@ -103,6 +103,31 @@ export function defineKernelSuite(label: string, make: () => Promise<Harness>, o
       await expect(probe.mutateLedger(r)).rejects.toThrow();
       await deps.repo.appendLedger({ ...r, qty: -1, isReversal: true, reversesId: r.touchId });
       await expect(deps.repo.tx(() => deps.repo.appendLedger({ ...r, qty: -1, isReversal: true, reversesId: r.touchId }))).rejects.toThrow();
+    });
+  });
+
+  // [2026-11-24 08:49 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — lệnh của nhân viên đi qua sổ: nhãn là dẫn xuất của sổ, lặp không sinh dòng, giao việc có dòng sổ.
+  describe(`${label} · lệnh của nhân viên: nhãn, giao việc`, () => {
+    it('gắn / gỡ nhãn ⇒ dòng sổ kind=tag chỉ khi thực sự đổi; nhãn = dẫn xuất (dựng lại khớp)', async () => {
+      const a = await submit(comment());
+      const conv = (await deps.repo.conversationsOf(a.contactId!))[0]!;
+      expect(await tagContact(deps, { conversationId: conv.conversationId, add: ['Khách VIP', 'Đặt hàng'], remove: [], actor: '7' })).toEqual({ tags: ['Khách VIP', 'Đặt hàng'] });
+      const n = (await probe.ledger()).length;
+      await tagContact(deps, { conversationId: conv.conversationId, add: ['Khách VIP'], remove: ['Chưa có'], actor: '7' }); // không đổi gì
+      expect((await probe.ledger()).length).toBe(n);
+      expect((await tagContact(deps, { conversationId: conv.conversationId, add: [], remove: ['Đặt hàng'], actor: '7' })).tags).toEqual(['Khách VIP']);
+      expect((await probe.ledger()).filter((r) => r.kind === 'tag')).toHaveLength(3);
+      const id = a.contactId!;
+      expect(sameState(await deps.repo.getState(id), await computeState(deps.repo, id, await deps.repo.mergedFrom(id)))).toBe(true);
+    });
+    it('giao hội thoại ⇒ người phụ trách + dòng sổ kind=assign; giao lại cùng người ⇒ không ghi thêm', async () => {
+      const a = await submit(comment());
+      const conv = (await deps.repo.conversationsOf(a.contactId!))[0]!;
+      await assignConversation(deps, { conversationId: conv.conversationId, userId: 'wp:12', actor: '7' });
+      await assignConversation(deps, { conversationId: conv.conversationId, userId: 'wp:12', actor: '7' });
+      expect((await deps.repo.getConversation(conv.conversationId))?.assigneeUserId).toBe('wp:12');
+      expect((await probe.ledger()).filter((r) => r.kind === 'assign').map((r) => r.dims.to)).toEqual(['wp:12']);
+      await expect(assignConversation(deps, { conversationId: '01JDBV99999999999999999999', userId: null, actor: '7' })).rejects.toBeInstanceOf(KernelError);
     });
   });
 

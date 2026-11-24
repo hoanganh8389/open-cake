@@ -6,5 +6,6 @@ export * from './errors.js';
 export * from './memory-repo.js';
 export { resolveIdentity, type ResolveInput, type ResolveResult } from './identity.js';
 export { submitTouchIn, type SubmitResult } from './submit-touch.js';
+export { assignConversation, tagContact } from './commands.js';
 export { mergeContacts, unmergeContact, UNMERGE_WINDOW_DAYS } from './merge.js';
 export { computeState, effectiveRows, refreshState, sameState } from './state.js';

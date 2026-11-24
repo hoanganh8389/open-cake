@@ -62,6 +62,7 @@ export class MemoryRepo implements CareRepo {
   async deleteIdentityRow(id: string) { this.d.identities = this.d.identities.filter((x) => x.identityId !== id); }
 
   async findAccount(externalAccountId: string, kind: AccountRow['kind']) { return this.d.accounts.find((a) => a.externalAccountId === externalAccountId && a.kind === kind); }
+  async getConversation(id: string) { return this.d.conversations.find((c) => c.conversationId === id); }
   async findConversation(acc: string, thread: string) { return this.d.conversations.find((c) => c.channelAccountId === acc && c.externalThreadId === thread); }
   async findCommentConversation(acc: string, commentId: string) { return this.d.conversations.find((c) => c.channelAccountId === acc && c.kind === 'comment_thread' && c.anchor?.commentId === commentId); }
   async conversationsOf(contactId: string) { return this.d.conversations.filter((c) => c.contactId === contactId); }

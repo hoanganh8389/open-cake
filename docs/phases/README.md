@@ -18,7 +18,7 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ☐ |
 | [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ kernel + PgCareRepo ☑ (9 kịch bản trên bộ nhớ và Postgres); còn outbox, selfcheck |
 | [006](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/README.md) Kênh | W3 | ingress `bizcity_touch@1` / `bizcity_channel_command@1`; Zalo cá nhân đầu tiên | cake · zalo-hub · router | — | ◐ cổng nhận phía Cake ☑ (HMAC, 3 test); Cell / Hub ☐ |
-| [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ◐ đọc hộp thư / danh bạ / 360 trên máy chủ ☑; ghi + SSE ☐ |
+| [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ◐ đọc + 4 lệnh ghi (nhãn, giao việc, ghép, tách) trên máy chủ ☑; gửi tin (Cell) + SSE ☐ |
 | [008](PHASE-008-FACEBOOK-PAGE-COMMENT/README.md) FB Page | W4 | chat Page, comment, private reply | cake · Cell · router | G1–G4 | ☐ |
 | [009](PHASE-009-FACEBOOK-CA-NHAN-NHOM/README.md) FB cá nhân + Group | W5 | fbchat-v2 (mở lại WP 017), group_feed, Ghép / Tách | cake · zalo-hub | G5–G6 | ☐ |
 | [010](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/README.md) Bốn trục | W5 | `cake.order_request` → POS → Kế Toán | cake · ketoan · pos | G7–G8 | ☐ |

@@ -18,7 +18,7 @@ const js = (v: unknown) => JSON.stringify(v);
 const toContact = (r: any): ContactRow => ({ contactId: r.contact_id, kind: r.kind, displayName: r.display_name, status: r.status, mergedInto: r.merged_into, createdAt: iso(r.created_at) });
 const toIdentity = (r: any): IdentityRow => ({ identityId: r.identity_id, contactId: r.contact_id, channel: r.channel, scope: r.scope, externalId: r.external_id, displayName: r.display_name, confidence: r.confidence, proof: r.proof ?? null, validFrom: iso(r.valid_from), validTo: isoN(r.valid_to) });
 const toAccount = (r: any): AccountRow => ({ channelAccountId: r.channel_account_id, channel: r.channel, kind: r.kind, externalAccountId: r.external_account_id, label: r.label, status: r.status });
-const toConv = (r: any): ConversationRow => ({ conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null, lastAt: isoN(r.last_at), lastDirection: r.last_direction, windowUntil: isoN(r.window_until) });
+const toConv = (r: any): ConversationRow => ({ conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null, lastAt: isoN(r.last_at), lastDirection: r.last_direction, windowUntil: isoN(r.window_until), assigneeUserId: r.assignee_user_id });
 const toEvent = (r: any): EventRow => ({ eventId: r.event_id, source: r.source, docKey: r.doc_key, version: r.version, type: r.type, payload: r.payload, receivedAt: iso(r.received_at), actor: r.actor });
 export const toLedger = (r: any): LedgerRow => ({ touchId: Number(r.touch_id), eventId: r.event_id, contactId: r.contact_id, conversationId: r.conversation_id, channelAccountId: r.channel_account_id, channel: r.channel, kind: r.kind, direction: r.direction, qty: r.qty, isReversal: r.is_reversal, reversesId: r.reverses_id === null ? null : Number(r.reverses_id), dims: r.dims ?? {}, at: iso(r.at) });
 const toMessage = (r: any): MessageRow => ({ messageId: r.message_id, touchId: Number(r.touch_id), conversationId: r.conversation_id, externalMessageId: r.external_message_id, direction: r.direction, text: r.body, e2ee: r.e2ee, delivery: r.delivery, at: iso(r.at) });
@@ -97,6 +97,10 @@ export class PgCareRepo implements CareRepo {
     const r = await this.t(this.c.selectFrom('channel_accounts').selectAll()).where('external_account_id', '=', externalAccountId).where('kind', '=', kind).executeTakeFirst();
     return r ? toAccount(r) : undefined;
   }
+  async getConversation(id: string) {
+    const r = await this.t(this.c.selectFrom('conversations').selectAll()).where('conversation_id', '=', id).executeTakeFirst();
+    return r ? toConv(r) : undefined;
+  }
   async findConversation(acc: string, thread: string) {
     const r = await this.t(this.c.selectFrom('conversations').selectAll()).where('channel_account_id', '=', acc).where('external_thread_id', '=', thread).executeTakeFirst();
     return r ? toConv(r) : undefined;
@@ -109,8 +113,8 @@ export class PgCareRepo implements CareRepo {
   async conversationsOf(contactId: string) { return (await this.t(this.c.selectFrom('conversations').selectAll()).where('contact_id', '=', contactId).orderBy('conversation_id').execute()).map(toConv); }
   async upsertConversation(x: ConversationRow) {
     const v = { conversation_id: x.conversationId, tenant_id: this.tenantId, channel_account_id: x.channelAccountId, external_thread_id: x.externalThreadId, contact_id: x.contactId,
-      kind: x.kind, anchor: x.anchor ? js(x.anchor) : null, last_at: x.lastAt, last_direction: x.lastDirection, window_until: x.windowUntil };
-    await this.c.insertInto('conversations').values(v).onConflict((o) => o.column('conversation_id').doUpdateSet({ contact_id: v.contact_id, last_at: v.last_at, last_direction: v.last_direction, window_until: v.window_until, anchor: v.anchor })).execute();
+      kind: x.kind, anchor: x.anchor ? js(x.anchor) : null, last_at: x.lastAt, last_direction: x.lastDirection, window_until: x.windowUntil, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}) };
+    await this.c.insertInto('conversations').values(v).onConflict((o) => o.column('conversation_id').doUpdateSet({ contact_id: v.contact_id, last_at: v.last_at, last_direction: v.last_direction, window_until: v.window_until, anchor: v.anchor, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}) })).execute();
   }
   async upsertMessage(m: MessageRow) {
     const v = { message_id: m.messageId, tenant_id: this.tenantId, touch_id: String(m.touchId), conversation_id: m.conversationId, external_message_id: m.externalMessageId, direction: m.direction, body: m.text, delivery: m.delivery, e2ee: m.e2ee, at: m.at };
