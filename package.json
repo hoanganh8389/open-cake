@@ -5,16 +5,27 @@
   "description": "Open Cake — Bizcity Open Customer Framework (web): contact_id là trục xuyên mọi kênh. GPL-2.0-or-later.",
   "license": "GPL-2.0-or-later",
   "type": "module",
-  "engines": { "node": ">=22.12" },
-  "workspaces": ["packages/*", "apps/*"],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p packages/contracts --noEmit",
+    "typecheck": "tsc -p packages/contracts && tsc -p packages/ui-kit && tsc -p packages/action-client",
     "contracts:check": "vitest run packages/contracts"
   },
   "devDependencies": {
     "@types/node": "20.17.6",
     "typescript": "5.6.3",
-    "vitest": "2.1.5"
+    "vitest": "2.1.5",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }

@@ -1,0 +1,106 @@
+/* [2026-11-24 03:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: chép nguyên CSS khung chat của bản mẫu duyệt (docs/ui/mockup-src/src/chat.css). */
+/* [2026-11-23 08:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-006 v0.2 — hộp thư bám sát Deplao (ảnh 3): danh sách rộng, avatar 56, nhãn nền đặc,
+   bong bóng xanh nhạt, dải Gợi ý AI tím nhạt, dải nhãn, 12 công cụ, ô nhập có emoji + 👍; cột thông tin ẩn mặc định. */
+
+/* ---- nhãn ---- */
+.dtag { display: inline-flex; align-items: center; gap: 4px; background: var(--tag); color: #fff; border-radius: 999px; font-weight: 600; white-space: nowrap; line-height: 1; }
+.dtag.sm { height: 24px; padding: 0 9px 0 7px; font-size: 13px; }
+.dtag.md { height: 28px; padding: 0 11px 0 9px; font-size: 14.5px; }
+.dtag.lg { height: 36px; padding: 0 16px 0 12px; font-size: 16px; cursor: pointer; }
+.dtag .ti { font-size: .85em; }
+.dtag .tc { margin-left: 4px; font-weight: 700; }
+.dtag.off { background: color-mix(in srgb, var(--tag) 35%, white); }
+
+/* ---- rail kiểu Deplao (dùng mọi màn) ---- */
+.body { grid-template-columns: 82px 1fr !important; }
+.rail { padding: 10px 0 !important; gap: 10px !important; }
+.rail .burger { width: 48px; height: 48px; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--muted-foreground); }
+.rail .accounts { gap: 18px !important; padding: 8px 0 !important; }
+.rail .racc { position: relative; border-radius: 50%; outline: 3px solid transparent; outline-offset: 2px; }
+.rail .racc.on { outline-color: var(--primary); }
+.rail .racc.off { filter: grayscale(1); opacity: .5; }
+.rail .racc .n { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 11px; background: #ef4444; color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; padding: 0 5px; border: 2px solid var(--sidebar); z-index: 2; }
+.rail .racc .fold { position: absolute; bottom: -4px; left: -6px; width: 22px; height: 16px; border-radius: 4px; background: #f59e0b; border: 2px solid var(--sidebar); z-index: 2; }
+.rail .radd { width: 56px; height: 36px; border-radius: 18px; border: 2px dashed var(--border-strong); color: var(--muted-foreground); display: grid; place-items: center; background: var(--accent); }
+.rail .nav { gap: 10px !important; padding-top: 14px !important; }
+.rail .nb2 { position: relative; width: 60px; height: 60px; border-radius: 14px; display: grid; place-items: center; color: var(--muted-foreground); }
+.rail .nb2 svg { width: 28px; height: 28px; }
+.rail .nb2:hover { background: var(--sidebar-hover); color: var(--foreground); }
+.rail .nb2.on { background: var(--primary); color: #fff; box-shadow: 0 6px 14px color-mix(in srgb, var(--primary) 35%, transparent); }
+.rail .nb2.on::before { content: ''; position: absolute; left: -11px; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: var(--primary); }
+
+/* ---- hộp thư ---- */
+.dinbox { display: grid; grid-template-columns: 440px 1fr; height: 100%; min-height: 0; background: var(--card); }
+.dinbox.info { grid-template-columns: 440px 1fr 340px; }
+.dlist { border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+.dlist .top { display: flex; gap: 12px; align-items: center; padding: 12px 16px; }
+.dlist .top .sbox { flex: 1; height: 46px; border-radius: 23px; border: 1px solid var(--border); background: var(--muted); display: flex; align-items: center; gap: 10px; padding: 0 16px; color: var(--subtle-foreground); font-size: 16px; }
+.dlist .top .sbox svg { width: 20px; height: 20px; }
+.dlist .top .plus { width: 40px; height: 40px; display: grid; place-items: center; color: var(--muted-foreground); }
+.dlist .tabs2 { display: grid; grid-template-columns: 1fr 1fr 1fr 40px; border-bottom: 1px solid var(--border); }
+.dlist .tabs2 button { height: 50px; font-size: 16px; color: var(--muted-foreground); display: flex; align-items: center; justify-content: center; gap: 8px; border-bottom: 3px solid transparent; }
+.dlist .tabs2 button.on { color: var(--primary); border-color: var(--primary); }
+.dlist .cnt { min-width: 22px; height: 22px; border-radius: 11px; background: var(--primary); color: #fff; font-size: 12px; font-weight: 700; display: inline-grid; place-items: center; padding: 0 6px; }
+.dlist .items { flex: 1; overflow: auto; }
+.ditem { display: flex; gap: 16px; padding: 16px 18px; cursor: pointer; }
+.ditem:hover { background: var(--muted); }
+.ditem.on { background: #e8f0fe; }
+.ditem .b { flex: 1; min-width: 0; }
+.ditem .r1 { display: flex; align-items: center; gap: 6px; }
+.ditem .nm { flex: 1; font-size: 17px; color: var(--foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ditem .tm { font-size: 14px; color: var(--subtle-foreground); }
+.ditem .r2 { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.ditem .pv { flex: 1; font-size: 16px; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.ditem .sq { width: 20px; height: 20px; border-radius: 5px; color: #fff; font-size: 11px; display: inline-grid; place-items: center; flex: none; }
+.ditem .un { min-width: 24px; height: 24px; border-radius: 12px; background: var(--primary); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; padding: 0 7px; }
+.ditem .at { width: 24px; height: 24px; border-radius: 12px; background: #0ea5e9; color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+.ditem .rp { color: var(--primary); width: 20px; height: 20px; }
+.ditem .tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+.dchat { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: #edf0f5; }
+.dchat .hd { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+.dchat .hd .nm { font-size: 21px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.dchat .hd .nm .mi { width: 18px; height: 18px; color: var(--muted-foreground); }
+.dchat .hd .tags { display: flex; gap: 8px; margin-top: 6px; }
+.dchat .hd .ri { width: 44px; height: 44px; display: grid; place-items: center; color: var(--foreground); border-radius: 10px; }
+.dchat .hd .ri:hover { background: var(--muted); }
+.dchat .hd .ri svg { width: 26px; height: 26px; }
+.dchat .msgs { flex: 1; overflow: auto; padding: 16px 28px 24px; display: flex; flex-direction: column; gap: 18px; }
+.dmsg { display: flex; gap: 14px; align-items: flex-end; max-width: 78%; }
+.dmsg.out { align-self: flex-end; }
+.dmsg .bb { position: relative; background: #fff; border: 1px solid #e3e6eb; border-radius: 10px; padding: 12px 16px 10px; font-size: 17px; line-height: 1.5; color: var(--foreground); }
+.dmsg.out .bb { background: #e5efff; border-color: #c9dcfb; }
+.dmsg .ts { display: block; font-size: 14px; color: var(--subtle-foreground); margin-top: 6px; }
+.dmsg .re { position: absolute; bottom: -14px; width: 30px; height: 26px; border-radius: 13px; background: #fff; border: 1px solid #e3e6eb; display: grid; place-items: center; font-size: 14px; }
+.dmsg .img { width: 440px; border-radius: 10px; overflow: hidden; background: #fff; border: 1px solid #c9dcfb; position: relative; }
+.dmsg .img .pic { height: 230px; background: #fde4ec; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding-bottom: 0; position: relative; }
+.dmsg .img .cap { text-align: center; color: #be123c; font-weight: 700; font-size: 15px; padding: 8px; }
+.dmsg .img .tp { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; padding: 2px 8px; border-radius: 10px; }
+.dmsg .file { display: flex; gap: 14px; align-items: center; min-width: 330px; }
+.dmsg .file .pdf { width: 56px; height: 56px; border-radius: 8px; background: #e11d48; color: #fff; font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+.dmsg .file b { font-size: 18px; font-weight: 600; }
+
+.dsug { display: flex; gap: 12px; align-items: center; padding: 12px 16px; background: #f1ecfb; border-top: 1px solid #e4dcf6; }
+.dsug .lb { flex: none; height: 34px; padding: 0 12px; border-radius: 17px; background: #e4dcfa; color: #6d4fd1; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.dsug .s { flex: 1; min-width: 0; max-width: 330px; background: #fff; border: 1px solid #e4dcf6; border-radius: 14px; padding: 10px 14px; font-size: 15px; text-align: left; color: var(--foreground); line-height: 1.45; }
+.dsug .x { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 1px solid var(--border); display: grid; place-items: center; color: var(--muted-foreground); flex: none; }
+.dlabels { display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: #fff; border-top: 1px solid var(--border); }
+.dlabels .xr { margin-left: auto; color: #ef4444; font-size: 22px; font-weight: 700; }
+.dtools { display: flex; gap: 6px; align-items: center; padding: 8px 14px; background: #fff; border-top: 1px solid var(--border); }
+.dtools button { width: 46px; height: 46px; border-radius: 10px; color: #4b5563; display: grid; place-items: center; }
+.dtools button svg { width: 26px; height: 26px; }
+.dtools button:hover { background: var(--muted); }
+.dtools button.on { background: var(--primary); color: #fff; }
+.dinput { display: flex; align-items: center; gap: 14px; padding: 16px 18px 20px; background: #fff; }
+.dinput .ph { flex: 1; font-size: 17px; color: var(--subtle-foreground); }
+.dinput .em { width: 32px; height: 32px; color: #374151; }
+.dinput .like { font-size: 30px; line-height: 1; }
+
+.dinfo { border-left: 1px solid var(--border); background: #fff; overflow: auto; padding: 24px 20px; }
+.dinfo h4 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle-foreground); margin: 22px 0 10px; }
+
+/* ---- danh bạ (ảnh 2) ---- */
+.gender { font-size: 15px; display: inline-flex; gap: 4px; align-items: center; }
+.gender.f { color: #ec4899; } .gender.m { color: #3b82f6; }
+.onl { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #16a34a; margin-left: 6px; vertical-align: middle; }
+.editic { color: #c2410c; width: 22px; height: 22px; margin-left: 8px; vertical-align: -4px; }

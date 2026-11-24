@@ -1,0 +1,13 @@
+{
+  "name": "@open-cake/action-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gọi action theo hợp đồng @open-cake/contracts: adapter http (REST bizcity_api@1) và mock (bộ mẫu, kiểm input/output bằng chính schema); hook React.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "@open-cake/contracts": "0.1.0", "@tanstack/react-query": "5.59.20", "zod": "3.25.76" },
+  "peerDependencies": { "react": "18.3.1" }
+}

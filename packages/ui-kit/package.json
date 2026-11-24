@@ -1,0 +1,12 @@
+{
+  "name": "@open-cake/ui-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bộ giao diện open-cake theo ảnh duyệt Deplao (token, thành phần, biểu tượng). Facade duy nhất module web được import (R-WEB-1).",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": { ".": "./src/index.ts", "./tokens.css": "./src/tokens.css", "./chat.css": "./src/chat.css" },
+  "peerDependencies": { "react": "18.3.1" }
+}
