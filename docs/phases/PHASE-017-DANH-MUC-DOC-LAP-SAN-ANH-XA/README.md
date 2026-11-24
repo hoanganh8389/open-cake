@@ -15,7 +15,8 @@
 | S017-4 | Bộ giả lập `handlers-catalog.ts` + hàng mẫu Shop Hoa Mai; test chuẩn H-* và cổng ghi | ☑ |
 | S017-5 | Migration `db/migrations/0102_catalog.sql`: `catalog_categories`, `catalog_items`, `catalog_item_codes`, `catalog_item_units`, `catalog_price_lists`, `catalog_prices`, `tenant_links`, `contact_links` + RLS FORCE; kiểm trên Postgres 16 | ☑ 7 ràng buộc sai bị chặn (giá sai ĐVT, trùng tên, SKU thường, hai ĐVT gốc, hai bảng giá công ty, nguồn ketoan thiếu liên kết, SKU cấp lại), RLS tách đơn vị |
 | S017-6 | Màn **Hàng hoá** (danh sách, tạo / sửa theo chuẩn, cảnh báo `CAT-*`, nhãn "Lấy từ Kế Toán" khi chỉ đọc) và **Bảng giá** trong `apps/web` + ảnh build | ☑ 4 ảnh [evidence/build-shots](evidence/build-shots/): `catalog-items`, `catalog-prices`, `catalog-ketoan` (?catalog=ketoan — khoá cột kế toán), `catalog-empty` |
-| S017-7 | Báo giá trong chat dùng bảng giá Cake (thẻ hàng ở InboxChat) | ☐ |
+| S017-7 | Gửi giá trong chat: chọn hàng → chèn chữ vào ô soạn ([mockup](evidence/build-shots/mockup-gui-gia.png)) | ⏸ chờ duyệt mockup |
+| S017-8 | Đối chiếu SPINE + làm gọn giao diện / mã ([20-DOI-CHIEU-SPINE-VA-LEAN.md](20-DOI-CHIEU-SPINE-VA-LEAN.md)) | ⏸ chờ duyệt Q-017-1..3 |
 
 ## Quyết định
 
