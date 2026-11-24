@@ -32,7 +32,7 @@ Khoá theo `doc_key` thành nút cổ chai khi một tài khoản bị spam ⇒ 
 
 | # | Việc | TT |
 |---|---|---|
-| S005-1 | migration SQL care-kernel | ☐ chờ PHASE-016 (`CareRepo` đã định cột) |
+| S005-1 | migration SQL care-kernel `db/migrations/0101_care_kernel.sql` (9 bảng, trigger chỉ-thêm, UNIQUE danh tính hiệu lực, CHECK bằng chứng, RLS FORCE) | ☑ kiểm trên PostgreSQL 16 thật: sửa sổ · đảo hai lần · trùng danh tính · proven không bằng chứng · bằng chứng "name" · scope sai · TRUNCATE ⇒ đều bị chặn; RLS gắn đơn vị 2 thấy 0 dòng đơn vị 1. Chưa nối runner — chờ PHASE-016 |
 | S005-2 | `submitTouchIn`: unchanged / CAKE_TOUCH_VERSION_STALE / lưu bản cũ + đảo + ghi; một phiên bản = một dòng sổ; một giao dịch | ☑ |
 | S005-3 | resolver: có sẵn → phone / email proven → bắt tay trả lời riêng (chỉ khi shop **đã** trả lời riêng comment đó) → tạo mới asserted; không ghép theo tên | ☑ |
 | S005-4 | ghép (bằng chứng bắt buộc, đóng / mở danh tính, chuyển hội thoại, dòng `merge`) / tách trong 30 ngày (dòng đảo) | ☑ |
