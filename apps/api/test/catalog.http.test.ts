@@ -4,6 +4,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { ActionClient } from '@open-cake/action-client';
+import { freshDb } from './fresh-db.js';
 
 const url = process.env.TEST_DATABASE_URL;
 
@@ -14,14 +15,10 @@ describe.skipIf(!url)('API danh mục trên Postgres (cùng hợp đồng với 
   const C = () => import('@open-cake/contracts');
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = url; // nền đọc env lúc nạp ⇒ đặt trước khi import
+    const dbUrl = await freshDb(url!, 'catalog'); // database riêng của tệp này
     const pg = (await import('pg')).default;
-    const admin = new pg.Client({ connectionString: url }); await admin.connect();
+    const admin = new pg.Client({ connectionString: dbUrl }); await admin.connect();
     sql = (q) => admin.query(q);
-    await admin.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
-    const { runMigrations } = await import('@bizcity/platform/db/migrate');
-    const { MIGRATION_SOURCES } = await import('../src/migrate.js');
-    await runMigrations(() => {}, { connectionString: url, sources: MIGRATION_SOURCES });
     await (await import('../src/seed-dev.js')).seedDev('hoa-mai');
     app = await (await import('../src/server.js')).buildApp({ logger: false });
     const { createHttpClient } = await import('@open-cake/action-client');

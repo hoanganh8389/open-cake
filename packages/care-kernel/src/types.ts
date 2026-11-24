@@ -3,6 +3,8 @@
 // [2026-11-24 04:21 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 — S005-1/2: hàng (row) của care-kernel đúng cột architecture/20-DATA-SPINE §1 và cổng kho CareRepo.
 //   Kernel chỉ nói chuyện với CareRepo; bản trong bộ nhớ (test) và bản PostgreSQL (PHASE-016) cùng hiện thực cổng này. Mọi lệnh của một sự việc chạy
 //   trong MỘT giao dịch: CareRepo.tx(fn) — bản PG khoá pg_advisory_xact_lock theo doc_key.
+// [2026-11-24 08:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 — cổng BẤT ĐỒNG BỘ (Promise): bản PostgreSQL không hiện thực được cổng đồng bộ;
+//   bản bộ nhớ và bản PG cùng chạy một bộ test kịch bản (test/scenarios.ts).
 import type { Channel, Confidence, Proof } from '@open-cake/contracts';
 
 export type ContactRow = { contactId: string; kind: 'person' | 'org'; displayName: string; status: 'active' | 'merged' | 'archived'; mergedInto: string | null; createdAt: string };
@@ -19,40 +21,40 @@ export type StateRow = { contactId: string; tags: string[]; lastInAt: string | n
 
 /** Cổng kho. Hàm ghi chỉ THÊM, trừ các chỗ được luật cho phép sửa (đóng identity bằng validTo, cập nhật dẫn xuất, trạng thái giao tin). */
 export interface CareRepo {
-  tx<T>(fn: () => T): T;
+  tx<T>(fn: () => Promise<T>): Promise<T>;
   // một cửa
-  findEvent(source: string, docKey: string): EventRow | undefined;
-  insertEvent(e: EventRow): void;
-  replaceEvent(e: EventRow): void; // bản cũ đã vào archiveEventVersion trước
-  archiveEventVersion(e: EventRow): void;
+  findEvent(source: string, docKey: string): Promise<EventRow | undefined>;
+  insertEvent(e: EventRow): Promise<void>;
+  replaceEvent(e: EventRow): Promise<void>; // bản cũ đã vào archiveEventVersion trước
+  archiveEventVersion(e: EventRow): Promise<void>;
   // sổ
-  appendLedger(row: Omit<LedgerRow, 'touchId'>): LedgerRow;
-  ledgerByEvent(eventId: string): LedgerRow[];
-  ledgerByContact(contactId: string): LedgerRow[];
-  isReversed(touchId: number): boolean;
+  appendLedger(row: Omit<LedgerRow, 'touchId'>): Promise<LedgerRow>;
+  ledgerByEvent(eventId: string): Promise<LedgerRow[]>;
+  ledgerByContact(contactId: string): Promise<LedgerRow[]>;
+  isReversed(touchId: number): Promise<boolean>;
   // người, danh tính
-  getContact(contactId: string): ContactRow | undefined;
-  insertContact(c: ContactRow): void;
-  updateContact(contactId: string, patch: Partial<Pick<ContactRow, 'status' | 'mergedInto' | 'displayName'>>): void;
+  getContact(contactId: string): Promise<ContactRow | undefined>;
+  insertContact(c: ContactRow): Promise<void>;
+  updateContact(contactId: string, patch: Partial<Pick<ContactRow, 'status' | 'mergedInto' | 'displayName'>>): Promise<void>;
   /** các khách đã ghép vào contactId (status = merged, merged_into = contactId). */
-  mergedFrom(contactId: string): string[];
-  findIdentity(channel: Channel, scope: string, externalId: string): IdentityRow | undefined; // chỉ dòng còn hiệu lực
-  identitiesOf(contactId: string, includeClosed?: boolean): IdentityRow[];
-  insertIdentity(i: IdentityRow): void;
-  closeIdentity(identityId: string, at: string): void;
-  reopenIdentity(identityId: string): void;
-  deleteIdentityRow(identityId: string): void; // chỉ dùng khi tách lại dòng do chính lần ghép tạo ra
+  mergedFrom(contactId: string): Promise<string[]>;
+  findIdentity(channel: Channel, scope: string, externalId: string): Promise<IdentityRow | undefined>; // chỉ dòng còn hiệu lực
+  identitiesOf(contactId: string, includeClosed?: boolean): Promise<IdentityRow[]>;
+  insertIdentity(i: IdentityRow): Promise<void>;
+  closeIdentity(identityId: string, at: string): Promise<void>;
+  reopenIdentity(identityId: string): Promise<void>;
+  deleteIdentityRow(identityId: string): Promise<void>; // chỉ dùng khi tách lại dòng do chính lần ghép tạo ra
   // kênh, hội thoại, tin
-  findAccount(externalAccountId: string, kind: AccountRow['kind']): AccountRow | undefined;
-  findConversation(channelAccountId: string, externalThreadId: string): ConversationRow | undefined;
-  findCommentConversation(channelAccountId: string, commentId: string): ConversationRow | undefined;
-  conversationsOf(contactId: string): ConversationRow[];
-  upsertConversation(c: ConversationRow): void;
-  upsertMessage(m: MessageRow): void;
-  findMessage(conversationId: string, externalMessageId: string): MessageRow | undefined;
+  findAccount(externalAccountId: string, kind: AccountRow['kind']): Promise<AccountRow | undefined>;
+  findConversation(channelAccountId: string, externalThreadId: string): Promise<ConversationRow | undefined>;
+  findCommentConversation(channelAccountId: string, commentId: string): Promise<ConversationRow | undefined>;
+  conversationsOf(contactId: string): Promise<ConversationRow[]>;
+  upsertConversation(c: ConversationRow): Promise<void>;
+  upsertMessage(m: MessageRow): Promise<void>;
+  findMessage(conversationId: string, externalMessageId: string): Promise<MessageRow | undefined>;
   // dẫn xuất
-  getState(contactId: string): StateRow | undefined;
-  putState(s: StateRow): void;
+  getState(contactId: string): Promise<StateRow | undefined>;
+  putState(s: StateRow): Promise<void>;
 }
 
 export interface KernelDeps {

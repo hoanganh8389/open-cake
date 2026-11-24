@@ -14,11 +14,11 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p packages/contracts && tsc -p packages/care-kernel && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web && npm run build -w @open-cake/contracts && tsc -p apps/api --noEmit",
+    "typecheck": "tsc -p packages/contracts && tsc -p packages/care-kernel && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web && npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && tsc -p apps/api --noEmit",
     "contracts:check": "vitest run packages/contracts",
     "web:dev": "npm run dev -w @open-cake/web",
     "web:build": "npm run build -w @open-cake/web",
-    "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/api"
+    "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api"
   },
   "devDependencies": {
     "@types/node": "20.17.6",

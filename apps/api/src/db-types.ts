@@ -29,8 +29,32 @@ export interface TenantLinksTable {
 }
 export interface EntityMetaTable { tenant_id: string; entity_type: string; entity_id: string; key: string; value: ColumnType<unknown, string, string>; updated_at: Ts; updated_by: string | null }
 
+// [2026-11-24 08:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 — 9 bảng care-kernel (0101 + 0104) cho PgCareRepo.
+type J = ColumnType<unknown, string, string>; // jsonb: ghi bằng JSON.stringify
+export interface ContactsTable { contact_id: string; tenant_id: string; kind: string; display_name: string; status: ColumnType<string, string | undefined, string>; merged_into: string | null; created_at: Ts }
+export interface ContactIdentitiesTable { identity_id: string; tenant_id: string; contact_id: string; channel: string; scope: string; external_id: string; display_name: string | null; confidence: string; proof: ColumnType<unknown, string | null, string | null>; valid_from: Ts; valid_to: TsNull }
+export interface ChannelAccountsTable { channel_account_id: string; tenant_id: string; channel: string; kind: string; external_account_id: string; label: string; owner_user_id: string | null; cell_ref: string | null; status: ColumnType<string, string | undefined, string>; capabilities: ColumnType<unknown, string | undefined, string>; connected_at: TsNull; tested_at: TsNull }
+export interface ConversationsTable { conversation_id: string; tenant_id: string; channel_account_id: string; external_thread_id: string; contact_id: string; kind: string; anchor: ColumnType<unknown, string | null, string | null>; last_at: TsNull; last_direction: string | null; window_until: TsNull; assignee_user_id: ColumnType<string | null, string | null | undefined, string | null> }
+export interface TouchEventsTable { event_id: string; tenant_id: string; source: string; doc_key: string; version: number; type: string; payload: J; actor: string; received_at: Ts }
+export interface TouchEventVersionsTable { tenant_id: string; event_id: string; version: number; payload: J; archived_at: Ts }
+export interface TouchLedgerTable {
+  touch_id: ColumnType<string, never, never>; tenant_id: string; event_id: string; contact_id: string; conversation_id: string | null; channel_account_id: string | null; channel: string | null;
+  kind: string; direction: string; qty: number; is_reversal: boolean; reverses_id: string | null; dims: J; at: Ts;
+}
+export interface MessagesTable { message_id: string; tenant_id: string; touch_id: string; conversation_id: string; external_message_id: string; direction: string; body: string; attachments: ColumnType<unknown, string | undefined, string>; delivery: string | null; e2ee: ColumnType<boolean, boolean | undefined, boolean>; at: Ts }
+export interface ContactStateTable { contact_id: string; tenant_id: string; tags: string[]; last_in_at: TsNull; last_out_at: TsNull; unanswered: boolean; channels: J; rev: number }
+
 declare module '@bizcity/platform/db/types' {
   interface AppDatabase {
+    contacts: ContactsTable;
+    contact_identities: ContactIdentitiesTable;
+    channel_accounts: ChannelAccountsTable;
+    conversations: ConversationsTable;
+    touch_events: TouchEventsTable;
+    touch_event_versions: TouchEventVersionsTable;
+    touch_ledger: TouchLedgerTable;
+    messages: MessagesTable;
+    contact_state: ContactStateTable;
     catalog_categories: CatalogCategoriesTable;
     catalog_items: CatalogItemsTable;
     catalog_item_codes: CatalogItemCodesTable;

@@ -16,7 +16,7 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [002](PHASE-002-NEN-HOP-DONG-NANG-LUC/README.md) **Nền hợp đồng & năng lực** | W1 | zod một chỗ: hợp đồng nền, action spec + danh mục năng lực, trục contact, 3 hợp đồng cake, registry lớp mềm, fixture | cake | — | ☑ 2026-11-24 (25 test) |
 | [003](PHASE-003-UI-UX-TREN-HOP-DONG/README.md) **UI/UX trên hợp đồng** | W1 | ui-kit + 6 màn lõi + màn lớp mềm tự sinh, dữ liệu qua `ActionClient` + bộ giả lập | cake | — | ☑ 2026-11-24 (14 ảnh build, 42 test) |
 | [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ☐ |
-| [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ logic thuần ☑ (9 test); SQL chờ 016 |
+| [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ kernel + PgCareRepo ☑ (9 kịch bản trên bộ nhớ và Postgres); còn outbox, selfcheck |
 | [006](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/README.md) Kênh | W3 | ingress `bizcity_touch@1` / `bizcity_channel_command@1`; Zalo cá nhân đầu tiên | cake · zalo-hub · router | — | ☐ |
 | [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ☐ |
 | [008](PHASE-008-FACEBOOK-PAGE-COMMENT/README.md) FB Page | W4 | chat Page, comment, private reply | cake · Cell · router | G1–G4 | ☐ |
