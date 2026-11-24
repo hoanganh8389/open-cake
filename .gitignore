@@ -7,3 +7,5 @@ coverage/
 !.env.example
 docs/ui/mockup-src/node_modules/
 evidence/tmp/
+# [2026-11-24 09:19 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — nhật ký chạy của nền (DATA_DIR, mặc định ./data): không vào git
+data/
