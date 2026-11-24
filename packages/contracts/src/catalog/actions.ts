@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer contracts
-// [2026-11-24 04:58 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — action danh mục độc lập (ADR-0004). Tạo / sửa hàng kiểm chuẩn H-* ngay ở cửa;
+// [2026-11-24 04:58 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — action danh mục (05:03 PM: thêm cake.catalog_price.list cho màn Bảng giá — một lần gọi, không gọi từng hàng) độc lập (ADR-0004). Tạo / sửa hàng kiểm chuẩn H-* ngay ở cửa;
 //   khi nguồn = ketoan, sửa cột kế toán bị chặn bằng CAKE_CATALOG_READONLY (cổng ghi duy nhất).
 import { z } from 'zod';
 import { defineActionSpec } from '../base/action.js';
@@ -69,9 +69,14 @@ export const catalogPriceSet = defineActionSpec({
   emits: ['bizcity.cake.catalog_price.changed'], reasons: ['CAKE_CATALOG_READONLY'],
   expose: { rest: 'PUT /api/v1/catalog/prices', ui: true },
 });
+export const catalogPriceList = defineActionSpec({
+  id: 'cake.catalog_price.list', capability: 'cake.catalog', title: 'Giá theo bảng giá', kind: 'query',
+  input: z.object({ priceListCode: z.string(), page: z.number().int().min(1).default(1), pageSize: z.number().int().min(1).max(500).default(200) }),
+  output: z.array(PriceRowSchema), permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/prices', mcp: 'read', ui: true },
+});
 export const catalogSourceGet = defineActionSpec({
   id: 'cake.catalog_source.get', capability: 'cake.catalog', title: 'Nguồn danh mục & liên kết Kế Toán', kind: 'query',
   input: z.object({}), output: TenantLinkSchema, permission: 'cake:catalog-xem', risk: 'read', expose: { rest: 'GET /api/v1/catalog/source', mcp: 'read', ui: true },
 });
 
-export const CATALOG_ACTIONS = [catalogItemList, catalogItemGet, catalogItemCreate, catalogItemUpdate, catalogCategoryList, catalogPriceListList, catalogPriceSet, catalogSourceGet] as const;
+export const CATALOG_ACTIONS = [catalogItemList, catalogItemGet, catalogItemCreate, catalogItemUpdate, catalogCategoryList, catalogPriceListList, catalogPriceSet, catalogPriceList, catalogSourceGet] as const;

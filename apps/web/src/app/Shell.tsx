@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: khung theo ảnh duyệt — thanh tiêu đề · rail tài khoản kênh (từ cake.channel.list) + 6 mục.
+// [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — S017-6: thêm mục Hàng hoá & bảng giá (danh mục độc lập, ADR-0004).
 //   Rail: mỗi avatar = một channel_account, huy hiệu theo enum kênh, số chưa đọc thật; "+" mở Kết nối kênh.
 import { useState, type ReactNode } from 'react';
 import { channelList } from '@open-cake/contracts';
@@ -12,6 +13,7 @@ const NAV = [
   { id: 'dashboard', label: 'Tổng quan', icon: Ic.grid },
   { id: 'inbox', label: 'Hộp thư', icon: Ic.chat },
   { id: 'contacts', label: 'Danh bạ', icon: Ic.contact },
+  { id: 'catalog', label: 'Hàng hoá & bảng giá', icon: Ic.store },
   { id: 'reports', label: 'Báo cáo', icon: Ic.chart },
   { id: 'work', label: 'Công việc', icon: Ic.brief, children: ['workflow', 'integrations', 'tasks', 'apps', 'campaigns'] },
   { id: 'settings', label: 'Cài đặt', icon: Ic.cog },

@@ -12,6 +12,12 @@ export type CatalogStore = { source: CatalogSource; items: Item[]; prices: Price
 const sync = (source: CatalogSource) => ({ source, extId: null, extSyncedAt: null, extHash: null, pushStatus: 'local' as const, pushError: null });
 const T = '2026-11-20T09:00:00+07:00';
 
+/** Giả lập đơn vị đã nối Kế Toán: nguồn ketoan, mỗi hàng gắn ext_id = item_id bên Kế Toán (?catalog=ketoan). */
+export function linkCatalogToKetoan(cat: CatalogStore): void {
+  cat.source = 'ketoan';
+  for (const it of cat.items) it.sync = { source: 'ketoan', extId: it.itemId, extSyncedAt: T, extHash: null, pushStatus: 'accepted', pushError: null };
+}
+
 export function seedCatalog(): CatalogStore {
   const item = (n: number, sku: string, name: string, unit: string, price: number, cat: string): [Item, PriceRow] => {
     const itemId = `01JDAP${String(n).padStart(20, '0')}`;
@@ -90,5 +96,12 @@ export const catalogHandlers: Record<string, (s: Store, input: Any) => unknown> 
     s.catalog.prices = [...s.catalog.prices.filter((p) => !(p.priceListCode === row.priceListCode && p.itemId === row.itemId && p.unit === row.unit)), row];
     return row;
   },
-  'cake.catalog_source.get': (s) => ({ catalogSource: s.catalog.source, oktBaseUrl: null, oktTenantId: null, branchCode: null, externalRef: null, connectedAt: null, lastHealthOkAt: null, paused: false }),
+  'cake.catalog_price.list': (s, i) => {
+    const xs = s.catalog.prices.filter((p) => p.priceListCode === i.priceListCode);
+    const start = (i.page - 1) * i.pageSize;
+    return paged(xs.slice(start, start + i.pageSize), { page: i.page, pageSize: i.pageSize, total: xs.length });
+  },
+  'cake.catalog_source.get': (s) => (s.catalog.source === 'local'
+    ? { catalogSource: 'local', oktBaseUrl: null, oktTenantId: null, branchCode: null, externalRef: null, connectedAt: null, lastHealthOkAt: null, paused: false }
+    : { catalogSource: 'ketoan', oktBaseUrl: 'https://ketoan.hoamai.example', oktTenantId: '1', branchCode: null, externalRef: 'opencake:hoa-mai', connectedAt: T, lastHealthOkAt: iso(s.now()), paused: false }),
 };

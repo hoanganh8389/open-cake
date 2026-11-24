@@ -6,3 +6,4 @@ export * from './http.js';
 export * from './mock/adapter.js';
 export { createStore, type Store } from './mock/store.js';
 export * from './react.js';
+export { linkCatalogToKetoan } from './mock/handlers-catalog.js';

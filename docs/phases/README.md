@@ -28,7 +28,7 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 | [014](PHASE-014-NHIEU-SITE-OPEN-SETUP/README.md) Nhiều site | W6 | máy nhiều site của platform cho cake; open-setup `product` | cake · open-setup · router | — | ☐ |
 | [015](PHASE-015-KIEM-CHUNG-PHAT-HANH/README.md) Kiểm chứng | W7 | golden G1–G8, DOD-SYS, thử tải, phát hành | cả hai | G1–G8 | ☐ |
 | [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ☐ |
-| [017](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/README.md) **Danh mục độc lập** | W1 | hàng · nhóm · ĐVT · bảng giá của riêng Cake theo chuẩn H-* open-ketoan, `catalog_source local|ketoan`, một cổng ghi (ADR-0004) | cake | — | ◐ hợp đồng + giả lập ☑ (61 test) |
+| [017](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/README.md) **Danh mục độc lập** | W1 | hàng · nhóm · ĐVT · bảng giá của riêng Cake theo chuẩn H-* open-ketoan, `catalog_source local|ketoan`, một cổng ghi (ADR-0004) | cake | — | ◐ hợp đồng · SQL · màn ☑ (61 test, 4 ảnh); còn S017-7 báo giá trong chat |
 | *(open-ketoan)* PHASE-041 tách gói | — | P0 / P1 / P3 / P6 trong open-ketoan | open-ketoan | — | 💤 hoãn (#616, #617 bản nháp) |
 
 ## Thứ tự làm

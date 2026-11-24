@@ -134,5 +134,8 @@ describe('danh mục độc lập sẵn ánh xạ (ADR-0004)', async () => {
     await expect(c.call(catalogItemUpdate, { itemId: id, patch: { name: 'Đổi tên' } })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
     await expect(c.call(catalogItemCreate, { sku: '199999999', name: 'Mới', units: [{ unit: 'Cái', ratio: 1 }], taxCode: '8' })).rejects.toMatchObject({ reason: 'CAKE_CATALOG_READONLY' });
     expect((await c.call(catalogItemUpdate, { itemId: id, patch: { displayName: 'Váy hồng (bán chạy)' } })).data.displayName).toBe('Váy hồng (bán chạy)');
+    const { catalogPriceList, catalogSourceGet } = await import('@open-cake/contracts');
+    expect((await c.call(catalogPriceList, { priceListCode: 'CONGTY', page: 1, pageSize: 200 })).data.length).toBeGreaterThanOrEqual(4);
+    expect((await c.call(catalogSourceGet, {})).data).toMatchObject({ catalogSource: 'ketoan', externalRef: 'opencake:hoa-mai' });
   });
 });

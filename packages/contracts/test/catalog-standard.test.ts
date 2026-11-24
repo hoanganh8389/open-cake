@@ -46,5 +46,5 @@ describe('cổng ghi duy nhất theo nguồn danh mục (R-OKT-CONN-4)', () => {
     expect(catalogWriteGate('ketoan', ['name', 'taxCode', 'displayName'])).toEqual({ ok: false, blocked: ['name', 'taxCode'] });
     expect(catalogWriteGate('ketoan', ['displayName', 'isSellableInCrm'])).toEqual({ ok: true });
   });
-  it('danh mục app = 19 cake + 4 lớp mềm + 8 danh mục', () => expect(ALL_ACTIONS.length).toBe(31));
+  it('danh mục app = 19 cake + 4 lớp mềm + 9 danh mục', () => expect(ALL_ACTIONS.length).toBe(32));
 });
