@@ -16,7 +16,7 @@ import { signSession } from '@bizcity/platform/core/security/tokens';
 import { db } from '@bizcity/platform/db/client';
 import { failure } from '../runtime.js';
 
-type Ticket = { email: string; name?: string; login?: string; perms?: string[]; tenant?: string; iat: number; exp: number };
+type Ticket = { email: string; name?: string; login?: string; perms?: string[]; tenant?: string; aud?: string; iat: number; exp: number };
 const b64 = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 const bad = () => failure('UNAUTHORIZED', 'Vé đăng nhập không hợp lệ hoặc đã hết hạn — mở lại từ trang quản trị.');
 
@@ -30,6 +30,8 @@ export function verifyWpTicket(raw: string, secret: string, nowS = Math.floor(Da
   let t: Ticket;
   try { t = JSON.parse(b64(body).toString('utf8')) as Ticket; } catch { throw bad(); }
   if (!t || typeof t.email !== 'string' || !t.email.includes('@') || !(t.exp > nowS) || t.exp - t.iat > 300 || t.iat > nowS + 60) throw bad();
+  // [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — R-CAKE-SSO-3: vé của app khác (aud) không dùng được ở Cake.
+  if (t.aud !== undefined && t.aud !== 'cake') throw bad();
   return t;
 }
 
@@ -43,7 +45,9 @@ async function issue(tenant: { id: string; code: string }, email: string, fullNa
   if (!user) {
     user = await db.insertInto('users').values({ tenant_id: tenant.id, email, full_name: fullName, role: roleIfNew, password_hash: await hashPassword(randomBytes(24).toString('base64url')), is_active: true } as never)
       .returning(['id', 'full_name', 'role', 'is_active', 'session_version']).executeTakeFirstOrThrow();
-  } else if (!user.is_active) throw failure('UNAUTHORIZED', 'Tài khoản đã bị khoá ở Open CRM.');
+  } else if (!user.is_active) throw failure('UNAUTHORIZED', 'Tài khoản đã bị ngưng ở Open CRM — nhờ quản lý bật lại.');
+  // [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — R-CAKE-SSO-7: tên theo WordPress, ghi lần vào cuối.
+  await db.updateTable('users').set({ full_name: fullName, last_login_at: new Date() } as never).where('id', '=', user.id).execute();
   const kept = perms?.filter(isKnownPermission);
   const token = await signSession({ sub: String(user.id), tid: tenant.id, role: user.role, name: fullName, ...(kept ? { perms: kept } : {}), sv: Number(user.session_version) });
   return { token, user: { id: String(user.id), email, fullName, role: user.role, tenant: tenant.code } };

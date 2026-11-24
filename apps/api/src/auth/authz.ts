@@ -40,7 +40,8 @@ export function registerCakeAuthz(): void {
   const view = all.filter(isView);
   const viewNoInbox = view.filter((p) => p !== 'cake:inbox-xem'); // nội dung tin là dữ liệu cá nhân: chỉ agent / manager / owner (40-SECURITY §2)
   registerRoles('cake', [
-    { key: 'manager', label: 'Quản lý', permissions: [...all.filter((p) => !p.startsWith('cake:channels-') || isView(p)), 'reports:read'] },
+    // [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — quản lý: mời, đổi vai, ngưng, giao tài khoản kênh (users:write); vai riêng / cài đặt (settings:write) chỉ chủ (40-SECURITY §2.3).
+    { key: 'manager', label: 'Quản lý', permissions: [...all.filter((p) => !p.startsWith('cake:channels-') || isView(p)), 'reports:read', 'users:write'] },
     { key: 'agent', label: 'Nhân viên chăm sóc', permissions: [...view, 'cake:inbox-lap', 'cake:contacts-sua', 'cake:quick-reply-lap', 'cake:quick-reply-sua', 'core:records-lap', 'core:records-sua'] },
     { key: 'marketer', label: 'Tiếp thị', permissions: [...viewNoInbox, 'cake:contacts-sua', 'cake:catalog-lap', 'cake:catalog-sua', 'cake:catalog-gia'] },
     { key: 'viewer', label: 'Chỉ xem', permissions: [...viewNoInbox, 'reports:read'] },

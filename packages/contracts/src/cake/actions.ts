@@ -46,7 +46,7 @@ export const channelMembers = defineActionSpec({
 export const channelMembersSet = defineActionSpec({
   id: 'cake.channel.members_set', capability: 'cake.channel.manage', title: 'Giao tài khoản kênh cho nhân viên', kind: 'command',
   input: z.object({ channelAccountId: ChannelAccountIdSchema, userIds: z.array(z.string().regex(/^[1-9][0-9]{0,18}$/)).max(200) }),
-  output: z.array(ChannelMemberSchema), permission: 'cake:channels-lap', risk: 'high', idempotent: true,
+  output: z.array(ChannelMemberSchema), permission: 'users:write', risk: 'high', idempotent: true, /* [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — quyền nền users:write (chủ, quản lý), 40-SECURITY §2. */
   emits: ['bizcity.cake.channel.members_changed'], expose: { rest: 'PUT /api/v1/channels/:channelAccountId/members', ui: true },
 });
 

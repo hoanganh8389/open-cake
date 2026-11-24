@@ -12,28 +12,85 @@
 | Twin Brain (MCP) | khoá `mcp_…` + `X-BizCity-Principal` (người được uỷ quyền) | `{kind:'ai', via:'mcp:<client>', onBehalfOf, turnId}` | chỉ tool `read` / `propose`; ghi cần `confirm_token` 900 s |
 | Provisioning | `Bearer prov_…` trên `SITE_ADMIN_HOST`, danh sách IP | `provisioner:<key>` | chỉ `/_sites/v1` |
 
-## 2. Quyền (đăng ký cùng PR, test `phan-quyen-dang-ky`)
+## 2. Phân quyền — chuẩn (R-CAKE-AUTHZ)
 
-Tên `cake:<chức-năng>-<xem|lap|sua|xoa|huy|duyet|xuat>` (theo `docs/standard/DANG-KY-QUYEN.md` của open-ketoan):
+<!-- [2026-11-24 10:14 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — chuẩn hoá theo @bizcity/platform 0.2.0 (core/auth, core/roles, core/security/role-assignments) và bizcity_authorization@1 / ADR-0027 của open-ketoan: vai + ma trận, đăng ký bằng hook, người dùng kiểu WordPress. Chủ duyệt mockup 2026-11-24. -->
 
-| Quyền | Rủi ro | Vai mặc định |
-|---|---|---|
-| `cake:inbox-xem` · `cake:inbox-lap` (trả lời) | low · medium | `agent`, `manager`, `owner` |
-| `cake:contacts-xem` · `cake:contacts-sua` · `cake:contacts-xuat` | low · low · **high** | `agent` (xem, sửa) · `manager` (+ xuất) |
-| `cake:contacts-gop` (ghép / tách người) | **high** | `manager`, `owner` |
-| `cake:channels-xem` · `cake:channels-lap` (kết nối kênh) · `cake:channels-xoa` | low · high · high | `owner` |
-| `cake:broadcast-lap` · `cake:broadcast-duyet` | medium · **high** | `marketer` · `manager` |
-| `cake:reports-xem` | low | `manager`, `viewer` |
-| `cake:settings-sua` · `users:write` | high | `owner` |
-| `cake:all-inbox-xem` (xem hộp thư mọi tài khoản kênh) | high | `manager`, `owner` |
+Cake **không** có bộ tính quyền riêng: mọi thứ dưới đây là cổng của nền, Cake chỉ khai.
 
-- **Phạm vi:** nhân viên mặc định chỉ thấy hội thoại của **tài khoản kênh được giao** (`channel_account_members`) hoặc được giao hội thoại (`assignee_user_id`); phạm vi `all | channel_account | team` theo mô hình `bizcity_authorization@1` (scope × purpose × hiệu lực). **Từ chối luôn thắng.**
-- Vai hệ thống: `owner`, `manager`, `agent`, `marketer`, `viewer`, `auditor`, `developer`; vai riêng của đơn vị qua `tenant_roles` (chỉ thêm, ngưng bằng `is_active`).
-- **Khoá API và AI** không bao giờ có `cake:contacts-gop`, `cake:contacts-xuat`, `cake:channels-*`, `cake:broadcast-duyet`.
+### 2.1 Ba lớp
 
-## 3. Vòng đời người dùng
+| Lớp | Lưu ở | Khai / đổi bằng | Ai |
+|---|---|---|---|
+| **Sổ quyền** | trong mã | hook `registerModulePermissions('cake' \| 'core', …)` lúc khởi động — quyền Cake **sinh** từ action spec (`permission`, `risk`) + registry lớp mềm, một nguồn (R-CANON-14) | lập trình viên, qua PR |
+| **Vai hệ thống** | trong mã | hook `registerRoles('cake', …)`; `owner` thuộc nền (mọi quyền); khoá API: `registerApiScopes` | lập trình viên — màn chỉ xem |
+| **Vai riêng của đơn vị** | `tenant_roles` (dựa trên **một** vai hệ thống, không bao giờ `owner`) + `tenant_role_rules` (Cho đích danh / Cấm, được dùng `*`) | màn **Cài đặt › Vai & quyền** (ma trận) | quyền `settings:write` (chủ) |
+| **Người dùng** | `users` (một vai chính `users.role`) + `user_role_assignments` (vai thêm / vai riêng) + `channel_account_members` (phạm vi dữ liệu) | màn **Cài đặt › Nhân viên** | quyền `users:write` (chủ, quản lý) |
 
-Tạo → mời (email / SSO) → hoạt động → **ngưng** (`is_active=false`, thu hồi phiên, giữ lịch sử, gỡ khỏi tài khoản kênh, hội thoại đang giữ chuyển về hàng chung) → không xoá. Chủ cuối cùng không ngưng được. Đổi vai ⇒ `authz_version++` ⇒ mọi phiên tính lại quyền.
+**Quyền hiệu lực** (nền tính, đệm theo `tenants.authz_version`) = (vai chính ∪ vai thêm ∪ vai nền của vai riêng + Cho) − Cấm. **Cấm luôn thắng.** Quyền là "được làm việc gì"; **phạm vi** (§2.4) là "trên dữ liệu nào" — hai trục độc lập.
+
+### 2.2 Luật
+
+| Mã | Luật |
+|---|---|
+| R-CAKE-AUTHZ-1 | Tên quyền `<module>:<chức-năng>-<việc>` (`xem · lap · sua · xoa · gop · xuat · gia · duyet`); quyền nền giữ tên của nền (`users:write`, `settings:write`, `reports:read`…), **không** đặt lại tên Cake cho việc nền đã có. |
+| R-CAKE-AUTHZ-2 | Mỗi action khai đúng **một** `permission` + `risk`; route sinh từ spec tự gắn `requirePermission`. Rủi ro của quyền = mức cao nhất trong các action dùng nó. Không kiểm quyền rải rác trong handler — ngoại lệ duy nhất là **phạm vi** (`care/scope.ts`). |
+| R-CAKE-AUTHZ-3 | Quyền ⚠ (`risk: high`) không bao giờ vào khoá API / AI (nền lọc) và không vào vai `agent`, `marketer`, `viewer`, `auditor`, `developer`. |
+| R-CAKE-AUTHZ-4 | Vai hệ thống chỉ đổi bằng PR (sửa `registerRoles`); đơn vị muốn khác thì tạo **vai riêng**. Vai riêng không xoá — tắt bằng `is_active`; đổi vai nền = tạo vai mới. |
+| R-CAKE-AUTHZ-5 | Người có `users:write` **không** cấp, sửa, ngưng vai `owner`, và không cấp vai / vai riêng có quyền mà chính mình không có. Chủ cuối cùng không ngưng được. |
+| R-CAKE-AUTHZ-6 | Mọi thay đổi vai, luật, lần gán, thành viên tài khoản kênh là lệnh ghi ⇒ một dòng `audit_logs` (§4). |
+| R-CAKE-AUTHZ-7 | Giao diện khoá nút **kèm lý do** theo `/api/v1/auth/me` (R-WEB-7); máy chủ vẫn kiểm lại mọi lệnh. |
+
+### 2.3 Sổ quyền hiện có và vai hệ thống
+
+Nguồn sự thật: `apps/api/src/auth/authz.ts` (sinh từ `ALL_ACTIONS`). Bảng dưới là ảnh chụp để đọc — lệch với mã thì mã đúng.
+
+| Quyền | ⚠ | owner | manager | agent | marketer | viewer · auditor · developer |
+|---|---|---|---|---|---|---|
+| `cake:inbox-xem` · `cake:inbox-lap` | | ✓ | ✓ | ✓ | | |
+| `cake:all-inbox-xem` | ⚠ | ✓ | ✓ | | | |
+| `cake:contacts-xem` · `cake:contacts-sua` | | ✓ | ✓ | ✓ | ✓ | xem |
+| `cake:contacts-gop` · `cake:contacts-xuat` | ⚠ | ✓ | ✓ | | | |
+| `cake:catalog-xem` · `-lap` · `-sua` · `-gia` | | ✓ | ✓ | xem | ✓ | xem |
+| `cake:channels-xem` | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `cake:channels-lap` · `cake:channels-xoa` (kết nối kênh) | ⚠ | ✓ | | | | |
+| `users:write` (mời, đổi vai, ngưng, giao tài khoản kênh) | ⚠ | ✓ | ✓ | | | |
+| `settings:write` (vai riêng, cài đặt đơn vị) | ⚠ | ✓ | | | | |
+| `reports:read` | | ✓ | ✓ | | | ✓ |
+
+Thêm: `review:read` (auditor), `devtools:read` (developer), `core:records-*` theo registry lớp mềm.
+
+### 2.4 Phạm vi xem hội thoại
+
+Nhân viên không có `cake:all-inbox-xem` chỉ thấy hội thoại của **tài khoản kênh được giao** (`channel_account_members`) hoặc hội thoại **giao cho mình** (`assignee_user_id`). Một chỗ quyết: `apps/api/src/care/scope.ts`. Ngoài phạm vi ⇒ 404 (không lộ là có); dòng thời gian khách vẫn hiện chạm nhưng ẩn nội dung tin. Khoá API không có quyền này ⇒ không thấy hội thoại.
+
+## 3. Đăng nhập một mối qua WordPress (SSO) và vòng đời người dùng
+
+### 3.1 Vé
+
+Dùng **chung khuôn vé với open-ketoan** (một plugin WordPress cấp vé cho mọi app): `base64url(JSON).base64url(HMAC-SHA256(JSON, WP_SSO_SECRET))`, JSON `{email, name?, login?, tenant?, aud?, perms?, iat, exp}`, sống ≤ 5 phút, đổi lấy phiên ở `POST /api/v1/auth/wp-sso` (30 lần sai / 15 phút / IP).
+
+### 3.2 Luật SSO
+
+| Mã | Luật |
+|---|---|
+| R-CAKE-SSO-1 | **Email là người.** WordPress chứng minh danh tính (email, tên, đơn vị); mỗi app giữ một dòng `users` theo (đơn vị, email). Cùng người, cùng email ⇒ cùng một người ở open-ketoan, Cake và các app khác. |
+| R-CAKE-SSO-2 | **Một nơi quyết quyền cho mỗi app.** Vé **không có** `perms` ⇒ quyền theo §2 (vai chính + vai thêm + vai riêng, Cho / Cấm) — **chế độ mặc định của Cake**. Vé **có** `perms` ⇒ chế độ "WordPress quản quyền" (như open-ketoan): phiên mang đúng `perms ∩ sổ quyền`, ma trận của app **không áp** cho phiên đó (kể cả Cấm — giới hạn hiện tại của nền, PHASE-028 F8). Plugin không được gửi `perms` của app này sang app khác. |
+| R-CAKE-SSO-3 | **Vé đúng app.** Mỗi app một `WP_SSO_SECRET` riêng; vé có `aud` khác `cake` bị từ chối. |
+| R-CAKE-SSO-4 | **Mời trước, vào sau.** Mời ở Cake tạo sẵn `users` (email, tên, vai, tài khoản kênh); lần SSO đầu nhận đúng vai đã mời. Email chưa mời vào lần đầu ⇒ tạo với vai `viewer` (không đọc nội dung tin), như open-ketoan. |
+| R-CAKE-SSO-5 | **Ứng dụng có quyền chặn cuối.** Ngưng ở Cake (`is_active=false`, `session_version`++) ⇒ vé WordPress hợp lệ vẫn bị từ chối, phiên đang mở hết hiệu lực ngay yêu cầu kế tiếp. Gỡ ở WordPress ⇒ không cấp vé mới; phiên đang mở hết theo `JWT_TTL_HOURS` hoặc khi ngưng ở app. |
+| R-CAKE-SSO-6 | **Đổi quyền có hiệu lực ngay.** Đổi vai thêm / vai riêng / luật ⇒ `authz_version`++ (nền tính lại, không cần đăng nhập lại). Đổi **vai chính** (nằm trong phiên) ⇒ `session_version`++ ⇒ người đó tự vào lại qua WordPress. |
+| R-CAKE-SSO-7 | Mỗi lần SSO đồng bộ tên hiển thị từ vé và ghi `last_login_at`. Production không có mật khẩu riêng ở Cake; đăng nhập dev chỉ khi `CAKE_DEV_AUTH=1`. |
+
+### 3.3 Vòng đời
+
+Mời (tạo `users` + vai + tài khoản kênh) → vào qua WordPress → hoạt động → **ngưng** (`is_active=false`, `session_version`++, gỡ khỏi tài khoản kênh, hội thoại đang giữ về hàng chung, giữ lịch sử) → bật lại được → **không xoá**.
+
+### 3.4 Việc của nền (đề xuất, chưa làm)
+
+- Đưa `verifyWpTicket` / đổi vé lấy phiên vào `@bizcity/platform` để open-ketoan và Cake dùng **một** mã (hiện Cake chép cùng khuôn).
+- Phiên vé-có-`perms` vẫn áp luật Cấm của đơn vị (đóng PHASE-028 F8).
+- Đưa R-CAKE-SSO-1..7 lên canon open-hub thành chuẩn chung của mọi app.
 
 ## 4. Bằng chứng (STD-EVD-1..10)
 

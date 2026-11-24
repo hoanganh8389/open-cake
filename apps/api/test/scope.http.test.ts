@@ -86,6 +86,23 @@ describe.skipIf(!url)('phạm vi xem hội thoại theo tài khoản kênh', () 
     expect(hidden.every((e) => !e.summary.includes(':'))).toBe(true);
   });
 
+  // [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — 40-SECURITY §2–3: giao tài khoản kênh = users:write (chủ, quản lý); vé SSO đúng app, tên theo WordPress.
+  it('quản lý giao được tài khoản kênh, nhân viên thì không; vé app khác bị từ chối; tên theo vé', async () => {
+    await login('quan-ly@hoamai.vn');
+    await q(`UPDATE users SET role = 'manager' WHERE email = 'quan-ly@hoamai.vn'`);
+    const manager = await login('quan-ly@hoamai.vn');
+    expect((await req('GET', '/api/v1/auth/me', manager)).json().data.permissions).toEqual(expect.arrayContaining(['users:write', 'cake:all-inbox-xem']));
+    expect((await req('GET', '/api/v1/auth/me', manager)).json().data.permissions).not.toContain('settings:write');
+    expect((await req('PUT', `/api/v1/channels/${fb}/members`, agent, { userIds: [agentId] })).statusCode).toBe(403);
+    expect((await req('PUT', `/api/v1/channels/${fb}/members`, manager, { userIds: [] })).statusCode).toBe(200);
+
+    const sso = (o: Record<string, unknown>) => app.inject({ method: 'POST', url: '/api/v1/auth/wp-sso', payload: { ticket: ticket({ email: 'cham-soc@hoamai.vn', tenant: 'hoa-mai', iat: now(), exp: now() + 120, ...o }) } });
+    expect((await sso({ aud: 'ketoan' })).statusCode).toBe(401);
+    expect((await sso({ aud: 'cake', name: 'Lan Chăm Sóc' })).statusCode).toBe(200);
+    const { rows: [u] } = await q(`SELECT full_name, last_login_at FROM users WHERE email = 'cham-soc@hoamai.vn'`);
+    expect(u).toMatchObject({ full_name: 'Lan Chăm Sóc', last_login_at: expect.any(Date) });
+  });
+
   it('được giao MỘT hội thoại FB ⇒ thấy đúng hội thoại đó; gỡ thành viên Zalo ⇒ hết Zalo', async () => {
     const fbConv = (await convs(owner)).find((c) => c.channelAccountId === fb)!;
     expect((await req('POST', `/api/v1/conversations/${fbConv.conversationId}/assign`, owner, { userId: agentId })).statusCode).toBe(200);

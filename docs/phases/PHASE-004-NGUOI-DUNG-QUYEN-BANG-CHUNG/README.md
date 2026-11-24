@@ -30,24 +30,17 @@
 | S004-6 | ☑ | mỗi lệnh ghi = một dòng `audit_logs` (chuỗi băm của nền) cùng giao dịch; thất bại ghi `result_ok=false` sau khi quay lui; gửi lặp ⇒ `meta.replayed`, không thêm; `meta.receipt`; `GET /api/v1/evidence/:id` (`reports:read`); không lưu nội dung, chỉ `sha256` đầu vào — `apps/api/test/evidence.http.test.ts` |
 | R-WEB-7 | ☑ | `useCan` + quyền từ `/auth/me`: nút ghi khoá **kèm lý do** (Thêm hàng, giá, Bán trong CRM, lưu hàng, nhãn, gửi / trả lời, Ghép, Tách); ảnh `quyen-viewer-hang-hoa`, `quyen-viewer-hop-thu` |
 | S004-5 | ☑ | bảng `channel_account_members` (0104, RLS FORCE); quyền `cake:all-inbox-xem` (rủi ro cao — manager / owner); một chỗ quyết phạm vi `apps/api/src/care/scope.ts`: danh sách kênh / hội thoại lọc theo tài khoản được giao **hoặc** hội thoại được giao; đọc tin, gắn nhãn, giao trên hội thoại ngoài phạm vi ⇒ 404; dòng thời gian vẫn hiện chạm nhưng **ẩn nội dung tin**; `cake.channel.members` / `members_set` (chỉ nhận nhân viên đang hoạt động của đơn vị) — `apps/api/test/scope.http.test.ts` (5 ca) |
-| S004-7 | ◐ | mockup chờ duyệt: [mockup/index.html](mockup/index.html) — ảnh `mockup-nhan-vien`, `mockup-sua-nhan-vien`, `mockup-ngung`, `mockup-moi`, `mockup-vai-quyen`, `mockup-vai-rieng` |
+| S004-7 | ◐ | **mockup đã duyệt** (chưa code màn): [mockup/index.html](mockup/index.html) — ảnh `mockup-nhan-vien`, `mockup-sua-nhan-vien`, `mockup-ngung`, `mockup-moi`, `mockup-vai-quyen`, `mockup-vai-rieng` |
 
 Ảnh: [evidence/build-shots](evidence/build-shots/) `dang-nhap-dev-hop-thu`, `can-dang-nhap`. Test: `apps/api/test/auth.http.test.ts` (6 ca).
 
 ## Thiết kế phân quyền (S004-7)
 
-<!-- [2026-11-24 10:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — chủ chốt: vai + ma trận, đăng ký bằng hook như open-ketoan, người dùng kiểu WordPress. -->
+<!-- [2026-11-24 10:17 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — chủ duyệt mockup; chuẩn nằm MỘT chỗ ở 40-SECURITY §2–3. -->
 
-Ba lớp, đều là **cổng của nền** (`@bizcity/platform`), Cake không tự làm bộ tính quyền:
+Chuẩn: [40-SECURITY-USERS §2 Phân quyền (R-CAKE-AUTHZ-1..7)](../../architecture/40-SECURITY-USERS.md#2-phân-quyền--chuẩn-r-cake-authz) và [§3 SSO xuyên suốt (R-CAKE-SSO-1..7)](../../architecture/40-SECURITY-USERS.md#3-đăng-nhập-một-mối-qua-wordpress-sso-và-vòng-đời-người-dùng). Tóm tắt: sổ quyền + vai hệ thống đăng ký bằng hook của nền (như open-ketoan); vai riêng của đơn vị = vai nền + Cho / Cấm (Cấm thắng) ở ma trận; người dùng kiểu WordPress (email là người, một vai chính); quản lý và chủ giao tài khoản kênh (`users:write`), chỉ chủ sửa vai riêng (`settings:write`); mỗi app một nơi quyết quyền (vé không `perms` ⇒ vai của app).
 
-| Lớp | Ở đâu | Ai đổi |
-|---|---|---|
-| **Sổ quyền + vai hệ thống** | đăng ký bằng hook lúc khởi động: `registerModulePermissions` · `registerRoles` · `registerApiScopes` (như open-ketoan; giống `add_role` / `add_cap` của WordPress). Quyền Cake SINH từ action spec | lập trình viên (PR) — màn chỉ xem |
-| **Vai riêng của đơn vị** | `tenant_roles` (dựa trên một vai hệ thống, không bao giờ `owner`) + `tenant_role_rules` Cho / Cấm từng quyền — **Cấm thắng**; không xoá, chỉ tắt; đổi ⇒ `authz_version`++ ⇒ mọi phiên tính lại | chủ (`settings:write`) ở ma trận **Vai & quyền** |
-| **Người dùng** | `users` (vào bằng SSO WordPress cùng email — như WP Users: một vai chính) + `user_role_assignments` (vai thêm / vai riêng) + `channel_account_members` | chủ **và quản lý** (`users:write`) ở màn **Nhân viên** |
-
-- Quản lý có `users:write`: mời, đổi vai, ngưng, giao tài khoản kênh — **không** cấp / sửa / ngưng vai Chủ, không cấp vai cao hơn mình. `cake.channel.members_set` chuyển từ `cake:channels-lap` sang `users:write`.
-- Khoá API và AI không bao giờ nhận quyền ⚠ (nền lọc).
+Đã làm theo chuẩn: `cake.channel.members_set` dùng `users:write`; vai quản lý có `users:write`; vé SSO có `aud` khác `cake` bị từ chối; mỗi lần SSO đồng bộ tên + `last_login_at` — test ở `apps/api/test/scope.http.test.ts`.
 
 ## Xong khi
 
