@@ -6,12 +6,14 @@
 import { assignConversation, mergeContacts, tagContact, unmergeContact, type KernelDeps } from '@open-cake/care-kernel';
 import { newUlid, type Ctx, type Handler } from '../runtime.js';
 import { PgCareRepo } from './pg-care-repo.js';
+import { assertConversationVisible } from './scope.js';
 
 const deps = ({ tx, tenantId }: Ctx): KernelDeps => ({ repo: new PgCareRepo(tenantId, tx), now: () => new Date().toISOString(), newId: () => newUlid() });
 
 export const careCommandHandlers: Record<string, Handler> = {
-  'cake.conversation.tag': (ctx, i) => tagContact(deps(ctx), { conversationId: i.conversationId, add: i.add, remove: i.remove, actor: ctx.actor }),
-  'cake.conversation.assign': (ctx, i) => assignConversation(deps(ctx), { conversationId: i.conversationId, userId: i.userId, actor: ctx.actor }),
+// [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — hội thoại ngoài phạm vi xem ⇒ 404 trước khi chạm sổ.
+  'cake.conversation.tag': async (ctx, i) => (await assertConversationVisible(ctx, i.conversationId), tagContact(deps(ctx), { conversationId: i.conversationId, add: i.add, remove: i.remove, actor: ctx.actor })),
+  'cake.conversation.assign': async (ctx, i) => (await assertConversationVisible(ctx, i.conversationId), assignConversation(deps(ctx), { conversationId: i.conversationId, userId: i.userId, actor: ctx.actor })),
   'cake.contact.merge': async (ctx, i) => {
     const r = await mergeContacts(deps(ctx), { from: i.contactId, into: i.intoContactId, proof: i.proof, actor: ctx.actor });
     return { intoContactId: i.intoContactId, unmergeUntil: r.unmergeUntil };

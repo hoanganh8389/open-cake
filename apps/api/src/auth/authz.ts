@@ -6,6 +6,7 @@
 import { registerModulePermissions } from '@bizcity/platform/core/auth';
 import { registerApiScopes, registerRoles } from '@bizcity/platform/core/roles';
 import { ALL_ACTIONS, CAKE_RECORD_TYPES } from '@open-cake/contracts';
+import { ALL_INBOX } from '../care/scope.js';
 
 const ORDER = ['read', 'low', 'medium', 'high'] as const;
 type Risk = (typeof ORDER)[number];
@@ -18,11 +19,13 @@ export function cakePermissions(): Map<string, { risk: Risk; label: string }> {
     if (!cur) m.set(a.permission, { risk: a.risk as Risk, label: a.title });
     else if (ORDER.indexOf(a.risk as Risk) > ORDER.indexOf(cur.risk)) cur.risk = a.risk as Risk;
   }
+// [2026-11-24 09:51 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — xem MỌI hộp thư (không theo tài khoản kênh được giao): rủi ro cao, chỉ manager / owner.
+  m.set(ALL_INBOX, { risk: 'high', label: 'Xem mọi hội thoại (không giới hạn theo tài khoản kênh được giao)' });
   for (const t of CAKE_RECORD_TYPES) for (const [op, p] of Object.entries(t.permissions)) if (!m.has(p)) m.set(p, { risk: 'low', label: `${t.label} — ${op}` });
   return m;
 }
 
-const isView = (p: string) => p.endsWith('-xem');
+const isView = (p: string) => p.endsWith('-xem') && p !== ALL_INBOX;
 
 let done = false;
 export function registerCakeAuthz(): void {

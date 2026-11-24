@@ -10,6 +10,8 @@ import { seedCatalog, type CatalogStore } from './handlers-catalog.js';
 type In<S extends z.ZodTypeAny> = z.input<S>;
 export type Store = {
   accounts: In<typeof ChannelAccountSchema>[];
+  // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — thành viên tài khoản kênh (GIẢ LẬP).
+  members: Record<string, string[]>;
   contacts: In<typeof ContactSchema>[];
   states: Record<string, In<typeof ContactStateSchema>>;
   meta: Record<string, Record<string, string>>;
@@ -50,7 +52,7 @@ export function createStore(now: () => Date = () => new Date('2026-11-24T10:30:0
   const timeline: Store['timeline'] = { [demo.contacts[0]!.contactId]: clone(demo.timelineHuong) };
   timeline[c9] = [{ touchId: '88201', contactId: c9, kind: 'message', channel: 'facebook_personal', channelAccountId: demo.fid('A', 5), conversationId: null, direction: 'in', summary: 'Nhắn Facebook cá nhân của chủ shop: hỏi lịch giao', docRef: null, isReversal: false, at: '2026-11-24T10:05:00+07:00' }];
 
-  return { accounts: clone(demo.channelAccounts), contacts, states, meta, identities, links: {}, conversations, messages, timeline, merges: {}, records: seedRecords(), catalog: seedCatalog(), seq: 1000, now };
+  return { accounts: clone(demo.channelAccounts), members: {}, contacts, states, meta, identities, links: {}, conversations, messages, timeline, merges: {}, records: seedRecords(), catalog: seedCatalog(), seq: 1000, now };
 }
 
 /** Bản ghi lớp mềm mẫu (GIẢ LẬP): tin nhắn nhanh, nhãn, tài khoản ngân hàng — thay các bảng nhỏ của bản WP. */

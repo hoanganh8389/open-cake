@@ -50,7 +50,7 @@ describe('cổng ghi duy nhất theo nguồn danh mục (R-OKT-CONN-4)', () => {
     const keys = new Set(CAKE_META_KEYS.filter((m) => m.entityType === 'item').map((m) => m.key));
     for (const k of Object.values(ITEM_LOCAL_META)) expect(keys.has(k), k).toBe(true);
   });
-  it('danh mục app = 19 cake + 4 lớp mềm + 9 danh mục', () => expect(ALL_ACTIONS.length).toBe(32));
+  it('danh mục app = 21 cake + 4 lớp mềm + 9 danh mục', () => expect(ALL_ACTIONS.length).toBe(34));
 });
 
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — ItemRef trên dây theo bizcity_spine@1 §3.

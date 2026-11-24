@@ -44,8 +44,12 @@ export interface TouchLedgerTable {
 export interface MessagesTable { message_id: string; tenant_id: string; touch_id: string; conversation_id: string; external_message_id: string; direction: string; body: string; attachments: ColumnType<unknown, string | undefined, string>; delivery: string | null; e2ee: ColumnType<boolean, boolean | undefined, boolean>; at: Ts }
 export interface ContactStateTable { contact_id: string; tenant_id: string; tags: string[]; last_in_at: TsNull; last_out_at: TsNull; unanswered: boolean; channels: J; rev: number }
 
+// [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — 0104.
+export interface ChannelAccountMembersTable { tenant_id: string; channel_account_id: string; user_id: string; added_at: Ts; added_by: string }
+
 declare module '@bizcity/platform/db/types' {
   interface AppDatabase {
+    channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;
     contact_identities: ContactIdentitiesTable;
     channel_accounts: ChannelAccountsTable;

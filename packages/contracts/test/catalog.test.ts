@@ -12,7 +12,7 @@ import { conversations, messagesByConversation, timelineHuong } from '../fixture
 describe('danh mục action (R-CANON-14)', () => {
   it('có đủ 19 action, không trùng id / route', () => {
     expect(Object.keys(cakeCatalog)).toHaveLength(CAKE_ACTIONS.length);
-    expect(CAKE_ACTIONS.length).toBe(19);
+    expect(CAKE_ACTIONS.length).toBe(21);
   });
   it('lý do lỗi khai trong action đều có trong CAKE_REASONS', () => {
     for (const a of CAKE_ACTIONS) for (const r of a.reasons ?? []) expect(Object.keys(CAKE_REASONS), `${a.id}: ${r}`).toContain(r);

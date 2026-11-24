@@ -15,7 +15,8 @@ import { KernelError } from '@open-cake/care-kernel';
 import { CAKE_REASONS, ERROR_CATALOG, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
 
 // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — ngữ cảnh mang NGƯỜI THAO TÁC thật (authPlugin của nền): actor ghi sổ / bằng chứng, userId cho "của tôi".
-export type Ctx = { tx: Db; tenantId: string; actor: string; userId: string | null };
+// [2026-11-24 09:51 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — can(): quyền của người thao tác, cho phạm vi xem (care/scope.ts).
+export type Ctx = { tx: Db; tenantId: string; actor: string; userId: string | null; can: (permission: string) => boolean };
 type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod của spec
 export type Handler = (ctx: Ctx, input: Any) => Promise<unknown>;
 
@@ -65,7 +66,7 @@ const tenantOf = (): string => {
 
 const ctxOf = (req: FastifyRequest, tx: Db): Ctx => {
   const a = authOf(req);
-  return { tx, tenantId: tenantOf(), actor: a.actor, userId: a.kind === 'user' ? a.actor.slice('user:'.length) : null };
+  return { tx, tenantId: tenantOf(), actor: a.actor, userId: a.kind === 'user' ? a.actor.slice('user:'.length) : null, can: (p) => a.permissions.has(p as never) };
 };
 
 // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — bằng chứng (bizcity_evidence@1, 40-SECURITY §4): mỗi lệnh ghi = MỘT dòng audit_logs (chuỗi băm do trigger

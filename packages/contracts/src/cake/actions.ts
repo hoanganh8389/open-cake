@@ -35,6 +35,21 @@ export const channelTest = defineActionSpec({
   permission: 'cake:channels-lap', risk: 'medium', idempotent: true, expose: { rest: 'POST /api/v1/channels/:channelAccountId/test', ui: true },
 });
 
+// [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — thành viên tài khoản kênh = ai thấy hội thoại của tài khoản đó (40-SECURITY §2: nhân viên chỉ thấy
+//   tài khoản được giao hoặc hội thoại được giao; cake:all-inbox-xem thấy hết). Đặt thành viên là quyền rủi ro cao (quyết định ai đọc được tin của khách).
+const ChannelMemberSchema = z.object({ userId: z.string().regex(/^[1-9][0-9]{0,18}$/), name: z.string(), role: z.string() });
+export const channelMembers = defineActionSpec({
+  id: 'cake.channel.members', capability: 'cake.channel.manage', title: 'Nhân viên của tài khoản kênh', kind: 'query',
+  input: z.object({ channelAccountId: ChannelAccountIdSchema }), output: z.array(ChannelMemberSchema),
+  permission: 'cake:channels-xem', risk: 'read', expose: { rest: 'GET /api/v1/channels/:channelAccountId/members', ui: true },
+});
+export const channelMembersSet = defineActionSpec({
+  id: 'cake.channel.members_set', capability: 'cake.channel.manage', title: 'Giao tài khoản kênh cho nhân viên', kind: 'command',
+  input: z.object({ channelAccountId: ChannelAccountIdSchema, userIds: z.array(z.string().regex(/^[1-9][0-9]{0,18}$/)).max(200) }),
+  output: z.array(ChannelMemberSchema), permission: 'cake:channels-lap', risk: 'high', idempotent: true,
+  emits: ['bizcity.cake.channel.members_changed'], expose: { rest: 'PUT /api/v1/channels/:channelAccountId/members', ui: true },
+});
+
 // ── Hộp thư ─────────────────────────────────────────────────────────────
 export const conversationList = defineActionSpec({
   id: 'cake.conversation.list', capability: 'cake.conversation.manage', title: 'Danh sách hội thoại', kind: 'query',
@@ -133,7 +148,7 @@ export const contactLink = defineActionSpec({
 });
 
 export const CAKE_ACTIONS = [
-  channelList, channelConnectStart, channelTest, conversationList, messageList, messageSend, messageDraft, commentReply,
+  channelList, channelConnectStart, channelTest, channelMembers, channelMembersSet, conversationList, messageList, messageSend, messageDraft, commentReply,
   conversationAssign, conversationTag, contactList, contactGet, contactTimeline, contactLookup, contactResolve,
   contactSuggestions, contactMerge, contactUnmerge, contactLink,
 ] as const;

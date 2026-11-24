@@ -5,6 +5,7 @@
 import { sql } from 'kysely';
 import '../db-types.js';
 import { failure, paged, type Ctx, type Handler } from '../runtime.js';
+import { assertConversationVisible, scopeSql, visibleAccounts } from './scope.js';
 
 const iso = (d: Date | string) => new Date(d).toISOString();
 const isoN = (d: Date | string | null) => (d === null ? null : iso(d));
@@ -36,8 +37,12 @@ async function unreadOf({ tx, tenantId }: Ctx, convIds: string[]) {
 
 export const inboxHandlers: Record<string, Handler> = {
   'cake.channel.list': async (ctx) => {
-    const accs = await ctx.tx.selectFrom('channel_accounts').selectAll().where('tenant_id', '=', ctx.tenantId).orderBy('label').execute();
-    const convs = await ctx.tx.selectFrom('conversations').select(['conversation_id', 'channel_account_id']).where('tenant_id', '=', ctx.tenantId).execute();
+    // [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — chỉ tài khoản mình là thành viên (hoặc có hội thoại được giao); số chưa đọc chỉ tính hội thoại trong phạm vi.
+    const scope = scopeSql(ctx);
+    let cq = ctx.tx.selectFrom('conversations as v').select(['v.conversation_id', 'v.channel_account_id']).where('v.tenant_id', '=', ctx.tenantId);
+    if (scope) cq = cq.where(scope);
+    const [all, convs, mine] = await Promise.all([ctx.tx.selectFrom('channel_accounts').selectAll().where('tenant_id', '=', ctx.tenantId).orderBy('label').execute(), cq.execute(), visibleAccounts(ctx)]);
+    const accs = mine ? all.filter((a) => mine.has(a.channel_account_id) || convs.some((c) => c.channel_account_id === a.channel_account_id)) : all;
     const unread = await unreadOf(ctx, convs.map((c) => c.conversation_id));
     return accs.map((a) => ({
       channelAccountId: a.channel_account_id, channel: a.channel, kind: a.kind, externalAccountId: a.external_account_id, label: a.label, ownerUserId: a.owner_user_id, status: a.status,
@@ -46,6 +51,8 @@ export const inboxHandlers: Record<string, Handler> = {
   },
   'cake.conversation.list': async (ctx, i) => {
     let q = ctx.tx.selectFrom('conversations as v').innerJoin('contacts as c', 'c.contact_id', 'v.contact_id').where('v.tenant_id', '=', ctx.tenantId).where('v.last_at', 'is not', null);
+    const scope = scopeSql(ctx); // [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5
+    if (scope) q = q.where(scope);
     if (i.channelAccountId) q = q.where('v.channel_account_id', '=', i.channelAccountId);
     if (i.q) q = q.where('c.display_name', 'ilike', `%${i.q}%`);
     if (i.filter === 'unanswered') q = q.where('v.last_direction', '=', 'in');
@@ -65,7 +72,9 @@ export const inboxHandlers: Record<string, Handler> = {
       }))
       .filter((c) => (i.filter !== 'unread' || c.unread > 0) && (!i.tag || c.tags.includes(i.tag)));
   },
-  'cake.message.list': async ({ tx, tenantId }, i) => {
+  'cake.message.list': async (ctx, i) => {
+    await assertConversationVisible(ctx, i.conversationId); // [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5
+    const { tx, tenantId } = ctx;
     const rows = await tx.selectFrom('messages').selectAll().where('tenant_id', '=', tenantId).where('conversation_id', '=', i.conversationId).orderBy('at', 'desc').limit(i.limit).execute();
     return rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: null }));
   },
@@ -115,11 +124,18 @@ export const inboxHandlers: Record<string, Handler> = {
     return rows.filter((r) => !seen.has(r.contact_id) && seen.add(r.contact_id))
       .map((r) => ({ contactId: r.contact_id, displayName: r.display_name, why: ['same_name'], identity: { channel: r.channel, scope: r.scope, externalId: r.external_id } }));
   },
-  'cake.contact.timeline': async ({ tx, tenantId }, i) => {
+  'cake.contact.timeline': async (ctx, i) => {
+    const { tx, tenantId } = ctx;
     const merged = (await tx.selectFrom('contacts').select('contact_id').where('tenant_id', '=', tenantId).where('merged_into', '=', i.contactId).execute()).map((r) => r.contact_id);
     const rows = await tx.selectFrom('touch_ledger as l').leftJoin('messages as m', 'm.touch_id', 'l.touch_id').where('l.tenant_id', '=', tenantId).where('l.contact_id', 'in', [i.contactId, ...merged])
       .select(['l.touch_id', 'l.kind', 'l.channel', 'l.channel_account_id', 'l.conversation_id', 'l.direction', 'l.is_reversal', 'l.at', 'm.body']).orderBy('l.at', 'desc').orderBy('l.touch_id', 'desc').limit(i.limit).execute();
-    return rows.map((r) => ({
+    // [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — tin của hội thoại ngoài phạm vi: vẫn thấy CÓ chạm (kênh, giờ), không thấy nội dung.
+    const convIds = [...new Set(rows.map((r) => r.conversation_id).filter((x): x is string => !!x))];
+    const scope = scopeSql(ctx);
+    let vq = tx.selectFrom('conversations as v').select('v.conversation_id').where('v.tenant_id', '=', tenantId).where('v.conversation_id', 'in', convIds.length ? convIds : ['-']);
+    if (scope) vq = vq.where(scope);
+    const seen = new Set((await vq.execute()).map((r) => r.conversation_id));
+    return rows.map((r) => ({ ...r, body: !r.conversation_id || seen.has(r.conversation_id) ? r.body : null })).map((r) => ({
       touchId: String(r.touch_id), contactId: i.contactId, kind: r.kind, channel: r.channel, channelAccountId: r.channel_account_id, conversationId: r.conversation_id, direction: r.direction,
       summary: `${KIND_LABEL[r.kind] ?? r.kind}${r.body ? `: ${r.body.slice(0, 80)}` : ''}`, docRef: null, isReversal: r.is_reversal, at: iso(r.at),
     }));
