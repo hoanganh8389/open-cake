@@ -9,3 +9,5 @@ docs/ui/mockup-src/node_modules/
 evidence/tmp/
 # [2026-11-24 09:19 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — nhật ký chạy của nền (DATA_DIR, mặc định ./data): không vào git
 data/
+# [2026-11-25 02:12 PM Johnny Chu - Chu Hoàng Anh] S016-8 — bằng chứng selfcheck sinh mỗi lần chạy (output/latest/evidence.txt), không vào git
+output/

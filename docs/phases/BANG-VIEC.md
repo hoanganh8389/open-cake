@@ -8,9 +8,9 @@
 |---|---|
 | Đang làm / có mã | 9 |
 | Bị chặn | 0 |
-| Chưa làm | 51 |
+| Chưa làm | 50 |
 | Hoãn | 0 |
-| Xong | 45 |
+| Xong | 46 |
 | Huỷ | 0 |
 | Đã chuyển | 0 |
 | Theo dõi ở repo khác | 0 |
@@ -35,7 +35,7 @@
 | [PHASE-013-MCP-TWIN-BRAIN](PHASE-013-MCP-TWIN-BRAIN/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-014-NHIEU-SITE-OPEN-SETUP](PHASE-014-NHIEU-SITE-OPEN-SETUP/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-015-KIEM-CHUNG-PHAT-HANH](PHASE-015-KIEM-CHUNG-PHAT-HANH/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
-| [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 2 | 3 | 0 | 4 | 9 |
+| [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 3 | 3 | 0 | 3 | 9 |
 | [PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/) | Xong | 8 | 0 | 0 | 0 | 8 |
 
 ## Đang làm / có mã (9)
@@ -52,7 +52,7 @@
 | [S016-2](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L10) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | phụ thuộc @bizcity/platform, @bizcity/contracts, @bizcity/module-sdk, @bizcity/ui-kit, @bizcity/cli, @bizcity/conformance **theo phiên bản*… |
 | [S016-5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L14) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | /api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.* |
 
-## Chưa làm (51)
+## Chưa làm (50)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -105,5 +105,4 @@
 | [S015-6](PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md#L14) | PHASE-015-KIEM-CHUNG-PHAT-HANH | 70-REFLECT: bài học mới thành luật (R-REV-10) |
 | [S016-4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L13) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | ngữ cảnh site ở chế độ một site (SITE_MODE=single, Database Router một pool) — cùng đường mã với multi (R-SITE-5) |
 | [S016-7](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L16) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | CI: guard (kiem-chuan.sh + H-CAKE-*), typecheck, test (cake_test), migrate-upgrade, conformance |
-| [S016-8](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L17) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | tests/conformance/selfcheck.mjs + baseline.json rỗng; SC-CAKE-6/7/8 tĩnh |
 | [S016-9](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L18) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | scripts: so-tiep-theo.mjs, nhan-viec.mjs, ky-dau.mjs, lay-log.sh, kiem-nang-cap.sh |

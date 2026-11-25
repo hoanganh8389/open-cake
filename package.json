@@ -21,7 +21,8 @@
     "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api",
     "ui:hop-thu": "node tests/ui/hop-thu-phim.mjs",
     "ui:chup": "node tests/ui/chup-man.mjs",
-    "authz:manifest": "node -e \"process.env.UPDATE_AUTHZ='1';require('child_process').execSync('npx vitest run apps/api/test/authz-manifest.test.ts',{stdio:'inherit',env:process.env})\""
+    "authz:manifest": "node -e \"process.env.UPDATE_AUTHZ='1';require('child_process').execSync('npx vitest run apps/api/test/authz-manifest.test.ts',{stdio:'inherit',env:process.env})\"",
+    "selfcheck": "node tests/conformance/selfcheck.mjs"
   },
   "devDependencies": {
     "@types/node": "20.17.6",

@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T06:59:36.150Z",
+  "generated": "2026-11-25T07:03:39.477Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -778,7 +778,7 @@
         },
         {
           "id": "S016-8",
-          "group": "Chưa làm",
+          "group": "Xong",
           "text": "tests/conformance/selfcheck.mjs + baseline.json rỗng; SC-CAKE-6/7/8 tĩnh",
           "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
           "line": 17
