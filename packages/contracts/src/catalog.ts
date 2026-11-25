@@ -6,7 +6,8 @@ import { CAKE_ACTIONS } from './cake/actions.js';
 import { FLEX_ACTIONS } from './flex/records.js';
 import { CATALOG_ACTIONS } from './catalog/actions.js';
 import { STAFF_ACTIONS } from './cake/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7
-import { API_KEY_ACTIONS } from './cake/apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3
+import { API_KEY_ACTIONS } from './cake/apikeys.js';
+import { ORDER_ACTIONS } from './cake/orders.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3
 
-export const ALL_ACTIONS = [...CAKE_ACTIONS, ...STAFF_ACTIONS, ...API_KEY_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
+export const ALL_ACTIONS = [...CAKE_ACTIONS, ...STAFF_ACTIONS, ...API_KEY_ACTIONS, ...ORDER_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
 export const appCatalog = createActionCatalog(ALL_ACTIONS);

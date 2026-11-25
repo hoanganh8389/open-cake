@@ -42,7 +42,7 @@
     },
     {
       "key": "cake:catalog-xem",
-      "label": "Danh sách hàng hoá",
+      "label": "Tồn kho theo Kế Toán",
       "risk": "low",
       "module": "cake"
     },
@@ -73,6 +73,18 @@
     {
       "key": "cake:contacts-xem",
       "label": "Danh bạ",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:don-lap",
+      "label": "Lưu yêu cầu đặt hàng (nháp)",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:don-xem",
+      "label": "Yêu cầu đặt hàng",
       "risk": "low",
       "module": "cake"
     },
@@ -195,6 +207,8 @@
         "cake:channels-xem",
         "cake:contacts-sua",
         "cake:contacts-xem",
+        "cake:don-lap",
+        "cake:don-xem",
         "cake:inbox-lap",
         "cake:inbox-xem",
         "cake:label-xem",
@@ -215,6 +229,7 @@
         "cake:catalog-xem",
         "cake:channels-xem",
         "cake:contacts-xem",
+        "cake:don-xem",
         "cake:label-xem",
         "cake:quick-reply-xem",
         "cake:saved-bank-xem",
@@ -231,6 +246,7 @@
         "cake:catalog-xem",
         "cake:channels-xem",
         "cake:contacts-xem",
+        "cake:don-xem",
         "cake:label-xem",
         "cake:quick-reply-xem",
         "cake:saved-bank-xem",
@@ -252,6 +268,8 @@
         "cake:contacts-gop",
         "cake:contacts-sua",
         "cake:contacts-xem",
+        "cake:don-lap",
+        "cake:don-xem",
         "cake:inbox-lap",
         "cake:inbox-xem",
         "cake:label-lap",
@@ -286,6 +304,7 @@
         "cake:channels-xem",
         "cake:contacts-sua",
         "cake:contacts-xem",
+        "cake:don-xem",
         "cake:label-xem",
         "cake:quick-reply-xem",
         "cake:saved-bank-xem",
@@ -300,6 +319,7 @@
         "cake:catalog-xem",
         "cake:channels-xem",
         "cake:contacts-xem",
+        "cake:don-xem",
         "cake:label-xem",
         "cake:quick-reply-xem",
         "cake:saved-bank-xem",

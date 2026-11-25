@@ -47,8 +47,26 @@ export interface ContactStateTable { contact_id: string; tenant_id: string; tags
 // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — 0104.
 export interface ChannelAccountMembersTable { tenant_id: string; channel_account_id: string; user_id: string; added_at: Ts; added_by: string }
 
+// [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — 0105 luồng đơn xuyên app.
+export interface OrderRequestsTable {
+  tenant_id: string; order_request_id: string; contact_id: string; conversation_id: string | null;
+  status: ColumnType<string, string | undefined, string>; send_state: ColumnType<string, string | undefined, string>; send_attempts: ColumnType<number, number | undefined, number>;
+  next_send_at: TsNull; last_error: string | null; version: ColumnType<number, number | undefined, number>; branch_code: string | null;
+  customer: J; ship_to: ColumnType<unknown, string | null, string | null>; lines: J; payment: string; shipping: string; preferred_carrier: string | null; note: ColumnType<string, string | undefined, string>;
+  total: Num; pos_ref: string | null; order_ref: string | null; reject_reason: string | null; status_at: TsNull; expires_at: TsNull;
+  created_by: string; created_at: Ts; updated_at: Ts;
+}
+export interface OrderRequestEventsTable { tenant_id: string; event_id: string; order_request_id: string; type: string; data: J; at: Ts }
+export interface PosLinksTable {
+  tenant_id: string; base_url: string; key_sealed: string; key_prefix: string; secret_sealed: string; branch_code: string;
+  last_ok_at: TsNull; last_sent_at: TsNull; last_error: string | null; updated_by: string; updated_at: Ts;
+}
+
 declare module '@bizcity/platform/db/types' {
   interface AppDatabase {
+    order_requests: OrderRequestsTable;
+    order_request_events: OrderRequestEventsTable;
+    pos_links: PosLinksTable;
     channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;
     contact_identities: ContactIdentitiesTable;

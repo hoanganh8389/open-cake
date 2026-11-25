@@ -10,10 +10,11 @@ import { recordHandlers } from './handlers-records.js';
 import { catalogHandlers } from './handlers-catalog.js';
 import { staffHandlers } from './handlers-staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7
 import { apiKeyHandlers } from './handlers-apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3
+import { orderHandlers } from './handlers-orders.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn
 import { createStore, isPaged, type Store } from './store.js';
 
 export type MockScenario = 'normal' | 'empty' | 'error' | 'denied' | 'slow';
-const HANDLERS = { ...inboxHandlers, ...contactHandlers, ...recordHandlers, ...catalogHandlers, ...staffHandlers, ...apiKeyHandlers };
+const HANDLERS = { ...inboxHandlers, ...contactHandlers, ...recordHandlers, ...catalogHandlers, ...staffHandlers, ...apiKeyHandlers, ...orderHandlers };
 
 /** Mọi action trong danh mục phải có handler giả lập (kiểm khi tạo client). */
 export const missingMockHandlers = () => Object.keys(appCatalog).filter((id) => !HANDLERS[id]);

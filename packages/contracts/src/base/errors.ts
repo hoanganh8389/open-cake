@@ -45,6 +45,11 @@ export const CAKE_REASONS = {
   CAKE_ITEM_NAME_TAKEN: { code: 'CONFLICT', message: 'Tên hàng đã có.', hint: 'Tên hàng phải duy nhất, không phân biệt hoa thường (H-7).' },
   // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — action có hợp đồng nhưng máy chủ chưa làm (giao diện đang dùng bộ giả lập cho màn này).
   CAKE_NOT_ON_SERVER: { code: 'CAPABILITY_MISSING', message: 'Máy chủ chưa có chức năng này.', hint: 'Màn này đang chạy bằng bộ giả lập; chức năng sẽ có ở phase kế tiếp.' },
+  // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app (bizcity_order_flow@1).
+  CAKE_ORDER_LOCKED: { code: 'CONFLICT', message: 'Yêu cầu đặt hàng đã sang bước không sửa / huỷ được ở Open CRM.', hint: 'Cửa hàng đã xác nhận: sửa hoặc huỷ ở Open POS.' },
+  CAKE_ITEM_NO_PRICE: { code: 'VALIDATION_ERROR', message: 'Mặt hàng chưa có giá bán của công ty.', hint: 'Đặt giá ở Hàng hoá (hoặc ở Kế Toán) rồi thêm lại.' },
+  CAKE_POS_NOT_LINKED: { code: 'CONFLICT', message: 'Chưa kết nối cửa hàng (Open POS).', hint: 'Vào Cài đặt › Kết nối cửa hàng, dán địa chỉ, khoá và bí mật ký.' },
+  CAKE_KETOAN_REQUIRED: { code: 'CONFLICT', message: 'Gửi đơn sang cửa hàng cần nối Kế Toán trước.', hint: 'Đổi Nguồn danh mục sang "Lấy từ Open Kế Toán" để mã hàng hai bên trùng nhau.' },
   CAKE_RECORD_TYPE_UNKNOWN: { code: 'VALIDATION_ERROR', message: 'Loại bản ghi chưa đăng ký.', hint: 'Thêm record_type vào registry trước khi ghi.' },
 } as const satisfies Record<string, { code: ErrorCode; message: string; hint: string }>;
 
