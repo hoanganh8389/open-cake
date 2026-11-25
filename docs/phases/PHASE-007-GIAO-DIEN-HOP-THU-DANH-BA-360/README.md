@@ -27,8 +27,10 @@
 | Đọc: `channel.list`, `conversation.list`, `message.list`, `contact.list`, `contact.get`, `contact.timeline`, `contact.suggestions` | ☑ máy chủ (`apps/api/src/care/inbox.ts`) | test tích hợp G1 qua API; ảnh [evidence/build-shots](evidence/build-shots/) `api-hop-thu`, `api-danh-ba`, `api-contact-360` |
 | `?api=mix` theo `GET /api/v1/system/actions` (20 / 32 action) | ☑ | không viết cứng năng lực ở web |
 | Ghi không cần Cell: gắn / gỡ nhãn, giao hội thoại, ghép (bằng chứng bắt buộc), tách — qua kernel (`tagContact`, `assignConversation`, `mergeContacts`, `unmergeContact`), mỗi lệnh có dòng sổ | ☑ | 11 kịch bản kernel trên bộ nhớ + Postgres; test HTTP (ghép theo tên bị chặn cả ở web lẫn máy chủ); ảnh `api-gan-nhan-sau-tai-lai` (nhãn còn sau khi tải lại) |
+| Lớp mềm `core.record.*` (tin nhắn nhanh, nhãn, tài khoản ngân hàng) | ☑ máy chủ (`apps/api/src/records.ts`) | <!-- [2026-11-25 10:05 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 --> kiểm `data` bằng chính `recordDataSchema` của form; quyền riêng từng loại; lưu trữ không xoá; `record_types` chép từ registry sau mỗi lần migrate (`syncRecordTypes`) — `apps/api/test/records.http.test.ts`. Còn 7 action chưa có máy chủ: 4 cần Cell (kết nối, gửi thử, gửi tin, trả lời bình luận — 006 / 008), 3 liên kết khách với Kế Toán (`contact.lookup / resolve / link` — 010) |
 | Gửi tin, trả lời bình luận | ☐ | cần Cell / Hub (PHASE-006, 008) — 501 `CAKE_NOT_ON_SERVER` |
-| SSE, cuộn vô hạn + ảo hoá, `ErrorBoundary`, `i18n`, phím tắt (R-WEB-8..11, 15) | ☐ | — |
+| R-WEB-8 `ErrorBoundary` | ☑ | biên lỗi ở Shell + mỗi màn (đổi màn là thử lại), màn lỗi = `State` sẵn có kèm `errFp`; báo về `POST /api/v1/system/client-errors` (cần phiên, ≤ 10 / phút / người, một dòng log, không nội dung tin) — test 401 / 400 / 429 |
+| SSE, cuộn vô hạn + ảo hoá, `i18n`, phím tắt (R-WEB-9..11, 15) | ☐ | — |
 
 ## Xong khi
 

@@ -16,6 +16,7 @@ export async function freshDb(baseUrl: string, suffix: string): Promise<string> 
   const { runMigrations } = await import('@bizcity/platform/db/migrate');
   const { MIGRATION_SOURCES } = await import('../src/migrate.js');
   await runMigrations(() => {}, { connectionString: url, sources: MIGRATION_SOURCES });
+  await (await import('../src/migrate.js')).syncRecordTypes(url); // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — như job db-migrate
   // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — có CAKE_APP_ROLE ⇒ tạo vai ứng dụng như job db-migrate (tệp test đặt DB_SET_ROLE để API chạy dưới vai này).
   if (process.env.CAKE_APP_ROLE) await (await import('../src/migrate.js')).ensureAppRole(url, process.env.CAKE_APP_ROLE);
   return url;

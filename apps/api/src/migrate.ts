@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import { runMigrations, type MigrationSource } from '@bizcity/platform/db/migrate';
 import { PLATFORM_MIGRATIONS_DIR } from '@bizcity/platform/db/paths';
+import { CAKE_RECORD_TYPES } from '@open-cake/contracts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const CAKE_MIGRATIONS_DIR = process.env.CAKE_MIGRATIONS_DIR || path.resolve(here, '../../../db/migrations');
@@ -28,9 +29,26 @@ export async function ensureAppRole(connectionString: string, role: string): Pro
   } finally { await c.end(); }
 }
 
+// [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — sổ loại bản ghi lớp mềm (record_types, không theo đơn vị) chép từ registry trong mã sau mỗi lần migrate — records có khoá ngoại tới đây.
+//   Loại bỏ khỏi mã ⇒ 'retired' (bản ghi cũ vẫn đọc được), không xoá. Chạy lại an toàn.
+export async function syncRecordTypes(connectionString: string): Promise<void> {
+  const c = new pg.Client({ connectionString }); await c.connect();
+  try {
+    for (const t of CAKE_RECORD_TYPES) {
+      await c.query(`INSERT INTO record_types (key, app, label, schema, version, permissions, list_columns, status, updated_at)
+        VALUES ($1, 'cake', $2, $3, $4, $5, $6, 'active', now())
+        ON CONFLICT (key) DO UPDATE SET label = EXCLUDED.label, schema = EXCLUDED.schema, version = EXCLUDED.version, permissions = EXCLUDED.permissions,
+          list_columns = EXCLUDED.list_columns, status = 'active', updated_at = now()`,
+        [t.key, t.label, JSON.stringify({ fields: t.fields, titleField: t.titleField }), t.version, JSON.stringify(t.permissions), t.listColumns]);
+    }
+    await c.query(`UPDATE record_types SET status = 'retired', updated_at = now() WHERE app = 'cake' AND status = 'active' AND NOT (key = ANY($1))`, [CAKE_RECORD_TYPES.map((t) => t.key)]);
+  } finally { await c.end(); }
+}
+
 if (process.argv[1]?.endsWith('migrate.js')) {
   const applied = await runMigrations(console.log, { sources: MIGRATION_SOURCES });
   console.log(applied.length ? `Đã áp ${applied.length} migration.` : 'Cơ sở dữ liệu đã mới nhất.');
+  await syncRecordTypes(process.env.DATABASE_URL!);
   if (process.env.CAKE_APP_ROLE) { await ensureAppRole(process.env.DATABASE_URL!, process.env.CAKE_APP_ROLE); console.log(`Vai ứng dụng: ${process.env.CAKE_APP_ROLE}`); }
   process.exit(0);
 }

@@ -15,6 +15,8 @@ import { memberHandlers } from './care/members.js';
 import { inboxHandlers } from './care/inbox.js';
 import { registerIngress } from './care/ingress.js';
 import { MIGRATION_SOURCES } from './migrate.js';
+import { recordHandlers } from './records.js'; // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — lớp mềm core.record.*
+import { registerClientErrors } from './client-errors.js'; // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-8
 import { registerCakeAuthz } from './auth/authz.js';
 import { registerAuthRoutes } from './auth/routes.js';
 import { staffHandlers } from './auth/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
@@ -38,7 +40,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
     return { ok: true, data: { schema: 'ready' } };
   });
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
-  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers };
+  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers, ...recordHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
   // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — tra một bằng chứng theo meta.receipt.evidenceId (trong đơn vị; không có nội dung, chỉ băm).
   app.get<{ Params: { id: string } }>('/api/v1/evidence/:id', { preHandler: requirePermission('reports:read') }, async (req) => {
@@ -50,6 +52,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   });
   app.get('/api/v1/system/actions', { config: { public: true } }, async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
   registerIngress(app, opts.hub);
+  registerClientErrors(app);
   return app;
 }
 

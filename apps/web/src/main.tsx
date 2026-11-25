@@ -10,6 +10,7 @@ import { State } from '@open-cake/ui-kit';
 import '@open-cake/ui-kit/tokens.css';
 import '@open-cake/ui-kit/chat.css';
 import { Shell } from './app/Shell.js';
+import { ErrorBoundary, setErrorReporter } from './app/ErrorBoundary.js';
 import { ensureSession, getToken } from './app/session.js';
 import { PermissionsProvider, loadPermissions } from './app/permissions.js';
 import { useRoute } from './app/route.js';
@@ -51,7 +52,15 @@ function App() {
   else if (screen === 'staff') view = <Staff />;
   else if (screen === 'records' && id) view = <RecordTypeScreen key={id} typeKey={id} />;
   else view = <NotYet id={screen === 'soon' ? query.get('what') ?? '' : screen} />;
-  return <Shell screen={screen} account={query.get('account')}>{view}</Shell>;
+  // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-8: biên lỗi mỗi màn (key theo vị trí ⇒ đổi màn là thử lại), biên ngoài cùng ở Shell.
+  return (
+    <ErrorBoundary where="shell">
+      <Shell screen={screen} account={query.get('account')}><ErrorBoundary key={path.join('/')} where={screen}>{view}</ErrorBoundary></Shell>
+    </ErrorBoundary>
+  );
+}
+if (api === 'http' || api === 'mix') {
+  setErrorReporter((body) => void fetch('/api/v1/system/client-errors', { method: 'POST', headers: { 'content-type': 'application/json', ...(getToken() ? { authorization: `Bearer ${getToken()}` } : {}) }, body: JSON.stringify(body) }).catch(() => undefined));
 }
 
 /** Không có phiên ⇒ một màn báo (thành phần State sẵn có), có nút sang trang đăng nhập WordPress nếu máy chủ khai. */
