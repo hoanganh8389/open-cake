@@ -2,23 +2,25 @@
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-8: Tổng quan tài khoản theo ảnh duyệt (dashboard.png) trên cake.channel.list.
 //   Ngắt kết nối chưa có action ở hợp đồng ⇒ không hiện nút giả; tài khoản chưa nối ⇒ "Kết nối lại" mở sheet Kết nối kênh.
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/app.ts.
 import { channelList } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
 import { Avatar, Badge, Btn, Ic, CHANNEL_LABEL, channelFamily } from '@open-cake/ui-kit';
 import { QueryView } from '../app/QueryView.js';
 import { go } from '../app/route.js';
+import { t } from '../i18n/index.js';
 
 export function Dashboard() {
   const list = useQueryAction(channelList, {});
   return (
     <div className="page">
       <div className="row mb16">
-        <h1 className="h1">Tổng quan</h1><span className="muted">{list.data?.length ?? 0} tài khoản kênh</span>
+        <h1 className="h1">{t.app.dashboard.title}</h1><span className="muted">{t.app.dashboard.accounts(list.data?.length ?? 0)}</span>
         <span className="grow" />
-        <Btn pri onClick={() => go('channels', { connect: 1 })}><Ic.userPlus />Thêm tài khoản</Btn>
+        <Btn pri onClick={() => go('channels', { connect: 1 })}><Ic.userPlus />{t.app.dashboard.addAccount}</Btn>
       </div>
-      <div className="row mb16"><h3 className="h3">Tài khoản</h3><Badge>{list.data?.length ?? 0}</Badge></div>
-      <QueryView q={list} empty={{ title: 'Chưa có tài khoản kênh', action: <Btn pri onClick={() => go('channels', { connect: 1 })}>Kết nối kênh</Btn> }}>
+      <div className="row mb16"><h3 className="h3">{t.app.dashboard.accountsHeading}</h3><Badge>{list.data?.length ?? 0}</Badge></div>
+      <QueryView q={list} empty={{ title: t.app.dashboard.empty, action: <Btn pri onClick={() => go('channels', { connect: 1 })}>{t.app.shell.connectChannel}</Btn> }}>
         {(xs) => (
           <div className="grid g3">{xs.map((a) => (
             <div key={a.channelAccountId} className="card pad">
@@ -27,12 +29,12 @@ export function Dashboard() {
                 <div className="grow">
                   <div className="h3">{a.label}</div>
                   <div className="muted sm">{CHANNEL_LABEL[a.channel]} · {a.externalAccountId}</div>
-                  {a.unread > 0 && <Badge className="mt8" tone="pri">{a.unread} chưa đọc</Badge>}
+                  {a.unread > 0 && <Badge className="mt8" tone="pri">{t.app.dashboard.unread(a.unread)}</Badge>}
                 </div>
               </div>
               <div className="row mt16">
                 <Btn pri block onClick={() => go('inbox', { account: a.channelAccountId })}>Chat</Btn>
-                {a.status === 'connected' ? <Btn block onClick={() => go('channels')}>Chi tiết kênh</Btn> : <Btn out block onClick={() => go('channels', { connect: 1 })}>Kết nối lại</Btn>}
+                {a.status === 'connected' ? <Btn block onClick={() => go('channels')}>{t.app.dashboard.details}</Btn> : <Btn out block onClick={() => go('channels', { connect: 1 })}>{t.app.dashboard.reconnect}</Btn>}
               </div>
             </div>
           ))}</div>

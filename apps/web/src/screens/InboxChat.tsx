@@ -3,6 +3,7 @@
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: khung chat theo ảnh duyệt (inbox.png): đầu hội thoại · tin (cake.message.list) · dải nhãn
 //   (cake.conversation.tag) · ô soạn gửi thật (cake.message.send) — lỗi hiện dưới ô soạn với lý do CAKE_*; comment có nút Trả lời riêng (cake.comment.reply).
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-7 — thêm nút Gửi giá; Tin nhắn nhanh + Gửi giá tách ra composer-panels.tsx (một khuôn bảng chọn).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
 import { useLayoutEffect, useRef, useState } from 'react';
 import { commentReply, conversationTag, messageList, messageSend, type Conversation, type Message } from '@open-cake/contracts';
 import { useAction, useInfiniteQueryAction } from '@open-cake/action-client';
@@ -12,6 +13,7 @@ import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
 import { PricePicker, QuickReplies } from './composer-panels.js';
 import { needPermission, useCan } from '../app/permissions.js';
+import { t } from '../i18n/index.js';
 
 const LABELS = Object.keys(TAG_LOOK);
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
@@ -24,11 +26,11 @@ function Bubble({ m, name }: { m: Message; name: string }) {
       {m.direction === 'in' && <Face name={name} size={40} />}
       {img ? (
         <div className="img"><div className="pic" style={{ height: 160, display: 'grid', placeItems: 'center' }}><Ic.image style={{ width: 64, height: 64, opacity: 0.4 }} /></div>
-          <div className="cap">{img.name ?? 'Hình ảnh'}</div><span className="tp">{hhmm(m.at)}</span></div>
+          <div className="cap">{img.name ?? t.inbox.chat.image}</div><span className="tp">{hhmm(m.at)}</span></div>
       ) : (
         <div className="bb">
-          {file ? <div className="file"><span className="pdf">PDF</span><div style={{ flex: 1 }}><b>{file.name}</b><div className="muted" style={{ fontSize: 15 }}>{bytes(file.size)} Nhấn để tải</div></div><Ic.download style={{ width: 22, height: 22 }} /></div> : m.text}
-          <span className="ts">{hhmm(m.at)}{m.direction === 'out' && m.delivery && m.delivery !== 'sent' ? ` · ${m.delivery === 'accepted' ? 'đang gửi' : m.delivery === 'unknown' ? 'chưa rõ đã gửi' : m.delivery}` : ''}</span>
+          {file ? <div className="file"><span className="pdf">PDF</span><div style={{ flex: 1 }}><b>{file.name}</b><div className="muted" style={{ fontSize: 15 }}>{bytes(file.size)} {t.inbox.chat.tapToDownload}</div></div><Ic.download style={{ width: 22, height: 22 }} /></div> : m.text}
+          <span className="ts">{hhmm(m.at)}{m.direction === 'out' && m.delivery && m.delivery !== 'sent' ? ` · ${t.inbox.chat.delivery[m.delivery] ?? m.delivery}` : ''}</span>
           {m.reaction && <span className="re" style={m.direction === 'out' ? { left: 8 } : { right: 16 }}>{m.reaction}</span>}
         </div>
       )}
@@ -45,7 +47,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const tag = useAction(conversationTag);
   const [text, setText] = useState('');
   const [panel, setPanel] = useState<'quick' | 'price' | null>(null);
-  const insert = (t: string) => { setText((cur) => (cur.trim() ? `${cur.trimEnd()} ${t}` : t)); setPanel(null); };
+  const insert = (s: string) => { setText((cur) => (cur.trim() ? `${cur.trimEnd()} ${s}` : s)); setPanel(null); };
   const toggle = (k: 'quick' | 'price') => setPanel(panel === k ? null : k);
   const ref = useRef<HTMLDivElement>(null);
   // chèn tin cũ ở đầu ⇒ giữ nguyên chỗ đang đọc; trang mới nhất đổi (tin mới, mở hội thoại) ⇒ xuống cuối.
@@ -61,11 +63,11 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const canWrite = useCan('cake:inbox-lap'); // R-WEB-7: gắn nhãn, gửi, trả lời
   const why = canWrite ? undefined : needPermission('cake:inbox-lap');
   const submit = (mode?: 'public' | 'private') => {
-    const t = text.trim();
-    if (!t) return;
+    const body = text.trim();
+    if (!body) return;
     const done = { onSuccess: () => setText('') };
-    if (isComment) reply.mutate({ conversationId: conv.conversationId, mode: mode ?? 'public', text: t }, done);
-    else send.mutate({ conversationId: conv.conversationId, text: t, attachments: [] }, done);
+    if (isComment) reply.mutate({ conversationId: conv.conversationId, mode: mode ?? 'public', text: body }, done);
+    else send.mutate({ conversationId: conv.conversationId, text: body, attachments: [] }, done);
   };
   const busy = send.isPending || reply.isPending;
   return (
@@ -74,14 +76,14 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
         {conv.kind === 'group_thread' ? <GroupAvatar size={56} /> : <Face name={conv.title} size={56} />}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="nm">{conv.title}</div>
-          <div className="tags">{conv.tags.map((t) => <Tag key={t} name={t} size="md" />)}{isComment && <span className="badge">Bình luận · bài {conv.anchor?.postId}</span>}</div>
+          <div className="tags">{conv.tags.map((x) => <Tag key={x} name={x} size="md" />)}{isComment && <span className="badge">{t.inbox.chat.commentOnPost(conv.anchor?.postId)}</span>}</div>
         </div>
-        <button type="button" className="ri" title="Mở Contact 360" aria-label="Mở Contact 360" onClick={() => go(`contacts/${conv.contactId}`)}><Ic.user /></button>
-        <button type="button" className="ri" title="Thông tin hội thoại" aria-label="Thông tin hội thoại" onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
+        <button type="button" className="ri" title={t.inbox.chat.open360} aria-label={t.inbox.chat.open360} onClick={() => go(`contacts/${conv.contactId}`)}><Ic.user /></button>
+        <button type="button" className="ri" title={t.inbox.chat.threadInfo} aria-label={t.inbox.chat.threadInfo} onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
       </div>
       <div className="msgs" ref={ref}>
-        <QueryView q={{ ...msgs, data: shown }} empty={{ title: 'Chưa có tin nào', desc: 'Tin mới của khách sẽ hiện ở đây.' }}>
-          {(ms) => <><LoadMore q={msgs} label="Tải tin cũ hơn" />{ms.map((m) => <Bubble key={m.messageId} m={m} name={conv.title} />)}</>}
+        <QueryView q={{ ...msgs, data: shown }} empty={{ title: t.inbox.chat.emptyTitle, desc: t.inbox.chat.emptyDesc }}>
+          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{ms.map((m) => <Bubble key={m.messageId} m={m} name={conv.title} />)}</>}
         </QueryView>
       </div>
       <div className="dlabels">
@@ -94,15 +96,15 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       {panel === 'quick' && <QuickReplies onPick={insert} />}
       {panel === 'price' && <PricePicker onPick={insert} />}
       <div className="dinput" style={{ gap: 8 }}>
-        <Btn ghost icon title="Tin nhắn nhanh" aria-label="Tin nhắn nhanh" className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
-        <Btn ghost icon title="Gửi giá" aria-label="Gửi giá" className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
+        <Btn ghost icon title={t.inbox.chat.quickReplies} aria-label={t.inbox.chat.quickReplies} className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
+        <Btn ghost icon title={t.inbox.chat.sendPrice} aria-label={t.inbox.chat.sendPrice} className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
         <textarea id="composer" className="input" style={{ flex: 1, minHeight: 44, resize: 'none', border: 0, fontSize: 16 }} value={text} disabled={busy}
-          placeholder={isComment ? 'Trả lời bình luận… (Enter: trả lời công khai)' : 'Nhập tin, Shift+Enter xuống dòng, Enter gửi…'}
-          onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} aria-label="Soạn tin" />
-        {isComment && <Btn out sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit('private')}>Trả lời riêng</Btn>}
-        <Btn pri sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit()}><Ic.send />{isComment ? 'Trả lời' : 'Gửi'}</Btn>
+          placeholder={isComment ? t.inbox.chat.phComment : t.inbox.chat.phMessage}
+          onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} aria-label={t.inbox.chat.composeAria} />
+        {isComment && <Btn out sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit('private')}>{t.inbox.chat.replyPrivate}</Btn>}
+        <Btn pri sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit()}><Ic.send />{isComment ? t.inbox.chat.reply : t.inbox.chat.send}</Btn>
       </div>
-      <div className="xs subtle row gap8" style={{ padding: '0 16px 8px' }}>Gửi qua <b>{via.label}</b><ChannelBadge channel={isComment ? 'facebook_comment' : via.channel} /></div>
+      <div className="xs subtle row gap8" style={{ padding: '0 16px 8px' }}>{t.inbox.chat.via} <b>{via.label}</b><ChannelBadge channel={isComment ? 'facebook_comment' : via.channel} /></div>
     </section>
   );
 }

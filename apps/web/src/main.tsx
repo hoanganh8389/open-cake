@@ -3,6 +3,7 @@
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: điểm vào web. Chọn adapter: giả lập (mặc định ở phase này, ?mock=empty|error|denied|slow)
 //   hoặc http (?api=http, dùng ở PHASE-007). Màn không biết adapter nào đang chạy.
 // [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — S017-6: thêm màn catalog (Hàng hoá · Bảng giá); ?catalog=ketoan giả lập đơn vị đã nối Kế Toán.
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/app.ts.
 import { StrictMode, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ActionProvider, createHttpClient, createMixClient, createMockClient, linkCatalogToKetoan, type ActionClient, type MockScenario } from '@open-cake/action-client';
@@ -25,6 +26,7 @@ import { NotYet, States } from './screens/Other.js';
 import { RecordTypeScreen } from './screens/RecordTypeScreen.js';
 import { Settings } from './screens/Settings.js';
 import { Staff } from './screens/staff/index.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — Nhân viên + Vai & quyền
+import { t } from './i18n/index.js';
 
 const params = new URLSearchParams(location.search);
 const scenario = (params.get('mock') ?? 'normal') as MockScenario;
@@ -71,8 +73,8 @@ if (live) {
 function NeedLogin({ loginUrl }: { loginUrl: string | null }) {
   return (
     <div className="page" style={{ maxWidth: 560, margin: '10vh auto' }}>
-      <State kind="denied" title="Cần đăng nhập" desc="Mở Open CRM từ trang quản trị bizcity (WordPress) để đăng nhập một lần."
-        action={loginUrl ? <a className="btn pri" href={loginUrl}>Đăng nhập qua WordPress</a> : undefined} />
+      <State kind="denied" title={t.app.login.title} desc={t.app.login.desc}
+        action={loginUrl ? <a className="btn pri" href={loginUrl}>{t.app.login.viaWp}</a> : undefined} />
     </div>
   );
 }

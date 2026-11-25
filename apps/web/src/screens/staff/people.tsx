@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
 // [2026-11-24 11:50 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3/7 — tab Nhân viên — danh sách kiểu WordPress Users (mockup-nhan-vien).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang apps/web/src/i18n/vi/staff.ts.
 import { useState } from 'react';
 import { channelList, staffList, type Staff as StaffRow } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
@@ -10,6 +11,7 @@ import { needPermission, useCan } from '../../app/permissions.js';
 import { useRoute } from '../../app/route.js';
 import { EditSheet, InviteSheet } from './sheets.js';
 import { useRoles } from './shared.js';
+import { t } from '../../i18n/index.js';
 
 export function StaffTab() {
   const { query, setQuery } = useRoute();
@@ -25,33 +27,33 @@ export function StaffTab() {
   const sees = (s: StaffRow) => {
     if (!s.active) return <span className="subtle">—</span>;
     const all = roles.find((r) => r.key === s.role)?.permissions.includes('cake:all-inbox-xem');
-    if (all) return <span className="muted">mọi tài khoản</span>;
-    return s.channelAccountIds.length ? <div className="row gap8" style={{ flexWrap: 'wrap' }}>{s.channelAccountIds.map((id) => <span key={id} className="chip">{accLabel(id)}</span>)}</div> : <span className="muted">chỉ hội thoại được giao</span>;
+    if (all) return <span className="muted">{t.staff.list.seesAll}</span>;
+    return s.channelAccountIds.length ? <div className="row gap8" style={{ flexWrap: 'wrap' }}>{s.channelAccountIds.map((id) => <span key={id} className="chip">{accLabel(id)}</span>)}</div> : <span className="muted">{t.staff.list.seesAssigned}</span>;
   };
   const sel = xs.find((s) => s.userId === query.get('user'));
-  const filters: [string, string, number][] = [['', 'Tất cả', xs.length], ...roles.map((r): [string, string, number] => [r.key, r.label, xs.filter((s) => s.active && s.role === r.key).length]), ['off', 'Đã ngưng', xs.filter((s) => !s.active).length]];
+  const filters: [string, string, number][] = [['', t.staff.list.all, xs.length], ...roles.map((r): [string, string, number] => [r.key, r.label, xs.filter((s) => s.active && s.role === r.key).length]), ['off', t.staff.list.off, xs.filter((s) => !s.active).length]];
   return (
     <>
-      <div className="row mb16"><h1 className="h1">Nhân viên</h1><span className="muted">{xs.length}</span><span className="grow" />
-        <Search sm placeholder="Tên hoặc email…" style={{ width: 280 }} value={q} onChange={setQ} />
-        <Btn pri disabled={!can} title={can ? undefined : needPermission('users:write')} onClick={() => setQuery({ invite: 1 })}><Ic.plus />Mời nhân viên</Btn></div>
+      <div className="row mb16"><h1 className="h1">{t.staff.list.title}</h1><span className="muted">{xs.length}</span><span className="grow" />
+        <Search sm placeholder={t.staff.list.search} style={{ width: 280 }} value={q} onChange={setQ} />
+        <Btn pri disabled={!can} title={can ? undefined : needPermission('users:write')} onClick={() => setQuery({ invite: 1 })}><Ic.plus />{t.staff.list.invite}</Btn></div>
       <div className="row gap8 sm mb16" style={{ flexWrap: 'wrap' }}>{filters.map(([k, l, n], i) => (
         <span key={k}>{i > 0 && <span className="subtle">| </span>}
           <button type="button" style={{ color: f === k ? 'var(--foreground)' : 'var(--primary)', fontWeight: f === k ? 600 : 400 }} onClick={() => setQuery({ role: k || null })}>{l} ({n})</button></span>
       ))}</div>
-      <QueryView q={list} empty={{ title: 'Chưa có nhân viên', when: () => rows.length === 0 }}>
+      <QueryView q={list} empty={{ title: t.staff.list.empty, when: () => rows.length === 0 }}>
         {() => (
-          <table className="tbl"><thead><tr><th>Nhân viên</th><th>Vai</th><th>Thấy hội thoại của</th><th>Trạng thái</th></tr></thead>
+          <table className="tbl"><thead><tr><th>{t.staff.list.col.who}</th><th>{t.staff.list.col.role}</th><th>{t.staff.list.col.sees}</th><th>{t.staff.list.col.status}</th></tr></thead>
             <tbody>{rows.map((s) => (
               <tr key={s.userId} style={{ cursor: s.role === 'owner' ? 'default' : 'pointer', opacity: s.active ? 1 : 0.6 }} onClick={() => s.role !== 'owner' && setQuery({ user: s.userId })}>
                 <td><b style={{ fontWeight: 500 }}>{s.name}</b><div className="xs subtle">{s.email}</div></td>
                 <td>{label(s.role)}</td><td>{sees(s)}</td>
-                <td>{s.active ? <Badge tone="ok">hoạt động</Badge> : <Badge>đã ngưng</Badge>}</td>
+                <td>{s.active ? <Badge tone="ok">{t.staff.list.active}</Badge> : <Badge>{t.staff.list.inactive}</Badge>}</td>
               </tr>
             ))}</tbody></table>
         )}
       </QueryView>
-      <div className="xs subtle mt16">Nhân viên đăng nhập bằng tài khoản WordPress của shop (cùng email) · bấm một dòng để đổi vai, giao tài khoản kênh hoặc ngưng · Chủ và Quản lý làm được (quyền <code>users:write</code>).</div>
+      <div className="xs subtle mt16">{t.staff.list.footA}<code>users:write</code>{t.staff.list.footB}</div>
       {sel && <EditSheet key={sel.userId} s={sel} roles={roles} onClose={() => setQuery({ user: null })} />}
       {query.get('invite') === '1' && <InviteSheet roles={roles} onClose={() => setQuery({ invite: null })} />}
     </>

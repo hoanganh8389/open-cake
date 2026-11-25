@@ -2,11 +2,12 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: thành phần kiểu Deplao từ bản mẫu duyệt (deplao.jsx): avatar minh hoạ, nhãn nền đặc,
 //   huy hiệu kênh — nay theo enum kênh của hợp đồng (zalo_* / facebook_*), không theo id tài khoản bản mẫu. Thêm ChannelBadge chữ (R-CAKE-UI-5).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang packages/ui-kit/src/vi.ts.
 import type { CSSProperties } from 'react';
+import { CHANNEL_LABEL_VI, FEMALE_NAME, MALE_NAME_EXCEPTIONS, TAG_LOOK_VI } from './vi.js';
 
 const hash = (s = '') => { let h = 0; for (const c of s) h = (h * 31 + (c.codePointAt(0) ?? 0)) >>> 0; return h; };
-const FEMALE = /(chị|thị|vy|linh|chi|hương|thảo|lan|yến|mai|ngọc|hoa|my|anh thư|trang|hằng)/i;
-export const isFemale = (n: string) => FEMALE.test(n) && !/(anh khoa|đức anh|hải nam|gia bảo|thanh tùng|văn minh|quốc bảo|tuấn)/i.test(n);
+export const isFemale = (n: string) => FEMALE_NAME.test(n) && !MALE_NAME_EXCEPTIONS.test(n);
 
 const BG = ['#fde2e4', '#e0f2fe', '#ede9fe', '#dcfce7', '#fef3c7', '#fce7f3', '#e0e7ff'];
 const SKIN = ['#f6cfae', '#ecb894', '#d9a07a', '#f3d6bf'];
@@ -41,10 +42,7 @@ export function GroupAvatar({ size = 56, emoji = '🛍️', bg = 'linear-gradien
 }
 
 /** Màu nhãn là DỮ LIỆU (record_type cake.label, trường tone) — bảng dưới là mặc định cho nhãn mẫu. */
-export const TAG_LOOK: Record<string, { bg: string; ic: string }> = {
-  'Đã chốt đơn': { bg: '#ef4444', ic: '✅' }, 'Đặt hàng': { bg: '#f97316', ic: '🛒' }, 'Khách VIP': { bg: '#f59e0b', ic: '⭐' },
-  'Khách sỉ': { bg: '#a855f7', ic: '📦' }, 'Chờ phản hồi': { bg: '#0ea5e9', ic: '⏳' },
-};
+export const TAG_LOOK: Record<string, { bg: string; ic: string }> = TAG_LOOK_VI;
 export function Tag({ name, size = 'sm', on = true, check }: { name: string; size?: 'sm' | 'md' | 'lg'; on?: boolean; check?: boolean }) {
   const t = TAG_LOOK[name] ?? { bg: '#64748b', ic: '🏷️' };
   return <span className={`dtag ${size}${on ? '' : ' off'}`} style={{ '--tag': t.bg } as CSSProperties}><span className="ti">{t.ic}</span>{name}{check && <span className="tc">✓</span>}</span>;
@@ -53,10 +51,7 @@ export function Tag({ name, size = 'sm', on = true, check }: { name: string; siz
 /** Nhóm kênh để vẽ: Zalo (Z), Facebook (f), khác (•). */
 export const channelFamily = (channel: string | null | undefined): 'Z' | 'F' | 'X' => (channel?.startsWith('zalo') ? 'Z' : channel?.startsWith('facebook') ? 'F' : 'X');
 
-export const CHANNEL_LABEL: Record<string, string> = {
-  zalo_personal: 'Zalo cá nhân', zalo_oa: 'Zalo OA', facebook_personal: 'Facebook cá nhân', facebook_page: 'Fanpage',
-  facebook_comment: 'Bình luận Facebook', facebook_group: 'Nhóm Facebook', phone: 'Điện thoại', email: 'Email', tax_code: 'Mã số thuế', bank_account: 'Tài khoản ngân hàng', web: 'Web',
-};
+export const CHANNEL_LABEL: Record<string, string> = CHANNEL_LABEL_VI;
 
 /** Huy hiệu kênh góc trên trái avatar. */
 export function ChannelDot({ channel, size = 18 }: { channel: string | null | undefined; size?: number }) {

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- 2026-11-25 — PHASE-007 R-WEB-11: chữ hiển thị của web và ui-kit chuyển vào tệp ngôn ngữ theo khoá (`apps/web/src/i18n`, `packages/ui-kit/src/vi.ts`), test chặn chữ viết thẳng. 114 test.
 - 2026-11-25 — PHASE-007 R-WEB-15: phím tắt hộp thư (↑/↓, Enter, `/`, Esc), ô tìm hộp thư thật (từ khoá trên URL), nhãn `aria-*`; kiểm giao diện trên Chrome thật bằng `playwright-core` (`npm run ui:hop-thu`, 9 / 9).
 - 2026-11-25 — PHASE-007 R-WEB-10: con trỏ keyset cho hội thoại và tin (`meta.nextCursor`), `useInfiniteQueryAction` + `LoadMore`; khung chat tải tin cũ khi cuộn lên, giữ chỗ đang đọc. 113 test.
 - 2026-11-25 — PHASE-007 R-WEB-9 realtime: `pg_notify` trong giao dịch của mỗi lệnh ghi / tin vào (chỉ gợi ý đơn vị + năng lực, không dữ liệu), `GET /api/v1/stream` cho đúng đơn vị, web gộp 500 ms rồi làm mới truy vấn đang hiện, tự nối lại. 112 test.

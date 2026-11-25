@@ -2,9 +2,11 @@
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-3: một chỗ quyết bốn trạng thái cho mọi khối dữ liệu (R-WEB-5): đang tải · lỗi (mã tra cứu) ·
 //   không có quyền · trống (có lý do + nút) — màn không tự viết lại logic này.
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/app.ts.
 import { useEffect, useRef, type ReactNode } from 'react';
 import { ApiError } from '@open-cake/action-client';
 import { Btn, Ic, State } from '@open-cake/ui-kit';
+import { t } from '../i18n/index.js';
 
 export function QueryView<T>({ q, empty, children }: {
   q: { isLoading: boolean; error: Error | null; data: T | undefined; refetch: () => unknown };
@@ -15,11 +17,11 @@ export function QueryView<T>({ q, empty, children }: {
   if (q.error) {
     const e = q.error instanceof ApiError ? q.error : null;
     if (e?.code === 'FORBIDDEN' || e?.code === 'UNAUTHORIZED') {
-      return <State kind="denied" title="Bạn chưa có quyền xem mục này" desc={e.hint ?? e.message} requestId={e.requestId} />;
+      return <State kind="denied" title={t.app.query.denied} desc={e.hint ?? e.message} requestId={e.requestId} />;
     }
     return (
-      <State kind="error" title={e?.message ?? 'Có lỗi khi tải dữ liệu'} desc={e?.hint} requestId={e?.requestId}
-        action={<Btn out onClick={() => q.refetch()}><Ic.refresh />Thử lại</Btn>} />
+      <State kind="error" title={e?.message ?? t.app.query.loadError} desc={e?.hint} requestId={e?.requestId}
+        action={<Btn out onClick={() => q.refetch()}><Ic.refresh />{t.app.query.retry}</Btn>} />
     );
   }
   if (q.data === undefined) return <State kind="loading" />;
@@ -35,14 +37,14 @@ export function ActionErrorNote({ error }: { error: Error | null }) {
   return (
     <div className="note warn sm" role="alert">
       <b>{error.message}</b>{e?.hint && <> — {e.hint}</>}
-      {e?.requestId && <span className="subtle"> · Mã tra cứu: <code>{e.requestId}</code></span>}
+      {e?.requestId && <span className="subtle"> · {t.app.query.lookup} <code>{e.requestId}</code></span>}
     </div>
   );
 }
 
 // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: mốc "tải thêm" của danh sách con trỏ — chạm vùng nhìn thấy (IntersectionObserver) ⇒ tải trang kế;
 //   kèm nút cho bàn phím / trình duyệt không có IO. Hết trang ⇒ không vẽ gì.
-export function LoadMore({ q, label = 'Tải thêm' }: { q: { hasMore: boolean; loadingMore: boolean; more: () => void }; label?: string }) {
+export function LoadMore({ q, label = t.app.query.loadMore }: { q: { hasMore: boolean; loadingMore: boolean; more: () => void }; label?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { hasMore, loadingMore, more } = q;
   useEffect(() => {
@@ -53,5 +55,5 @@ export function LoadMore({ q, label = 'Tải thêm' }: { q: { hasMore: boolean; 
     return () => io.disconnect();
   }, [hasMore, loadingMore, more]);
   if (!hasMore) return null;
-  return <div ref={ref} className="row" style={{ justifyContent: 'center', padding: 12 }}><Btn ghost sm disabled={loadingMore} onClick={more}>{loadingMore ? 'Đang tải…' : label}</Btn></div>;
+  return <div ref={ref} className="row" style={{ justifyContent: 'center', padding: 12 }}><Btn ghost sm disabled={loadingMore} onClick={more}>{loadingMore ? t.app.query.loading : label}</Btn></div>;
 }

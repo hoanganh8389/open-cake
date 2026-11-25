@@ -2,8 +2,10 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: bộ thành phần chép từ bản mẫu duyệt (ui.jsx), giữ nguyên class để ra đúng ảnh;
 //   thêm kiểu, ô tìm kiếm điều khiển được, phân trang bấm được, trạng thái lỗi có mã tra cứu (R-WEB-5).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang packages/ui-kit/src/vi.ts.
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { Ic, type Icon } from './icons.js';
+import { ui } from './vi.js';
 
 export const cx = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ');
 export const initials = (n = '') => {
@@ -28,7 +30,7 @@ export function Avatar({ name, size, online, channel, className, style }: { name
     </span>
   );
 }
-export function Search({ placeholder = 'Tìm kiếm…', sm, style, value, onChange }: { placeholder?: string; sm?: boolean; style?: CSSProperties; value?: string; onChange?: (v: string) => void }) {
+export function Search({ placeholder = ui.searchPlaceholder, sm, style, value, onChange }: { placeholder?: string; sm?: boolean; style?: CSSProperties; value?: string; onChange?: (v: string) => void }) {
   return <div className="search" style={style}><Ic.search /><input className={cx('input', sm && 'sm')} placeholder={placeholder} value={value ?? ''} onChange={(e) => onChange?.(e.target.value)} aria-label={placeholder} /></div>;
 }
 export type TabItem = { id: string; label: string; icon?: Icon; count?: number | null };
@@ -56,7 +58,7 @@ export function Sheet({ open, onClose, icon: IconC, title, sub, wide, children, 
         <div className="hd">
           {IconC && <div className="icon-circle"><IconC /></div>}
           <div className="grow"><h2 className="h2">{title}</h2>{sub && <div className="muted sm">{sub}</div>}</div>
-          <button type="button" className="menu-dots" onClick={onClose} aria-label="Đóng"><Ic.x style={{ width: 20, height: 20 }} /></button>
+          <button type="button" className="menu-dots" onClick={onClose} aria-label={ui.close}><Ic.x style={{ width: 20, height: 20 }} /></button>
         </div>
         <div className="bd">{children}</div>
         {footer && <div className="ft">{footer}</div>}
@@ -76,7 +78,7 @@ export function State({ kind, title, desc, action, requestId }: { kind: 'loading
       <div className="ic"><IconC /></div>
       <div className="h3">{title}</div>
       {desc && <div className="muted" style={{ maxWidth: 440 }}>{desc}</div>}
-      {requestId && <div className="xs subtle mt8">Mã tra cứu: <code>{requestId}</code></div>}
+      {requestId && <div className="xs subtle mt8">{ui.requestId} <code>{requestId}</code></div>}
       {action && <div className="mt8">{action}</div>}
     </div>
   );

@@ -2,6 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-7 — hai bảng chọn trên ô soạn, cùng một khuôn: Tin nhắn nhanh (lớp mềm cake.quick_reply) và Gửi giá
 //   (mockup-gui-gia.png): tìm hàng "Bán trong CRM" → chèn câu báo giá vào ô soạn, nhân viên sửa rồi gửi. Không thêm kiểu tin, không thêm API.
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
 import { useState, type ReactNode } from 'react';
 import { catalogItemList, recordList, type Item } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
@@ -10,6 +11,7 @@ import { QueryView } from '../app/QueryView.js';
 import { vnd } from '../app/format.js';
 import { go } from '../app/route.js';
 import { useCompanyPrices } from './catalog/use-catalog.js';
+import { t } from '../i18n/index.js';
 
 const Panel = ({ children }: { children: ReactNode }) => <div className="card" style={{ margin: '0 16px 8px', padding: 8, maxWidth: 560 }}>{children}</div>;
 
@@ -17,7 +19,7 @@ export function QuickReplies({ onPick }: { onPick: (text: string) => void }) {
   const replies = useQueryAction(recordList, { type: 'cake.quick_reply', includeArchived: false });
   return (
     <Panel>
-      <QueryView q={replies} empty={{ title: 'Chưa có tin nhắn nhanh', action: <Btn sm out onClick={() => go('records/cake.quick_reply')}>Thêm ở Cài đặt</Btn> }}>
+      <QueryView q={replies} empty={{ title: t.inbox.composer.quickEmpty, action: <Btn sm out onClick={() => go('records/cake.quick_reply')}>{t.inbox.composer.addInSettings}</Btn> }}>
         {(rs) => <>{rs.map((r) => (
           <button type="button" key={r.recordId} className="pitem" style={{ width: '100%', textAlign: 'left' }} onClick={() => onPick(String(r.data.body ?? ''))}>
             <div><b>{r.title}</b> <span className="xs subtle">{String(r.data.shortcut ?? '')}</span><span>{String(r.data.body ?? '')}</span></div>
@@ -29,7 +31,7 @@ export function QuickReplies({ onPick }: { onPick: (text: string) => void }) {
 }
 
 /** Câu báo giá chèn vào ô soạn — một chỗ, để sau này đổi mẫu câu không phải sửa màn. */
-export const quoteLine = (it: Item, price: number, unit: string) => `Dạ ${it.local.displayName ?? it.name} giá ${vnd(price)}/${unit} (đã gồm VAT) ạ.`;
+export const quoteLine = (it: Item, price: number, unit: string) => t.inbox.composer.quoteLine(it.local.displayName ?? it.name, vnd(price), unit);
 
 export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
   const [q, setQ] = useState('');
@@ -46,16 +48,16 @@ export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
         if (e.key === 'ArrowUp') { e.preventDefault(); setAt(Math.max(at - 1, 0)); }
         if (e.key === 'Enter') { e.preventDefault(); pick(at); }
       }}>
-        <Search placeholder="Tìm hàng để gửi giá…" sm value={q} onChange={(v) => { setQ(v); setAt(0); }} />
+        <Search placeholder={t.inbox.composer.searchItem} sm value={q} onChange={(v) => { setQ(v); setAt(0); }} />
       </div>
-      <QueryView q={{ ...items, isLoading: items.isLoading || prices.isLoading, error: items.error ?? prices.error, data: items.data && prices.data ? rows : undefined }} empty={{ title: q ? 'Không có hàng khớp' : 'Chưa có hàng có giá', action: <Btn sm out onClick={() => go('catalog')}>Mở Hàng hoá</Btn> }}>
+      <QueryView q={{ ...items, isLoading: items.isLoading || prices.isLoading, error: items.error ?? prices.error, data: items.data && prices.data ? rows : undefined }} empty={{ title: q ? t.inbox.composer.noMatch : t.inbox.composer.noPriced, action: <Btn sm out onClick={() => go('catalog')}>{t.inbox.composer.openCatalog}</Btn> }}>
         {(rs) => <>{rs.map(({ it, p }, i) => (
           <button type="button" key={it.itemId} className={`pick-row${i === at ? ' on' : ''}`} onMouseEnter={() => setAt(i)} onClick={() => pick(i)}>
             <b style={{ fontWeight: 500 }}>{it.local.displayName ?? it.name}</b><span className="xs subtle">{it.sku}</span><span className="p">{vnd(p.price)} / {p.unit}</span>
           </button>
         ))}</>}
       </QueryView>
-      <div className="xs subtle" style={{ padding: '6px 12px' }}>↑↓ chọn · Enter chèn vào ô soạn · chỉ hiện hàng "Bán trong CRM" có giá</div>
+      <div className="xs subtle" style={{ padding: '6px 12px' }}>{t.inbox.composer.hint}</div>
     </Panel>
   );
 }

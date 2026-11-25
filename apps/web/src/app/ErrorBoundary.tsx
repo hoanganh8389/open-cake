@@ -2,8 +2,10 @@
 // @bizcity-layer web
 // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-8: ErrorBoundary ở Shell + mỗi màn. Màn lỗi = State "error" sẵn có (không màn mới) kèm mã lỗi errFp;
 //   báo về POST /api/v1/system/client-errors khi có máy chủ (giả lập: chỉ console), ≤ 10 lần / phút, cắt độ dài, KHÔNG gửi nội dung tin / dữ liệu màn.
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/app.ts.
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Btn, Ic, State } from '@open-cake/ui-kit';
+import { t } from '../i18n/index.js';
 
 type Reporter = (body: { errFp: string; route: string; message: string; stack?: string; where: string }) => void;
 let reporter: Reporter | null = null;
@@ -33,9 +35,9 @@ export class ErrorBoundary extends Component<{ where: string; children: ReactNod
     if (!this.state.error) return this.props.children;
     return (
       <div className="page">
-        <State kind="error" title="Màn này gặp lỗi" requestId={`errFp ${this.state.fp}`}
-          desc="Dữ liệu của bạn không bị ảnh hưởng. Thử tải lại màn; nếu lặp lại, gửi mã lỗi bên dưới cho người quản trị."
-          action={<Btn out onClick={() => this.setState({ error: null, fp: '' })}><Ic.refresh />Tải lại màn</Btn>} />
+        <State kind="error" title={t.app.errorBoundary.title} requestId={`errFp ${this.state.fp}`}
+          desc={t.app.errorBoundary.desc}
+          action={<Btn out onClick={() => this.setState({ error: null, fp: '' })}><Ic.refresh />{t.app.errorBoundary.reload}</Btn>} />
       </div>
     );
   }

@@ -2,6 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-6: Contact 360 (màn mới) — một contact_id, dòng thời gian mọi kênh (cake.contact.timeline),
 //   danh tính + độ tin + bằng chứng (R-CAKE-UI-6), gợi ý cùng người (cake.contact.suggestions) và Ghép có bằng chứng / Tách lại (cake.contact.merge / unmerge).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
 import { useState } from 'react';
 import { contactGet, contactMerge, contactSuggestions, contactTimeline, contactUnmerge, type Identity } from '@open-cake/contracts';
 import { useAction, useQueryAction } from '@open-cake/action-client';
@@ -10,11 +11,12 @@ import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { when } from '../app/format.js';
 import { go } from '../app/route.js';
 import { needPermission, useCan } from '../app/permissions.js';
+import { t } from '../i18n/index.js';
 
 const ME = '7'; // người dùng giả lập (PHASE-004 thay bằng phiên thật)
-const PROOF = [['human', 'Tôi xác nhận là cùng một người'], ['phone', 'Trùng số điện thoại đã xác minh'], ['email', 'Trùng email đã xác minh']] as const;
-const DIR = { in: '← vào', out: '→ ra', none: '•' } as const;
-const KIND: Record<string, string> = { message: 'Tin', comment: 'Bình luận', reaction: 'Cảm xúc', call: 'Cuộc gọi', note: 'Ghi chú', tag: 'Nhãn', stage: 'Giai đoạn', assign: 'Giao việc', merge: 'Ghép', identity: 'Danh tính', document: 'Chứng từ', task: 'Việc', broadcast_target: 'Gửi hàng loạt' };
+const PROOF = [['human', t.inbox.c360.proof.human], ['phone', t.inbox.c360.proof.phone], ['email', t.inbox.c360.proof.email]] as const;
+const DIR = t.inbox.c360.dir;
+const KIND = t.inbox.c360.kind;
 
 function IdentityRow({ x }: { x: Identity }) {
   const proven = x.confidence === 'proven';
@@ -22,7 +24,7 @@ function IdentityRow({ x }: { x: Identity }) {
     <div style={{ padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
       <div className="row gap8">
         <ChannelBadge channel={x.channel} /><span className="grow" />
-        {proven ? <Badge tone="ok" title="Có bằng chứng — dùng được để ghép tự động">đã xác minh · {x.proof?.kind}</Badge> : <Badge title="Chưa có bằng chứng — không dùng để ghép tự động">chưa xác minh</Badge>}
+        {proven ? <Badge tone="ok" title={t.inbox.c360.provenTitle}>{t.inbox.c360.proven(x.proof?.kind)}</Badge> : <Badge title={t.inbox.c360.unprovenTitle}>{t.inbox.c360.unproven}</Badge>}
       </div>
       <div className="sm mt8" style={{ fontStyle: proven ? 'normal' : 'italic', wordBreak: 'break-all' }}>{x.externalId}{x.scope !== 'global' && <span className="xs subtle"> · {x.scope}</span>}</div>
     </div>
@@ -50,66 +52,66 @@ export function Contact360({ contactId }: { contactId: string }) {
         {(d) => (
           <>
             <div className="row gap16 mb24">
-              <Btn ghost icon title="Quay lại danh bạ" onClick={() => go('contacts')}><Ic.back /></Btn>
+              <Btn ghost icon title={t.inbox.c360.back} onClick={() => go('contacts')}><Ic.back /></Btn>
               <Face name={d.contact.displayName} size={72} />
               <div className="grow">
                 <h1 className="h1">{d.contact.displayName}</h1>
                 <div className="row wrap gap8 mt8">
-                  {d.contact.status === 'merged' && <Badge tone="warn">Đã ghép vào khách khác</Badge>}
-                  {d.state.tags.map((t) => <Tag key={t} name={t} size="md" />)}
-                  {Object.entries(d.state.channels).map(([ch, n]) => <span key={ch} className="row gap8"><ChannelBadge channel={ch} /><span className="xs subtle">{n} lần</span></span>)}
+                  {d.contact.status === 'merged' && <Badge tone="warn">{t.inbox.c360.mergedAway}</Badge>}
+                  {d.state.tags.map((x) => <Tag key={x} name={x} size="md" />)}
+                  {Object.entries(d.state.channels).map(([ch, n]) => <span key={ch} className="row gap8"><ChannelBadge channel={ch} /><span className="xs subtle">{t.inbox.c360.times(n)}</span></span>)}
                 </div>
               </div>
-              <Btn pri onClick={() => go('inbox')}><Ic.chat />Nhắn tin</Btn>
+              <Btn pri onClick={() => go('inbox')}><Ic.chat />{t.inbox.c360.message}</Btn>
             </div>
             {merged && (
               <div className="note ok mb16 row gap8" role="status">
-                Đã ghép <b>{merged.name}</b> vào khách này. Tách lại được tới {when(merged.until)}.
+                {t.inbox.c360.mergedPre} <b>{merged.name}</b> {t.inbox.c360.mergedPost(when(merged.until))}
                 <span className="grow" />
-                <Btn sm out disabled={!canMerge || unmerge.isPending} title={whyMerge} onClick={() => unmerge.mutate({ contactId: merged.id }, { onSuccess: () => setMerged(null) })}>Tách lại</Btn>
+                <Btn sm out disabled={!canMerge || unmerge.isPending} title={whyMerge} onClick={() => unmerge.mutate({ contactId: merged.id }, { onSuccess: () => setMerged(null) })}>{t.inbox.c360.unmerge}</Btn>
               </div>
             )}
             <ActionErrorNote error={unmerge.error} />
             <div className="grid" style={{ gridTemplateColumns: '380px 1fr', gap: 24, alignItems: 'start' }}>
               <div className="col gap16">
-                <Card><h3 className="h3 mb16">Danh tính ({d.identities.length})</h3>{d.identities.map((x) => <IdentityRow key={x.identityId} x={x} />)}</Card>
+                <Card><h3 className="h3 mb16">{t.inbox.c360.identities(d.identities.length)}</h3>{d.identities.map((x) => <IdentityRow key={x.identityId} x={x} />)}</Card>
                 <Card>
-                  <h3 className="h3">Có thể là cùng người</h3>
-                  <div className="muted sm mt8">Chỉ là gợi ý (cùng tên). Hệ thống không tự ghép khi chưa có bằng chứng.</div>
-                  <QueryView q={sug} empty={{ title: 'Không có gợi ý', desc: 'Chưa thấy khách nào trùng.' }}>
+                  <h3 className="h3">{t.inbox.c360.maybeSame}</h3>
+                  <div className="muted sm mt8">{t.inbox.c360.maybeSameNote}</div>
+                  <QueryView q={sug} empty={{ title: t.inbox.c360.noSuggest, desc: t.inbox.c360.noSuggestDesc }}>
                     {(xs) => <>{xs.map((s) => (
                       <div key={s.contactId} className="row gap8 mt16">
                         <Face name={s.displayName} size={40} />
                         <div className="grow"><b>{s.displayName}</b><div className="xs subtle">{CHANNEL_LABEL[s.identity.channel]} · {s.identity.externalId}</div></div>
-                        <Btn sm out disabled={!canMerge} title={whyMerge} onClick={() => setPick({ id: s.contactId, name: s.displayName })}>Ghép…</Btn>
+                        <Btn sm out disabled={!canMerge} title={whyMerge} onClick={() => setPick({ id: s.contactId, name: s.displayName })}>{t.inbox.c360.mergeDots}</Btn>
                       </div>
                     ))}</>}
                   </QueryView>
                 </Card>
-                <Card><h3 className="h3">Liên kết app anh em</h3><div className="muted sm mt8">{d.links.length ? d.links.map((l) => `${l.app}: ${l.refCode}`).join(' · ') : 'Chưa liên kết Kế Toán / POS (PHASE-010).'}</div></Card>
+                <Card><h3 className="h3">{t.inbox.c360.links}</h3><div className="muted sm mt8">{d.links.length ? d.links.map((l) => `${l.app}: ${l.refCode}`).join(' · ') : t.inbox.c360.noLinks}</div></Card>
               </div>
               <Card>
-                <h3 className="h3 mb16">Dòng thời gian mọi kênh</h3>
-                <QueryView q={tl} empty={{ title: 'Chưa có lần chạm nào' }}>
-                  {(items) => <>{items.map((t) => (
-                    <div key={t.touchId} className={cx('row gap16')} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start', opacity: t.isReversal ? 0.7 : 1 }}>
-                      <span className="muted sm" style={{ width: 96, flex: 'none' }}>{when(t.at)}</span>
-                      <span style={{ width: 150, flex: 'none' }}>{t.channel ? <ChannelBadge channel={t.channel} /> : <Badge>{KIND[t.kind] ?? t.kind}</Badge>}</span>
-                      <span className="subtle sm" style={{ width: 48, flex: 'none' }}>{DIR[t.direction]}</span>
-                      <span className="grow">{t.summary}{t.docRef && <> <Badge tone="out">{t.docRef}</Badge></>}</span>
+                <h3 className="h3 mb16">{t.inbox.c360.timeline}</h3>
+                <QueryView q={tl} empty={{ title: t.inbox.c360.noTouch }}>
+                  {(items) => <>{items.map((x) => (
+                    <div key={x.touchId} className={cx('row gap16')} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start', opacity: x.isReversal ? 0.7 : 1 }}>
+                      <span className="muted sm" style={{ width: 96, flex: 'none' }}>{when(x.at)}</span>
+                      <span style={{ width: 150, flex: 'none' }}>{x.channel ? <ChannelBadge channel={x.channel} /> : <Badge>{KIND[x.kind] ?? x.kind}</Badge>}</span>
+                      <span className="subtle sm" style={{ width: 48, flex: 'none' }}>{DIR[x.direction]}</span>
+                      <span className="grow">{x.summary}{x.docRef && <> <Badge tone="out">{x.docRef}</Badge></>}</span>
                     </div>
                   ))}</>}
                 </QueryView>
               </Card>
             </div>
-            <Sheet open={!!pick} onClose={() => setPick(null)} icon={Ic.users} title={`Ghép "${pick?.name ?? ''}" vào ${d.contact.displayName}`}
-              sub="Danh tính, hội thoại của khách kia chuyển sang khách này. Lịch sử cũ giữ nguyên. Tách lại được trong 30 ngày."
-              footer={<><Btn onClick={() => setPick(null)}>Huỷ</Btn><Btn pri disabled={merge.isPending} onClick={doMerge}>Ghép</Btn></>}>
-              <div className="h3">Bằng chứng</div>
+            <Sheet open={!!pick} onClose={() => setPick(null)} icon={Ic.users} title={t.inbox.c360.mergeTitle(pick?.name ?? '', d.contact.displayName)}
+              sub={t.inbox.c360.mergeSub}
+              footer={<><Btn onClick={() => setPick(null)}>{t.inbox.c360.cancel}</Btn><Btn pri disabled={merge.isPending} onClick={doMerge}>{t.inbox.c360.merge}</Btn></>}>
+              <div className="h3">{t.inbox.c360.proofHead}</div>
               <div className="col gap8 mt8">{PROOF.map(([k, label]) => (
                 <label key={k} className="row gap8" style={{ cursor: 'pointer' }}><input type="radio" name="proof" checked={proof === k} onChange={() => setProof(k)} />{label}</label>
               ))}</div>
-              <div className="note sm mt16">Không ghép chỉ vì trùng tên (R-CAKE-ID-2).</div>
+              <div className="note sm mt16">{t.inbox.c360.noNameMerge}</div>
               <ActionErrorNote error={merge.error} />
             </Sheet>
           </>

@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
 // [2026-11-24 11:50 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3/7 — sheet sửa / ngưng / mời nhân viên (mockup-sua-nhan-vien, -ngung, -moi).
+// [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang apps/web/src/i18n/vi/staff.ts.
 import { useState } from 'react';
 import { channelList, staffInvite, staffSetActive, staffUpdate, type RoleInfo, type Staff as StaffRow } from '@open-cake/contracts';
 import { useAction, useQueryAction } from '@open-cake/action-client';
@@ -9,6 +10,7 @@ import { ActionErrorNote } from '../../app/QueryView.js';
 import { when } from '../../app/format.js';
 import { needPermission, useCan } from '../../app/permissions.js';
 import { DESC, Field } from './shared.js';
+import { t } from '../../i18n/index.js';
 
 // ── Chọn vai + tài khoản kênh (dùng cho sửa và mời) ─────────────────────
 function RolePicker({ roles, value, onChange }: { roles: RoleInfo[]; value: string; onChange: (k: string) => void }) {
@@ -18,8 +20,8 @@ function RolePicker({ roles, value, onChange }: { roles: RoleInfo[]; value: stri
       <label key={r.key} className={cx('choice', value === r.key && 'on')} style={{ cursor: 'pointer', padding: '10px 14px' }}>
         <input type="radio" name="role" checked={value === r.key} onChange={() => onChange(r.key)} style={{ display: 'none' }} />
         <span className="dot" />
-        <div><b>{r.label}</b>{r.kind === 'custom' && <Badge style={{ marginLeft: 8 }}>vai riêng</Badge>}
-          <div className="sm muted">{r.kind === 'custom' ? `${label(r.baseRole)}${r.allow.length ? ` + ${r.allow.length} quyền Cho` : ''}${r.deny.length ? ` · ${r.deny.length} quyền Cấm` : ''}.` : DESC[r.key] ?? ''}</div></div>
+        <div><b>{r.label}</b>{r.kind === 'custom' && <Badge style={{ marginLeft: 8 }}>{t.staff.picker.customBadge}</Badge>}
+          <div className="sm muted">{r.kind === 'custom' ? t.staff.picker.customDesc(String(label(r.baseRole)), r.allow.length, r.deny.length) : DESC[r.key] ?? ''}</div></div>
       </label>
     ))}</div>
   );
@@ -45,29 +47,29 @@ export function EditSheet({ s, roles, onClose }: { s: StaffRow; roles: RoleInfo[
   const can = useCan('users:write');
   const why = can ? undefined : needPermission('users:write');
   if (confirm) return (
-    <Sheet open onClose={onClose} icon={Ic.warn} title={`Ngưng ${s.name}?`}
-      footer={<><Btn onClick={() => setConfirm(false)}>Huỷ</Btn><Btn danger disabled={!can || active.isPending} title={why} onClick={() => active.mutate({ userId: s.userId, active: false }, { onSuccess: onClose })}>Ngưng</Btn></>}>
+    <Sheet open onClose={onClose} icon={Ic.warn} title={t.staff.stop.title(s.name)}
+      footer={<><Btn onClick={() => setConfirm(false)}>{t.staff.common.cancel}</Btn><Btn danger disabled={!can || active.isPending} title={why} onClick={() => active.mutate({ userId: s.userId, active: false }, { onSuccess: onClose })}>{t.staff.stop.ok}</Btn></>}>
       <ul className="col gap8" style={{ margin: 0, paddingLeft: 20 }}>
-        <li>Đăng xuất ngay trên mọi máy; vé WordPress không vào được nữa.</li>
-        <li>Gỡ khỏi {s.channelAccountIds.length} tài khoản kênh.</li>
-        <li>Hội thoại {s.name} đang giữ trở về hàng chung.</li>
-        <li>Lịch sử và bằng chứng giữ nguyên — bật lại được.</li>
+        <li>{t.staff.stop.logout}</li>
+        <li>{t.staff.stop.accounts(s.channelAccountIds.length)}</li>
+        <li>{t.staff.stop.release(s.name)}</li>
+        <li>{t.staff.stop.keep}</li>
       </ul>
       <ActionErrorNote error={active.error} />
     </Sheet>
   );
   return (
-    <Sheet open onClose={onClose} icon={Ic.user} title={s.name} sub={`${s.email} · ${s.lastLoginAt ? `vào lần cuối ${when(s.lastLoginAt)}` : 'chưa vào lần nào'}`}
+    <Sheet open onClose={onClose} icon={Ic.user} title={s.name} sub={t.staff.edit.lastLogin(s.email, s.lastLoginAt ? when(s.lastLoginAt) : null)}
       footer={<>
-        {s.active ? <Btn ghost danger disabled={!can} title={why} onClick={() => setConfirm(true)}>Ngưng nhân viên…</Btn>
-          : <Btn out disabled={!can || active.isPending} title={why} onClick={() => active.mutate({ userId: s.userId, active: true }, { onSuccess: onClose })}>Bật lại</Btn>}
-        <span className="grow" /><Btn onClick={onClose}>Huỷ</Btn>
-        <Btn pri disabled={!can || !s.active || save.isPending} title={why} onClick={() => save.mutate({ userId: s.userId, role, channelAccountIds: accs as StaffRow["channelAccountIds"] }, { onSuccess: onClose })}>Lưu</Btn>
+        {s.active ? <Btn ghost danger disabled={!can} title={why} onClick={() => setConfirm(true)}>{t.staff.edit.deactivate}</Btn>
+          : <Btn out disabled={!can || active.isPending} title={why} onClick={() => active.mutate({ userId: s.userId, active: true }, { onSuccess: onClose })}>{t.staff.edit.reactivate}</Btn>}
+        <span className="grow" /><Btn onClick={onClose}>{t.staff.common.cancel}</Btn>
+        <Btn pri disabled={!can || !s.active || save.isPending} title={why} onClick={() => save.mutate({ userId: s.userId, role, channelAccountIds: accs as StaffRow["channelAccountIds"] }, { onSuccess: onClose })}>{t.staff.common.save}</Btn>
       </>}>
-      {!s.active && <div className="note warn sm">Đang ngưng — bật lại để sửa vai và tài khoản kênh.</div>}
-      <Field label="Vai"><RolePicker roles={roles} value={role} onChange={setRole} /></Field>
-      <Field label="Thấy hội thoại của"><AccountPicker value={accs} onChange={setAccs} /></Field>
-      <div className="xs subtle mt8">Bỏ hết = chỉ thấy hội thoại được giao riêng cho {s.name}. Đổi vai chính ⇒ {s.name} vào lại qua WordPress.</div>
+      {!s.active && <div className="note warn sm">{t.staff.edit.inactiveNote}</div>}
+      <Field label={t.staff.edit.role}><RolePicker roles={roles} value={role} onChange={setRole} /></Field>
+      <Field label={t.staff.edit.sees}><AccountPicker value={accs} onChange={setAccs} /></Field>
+      <div className="xs subtle mt8">{t.staff.edit.hint(s.name)}</div>
       <ActionErrorNote error={save.error ?? active.error} />
     </Sheet>
   );
@@ -78,13 +80,13 @@ export function InviteSheet({ roles, onClose }: { roles: RoleInfo[]; onClose: ()
   const invite = useAction(staffInvite);
   const ok = /^\S+@\S+\.\S+$/.test(d.email) && d.name.trim().length > 0;
   return (
-    <Sheet open onClose={onClose} icon={Ic.userPlus} title="Mời nhân viên"
-      footer={<><Btn onClick={onClose}>Huỷ</Btn><Btn pri disabled={!ok || invite.isPending} onClick={() => invite.mutate(d as never, { onSuccess: onClose })}>Mời</Btn></>}>
-      <Field label="Email *"><input className="input" type="email" value={d.email} onChange={(e) => setD({ ...d, email: e.target.value })} placeholder="hoa@hoamai.vn" /></Field>
-      <Field label="Tên *"><input className="input" value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} /></Field>
-      <Field label="Vai *"><RolePicker roles={roles} value={d.role} onChange={(role) => setD({ ...d, role })} /></Field>
-      <Field label="Thấy hội thoại của"><AccountPicker value={d.channelAccountIds} onChange={(channelAccountIds) => setD({ ...d, channelAccountIds })} /></Field>
-      <div className="note sm mt16">{d.name.trim() || 'Nhân viên'} vào Open CRM bằng tài khoản WordPress của shop có đúng email này — không cần mật khẩu riêng.</div>
+    <Sheet open onClose={onClose} icon={Ic.userPlus} title={t.staff.invite.title}
+      footer={<><Btn onClick={onClose}>{t.staff.common.cancel}</Btn><Btn pri disabled={!ok || invite.isPending} onClick={() => invite.mutate(d as never, { onSuccess: onClose })}>{t.staff.invite.ok}</Btn></>}>
+      <Field label={t.staff.invite.email}><input className="input" type="email" value={d.email} onChange={(e) => setD({ ...d, email: e.target.value })} placeholder="hoa@hoamai.vn" /></Field>
+      <Field label={t.staff.invite.name}><input className="input" value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} /></Field>
+      <Field label={t.staff.invite.role}><RolePicker roles={roles} value={d.role} onChange={(role) => setD({ ...d, role })} /></Field>
+      <Field label={t.staff.edit.sees}><AccountPicker value={d.channelAccountIds} onChange={(channelAccountIds) => setD({ ...d, channelAccountIds })} /></Field>
+      <div className="note sm mt16">{t.staff.invite.sso(d.name.trim())}</div>
       <ActionErrorNote error={invite.error} />
     </Sheet>
   );
