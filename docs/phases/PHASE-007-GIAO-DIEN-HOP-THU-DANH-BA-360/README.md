@@ -37,6 +37,28 @@
 | S007-8 chụp tự động + so ảnh chuẩn | ☑ | <!-- [2026-11-25 12:31 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 --> `npm run ui:chup` (`tests/ui/chup-man.mjs`, Chrome thật qua `playwright-core`): 4 màn có ảnh chuẩn, đếm **phần tử chính rút từ chính ảnh chuẩn** (không so điểm ảnh — ảnh chuẩn là bản vẽ), phần tử của phase sau ghi rõ và không tính: **hộp thư 17/17 · danh bạ 12/13 (92 %) · tổng quan 8/8 · bốn trạng thái 6/6** — đạt ≥ 90 %. Để đạt: thêm tên thật dưới tên khách (hợp đồng `realName`), ô tìm tài khoản ở Tổng quan, thẻ "Cần cài …" + bộ thành phần ở Bốn trạng thái. **Còn thiếu: chọn nhiều + gắn nhãn hàng loạt ở Danh bạ** (S007-4) — kernel chỉ gắn nhãn qua hội thoại, cần một lệnh kernel mới. Ảnh `auto-inbox`, `auto-contacts`, `auto-dashboard`, `auto-states` |
 | SC-CAKE-WEB-1..3 | ☑ | `apps/web/test/sc-cake-web.test.ts`: chỉ import react / gói @open-cake cho phép; không alert / confirm / prompt; không màu hex trong `.tsx` (sửa một chỗ: dấu ghim hộp thư dùng `var(--destructive)`) |
 
+## Nợ chờ nhận
+
+<!-- [2026-11-25 01:14 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — chủ chốt: ghi NỢ, để dev khác nhận sau. -->
+
+### NỢ-007-1 — Danh bạ: chọn nhiều + "Thao tác" gắn / gỡ nhãn hàng loạt (S007-4)
+
+Nhận việc: điền tên + nhánh vào dòng NỢ-007-1 ở [CLAIMS](../CLAIMS.md) trước khi làm.
+
+**Vì sao còn nợ.** Ảnh chuẩn [contacts.png](../../ui/mockup-shots/contacts.png) (đã duyệt) có ô chọn từng dòng, ô "chọn trang này" và nút **Thao tác ▾**. Kernel hiện chỉ gắn nhãn **qua hội thoại** ( trong ); khách có thể chưa có hội thoại, và gắn theo lô cần một lệnh kernel mới — thay đổi ở lõi (mức K3), không chỉ giao diện.  đang báo Danh bạ 12/13, thiếu đúng ô này.
+
+**Đã kiểm sẵn.**  cho phép NULL và  đã có  (0101) ⇒ **không cần đổi lược đồ**.
+
+**Làm:**
+1. **Kernel** — : mỗi khách tính thay đổi so với , ghi MỘT sự kiện  (,  NULL) + dòng sổ , cập nhật  cùng giao dịch — đúng khuôn . Khách đã ghép () ⇒ áp cho khách đích. Không thay đổi ⇒ không ghi gì. Chạy trên **cả** MemoryRepo và PgCareRepo ().
+2. **Hợp đồng** — : , vào , ra ; , , , . Cập nhật số action ở 2 test contracts.
+3. **Máy chủ** — handler trong  (bằng chứng + gợi ý realtime tự có qua ).
+4. **Giả lập** — , cùng luật.
+5. **Web** —  theo ảnh chuẩn: cột ô chọn + "Trang này (n)" chọn cả trang, **Thao tác ▾** (Gắn nhãn… / Gỡ nhãn…) mở sheet chọn nhãn từ ; khoá kèm lý do khi thiếu  (R-WEB-7); chữ vào  (test i18n chặn); tệp < 200 dòng (tách nếu cần).
+6. **Kiểm** — test kernel (2 kho), test HTTP (quyền, 200 dòng tối đa, gửi lặp không ghi thêm),  ⇒ Danh bạ **13/13**; thêm vào kịch bản  nếu đổi bộ chọn.
+
+**Xong khi:** gắn 1 nhãn cho 3 khách ⇒ đúng 3 dòng sổ, gửi lặp ⇒ 0 dòng mới; nhãn hiện ngay trên Danh bạ và Hộp thư (gợi ý realtime); Danh bạ 13/13.
+
 ## Xong khi
 
 Ảnh build 4 màn có ảnh chuẩn đạt ≥ 90 % phần tử chính; Contact 360 hiện tin Zalo thật từ 006; SC-CAKE-WEB-1..3 PASS.
