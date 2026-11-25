@@ -45,19 +45,20 @@
 
 Nhận việc: điền tên + nhánh vào dòng NỢ-007-1 ở [CLAIMS](../CLAIMS.md) trước khi làm.
 
-**Vì sao còn nợ.** Ảnh chuẩn [contacts.png](../../ui/mockup-shots/contacts.png) (đã duyệt) có ô chọn từng dòng, ô "chọn trang này" và nút **Thao tác ▾**. Kernel hiện chỉ gắn nhãn **qua hội thoại** ( trong ); khách có thể chưa có hội thoại, và gắn theo lô cần một lệnh kernel mới — thay đổi ở lõi (mức K3), không chỉ giao diện.  đang báo Danh bạ 12/13, thiếu đúng ô này.
+**Vì sao còn nợ.** Ảnh chuẩn [contacts.png](../../ui/mockup-shots/contacts.png) (đã duyệt) có ô chọn từng dòng, ô "chọn trang này" và nút **Thao tác ▾**. Kernel hiện chỉ gắn nhãn **qua hội thoại** (`tagContact({ conversationId, … })` trong `packages/care-kernel/src/commands.ts`); khách có thể chưa có hội thoại, và gắn theo lô cần một lệnh kernel mới — thay đổi ở lõi (mức K3), không chỉ giao diện. `npm run ui:chup` đang báo Danh bạ 12/13, thiếu đúng ô này.
 
-**Đã kiểm sẵn.**  cho phép NULL và  đã có  (0101) ⇒ **không cần đổi lược đồ**.
+**Đã kiểm sẵn.** `touch_ledger.conversation_id` cho phép NULL và cột `kind` đã có giá trị `'tag'` (migration 0101) ⇒ **không cần đổi lược đồ**.
 
 **Làm:**
-1. **Kernel** — : mỗi khách tính thay đổi so với , ghi MỘT sự kiện  (,  NULL) + dòng sổ , cập nhật  cùng giao dịch — đúng khuôn . Khách đã ghép () ⇒ áp cho khách đích. Không thay đổi ⇒ không ghi gì. Chạy trên **cả** MemoryRepo và PgCareRepo ().
-2. **Hợp đồng** — : , vào , ra ; , , , . Cập nhật số action ở 2 test contracts.
-3. **Máy chủ** — handler trong  (bằng chứng + gợi ý realtime tự có qua ).
-4. **Giả lập** — , cùng luật.
-5. **Web** —  theo ảnh chuẩn: cột ô chọn + "Trang này (n)" chọn cả trang, **Thao tác ▾** (Gắn nhãn… / Gỡ nhãn…) mở sheet chọn nhãn từ ; khoá kèm lý do khi thiếu  (R-WEB-7); chữ vào  (test i18n chặn); tệp < 200 dòng (tách nếu cần).
-6. **Kiểm** — test kernel (2 kho), test HTTP (quyền, 200 dòng tối đa, gửi lặp không ghi thêm),  ⇒ Danh bạ **13/13**; thêm vào kịch bản  nếu đổi bộ chọn.
 
-**Xong khi:** gắn 1 nhãn cho 3 khách ⇒ đúng 3 dòng sổ, gửi lặp ⇒ 0 dòng mới; nhãn hiện ngay trên Danh bạ và Hộp thư (gợi ý realtime); Danh bạ 13/13.
+1. **Kernel** — thêm `tagContacts(deps, { contactIds, add, remove, actor })` cạnh `tagContact`: với mỗi khách, tính thay đổi so với `contact_state.tags`; ghi MỘT sự kiện `contact.tagged` (`docKey = tag|contact|<contactId>|<at>`, `conversation_id` NULL) + dòng sổ `kind = 'tag'`; cập nhật `contact_state` trong cùng giao dịch — đúng khuôn `tagContact`. Khách đã ghép (`merged_into`) ⇒ áp cho khách đích. Không có thay đổi ⇒ không ghi gì. Chạy trên **cả** MemoryRepo và PgCareRepo (`packages/care-kernel/test/scenarios.ts`).
+2. **Hợp đồng** — `cake.contact.tag_bulk`: `POST /api/v1/contacts/tags`; vào `{ contactIds: ContactId[] (1–200), add: string[], remove: string[] }`, ra `{ changed: number }`; `permission: 'cake:contacts-sua'`, `risk: 'medium'`, `idempotent: true`, `emits: ['bizcity.cake.contact.tagged']`. Cập nhật số action ở 2 test của `packages/contracts/test`.
+3. **Máy chủ** — handler trong `apps/api/src/care/commands.ts` (bằng chứng `audit_logs` và gợi ý realtime đã tự có qua `runCommand`).
+4. **Giả lập** — `packages/action-client/src/mock/handlers-contacts.ts`, cùng luật với máy chủ.
+5. **Web** — `apps/web/src/screens/Contacts.tsx` theo ảnh chuẩn: cột ô chọn + "Trang này (n)" chọn cả trang; **Thao tác ▾** (Gắn nhãn… / Gỡ nhãn…) mở sheet chọn nhãn từ `TAG_LOOK`; khoá nút kèm lý do khi thiếu `cake:contacts-sua` (R-WEB-7); chữ vào `apps/web/src/i18n/vi/inbox.ts` (test i18n chặn chữ viết thẳng); tệp < 200 dòng (tách nếu cần).
+6. **Kiểm** — test kernel (2 kho); test HTTP (quyền, tối đa 200 khách, gửi lặp không ghi thêm); `npm run ui:chup` ⇒ Danh bạ **13/13** (sửa bộ chọn trong `tests/ui/chup-man.mjs` nếu đổi markup).
+
+**Xong khi:** gắn 1 nhãn cho 3 khách ⇒ đúng 3 dòng sổ; gửi lặp ⇒ 0 dòng mới; nhãn hiện ngay trên Danh bạ và Hộp thư (gợi ý realtime); Danh bạ 13/13.
 
 ## Xong khi
 
