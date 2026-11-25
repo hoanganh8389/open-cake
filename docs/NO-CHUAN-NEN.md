@@ -1,6 +1,6 @@
 # Nợ chuẩn nền — Open Cake (Open CRM bản web)
 
-<!-- [2026-11-25 05:12 PM Johnny Chu - Chu Hoàng Anh] STD-5 — sinh bởi bizcity-platform tools/no-chuan.mjs (R-STD-9). Sửa nợ ở repo này; thêm / bớt mục "đã biết" thì sửa sổ docs/standard/no-chuan.json bên bizcity-platform rồi sinh lại. -->
+<!-- [2026-11-25 06:19 PM Johnny Chu - Chu Hoàng Anh] STD-5 — sinh bởi bizcity-platform tools/no-chuan.mjs (R-STD-9). Sửa nợ ở repo này; thêm / bớt mục "đã biết" thì sửa sổ docs/standard/no-chuan.json bên bizcity-platform rồi sinh lại. -->
 
 > Ngày đo: 2026-11-25 · Repo: `open-cake` · Chuẩn: [bản đồ chuẩn nền `bizcity_standard_map@1`](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/README.md) · Kiến trúc: [ARCHITECTURE](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/ARCHITECTURE.md)
 
@@ -18,7 +18,7 @@ Tệp này liệt kê chỗ repo **chưa theo khuôn chung** của hệ. Dev c�
 
 Không có.
 
-## Nợ đã biết từ rà soát (11)
+## Nợ đã biết từ rà soát (13)
 
 | # | Luật | Việc | Lưu ý | Chuẩn |
 |---|---|---|---|---|
@@ -33,6 +33,8 @@ Không có.
 | 9 | R-STD-WEB-1 | Dùng facade `@bizcity/ui-kit` (đang `@open-cake/ui-kit`); thêm ErrorBoundary, tệp ngôn ngữ, ảo hoá danh sách dài (R-WEB 6/15 đạt theo tự đánh giá) | thành phần riêng sản phẩm dựng trên facade | [WEB](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-WEB-v1.md) |
 | 10 | SC-DOC-1 | Sửa tài liệu lệch mã: 60-UI ghi `cake:contacts:merge` (mã dùng `cake:contacts-gop`); 40 ghi đăng nhập mật khẩu + JWT `sid` (mã chưa có); 80-REACT ghi `@bizcity/ui-kit`, `useUrlState` (mã dùng `@open-cake/ui-kit`, `useRoute`); trạng thái PHASE-004 | — | [APP-SKELETON](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-APP-SKELETON-v1.md) |
 | 11 | R-IDENT-3 | (khi bật lại SSO) `aud` = `open-cake` theo `bizcity.app.json`, cột `external_sub`, quyền trong vé là trần (R-USER-12) | SSO để sau theo chủ dự án 2026-11-25 | [IDENTITY](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-IDENTITY-v1.md) |
+| 12 | R-STD-FAIL-6 | Màn gửi chứng từ sang open-ketoan (thao tác gui): bản đồ lỗi tầng 3 — path theo toạ độ payload của mình, catchAt ngoai, mã có tiền tố chủ; màn chỉ đúng trường khi ketoan từ chối / giữ ở bể chờ | tầng 3 chéo repo (BIZCITY-FAILURE-MAP §4); dùng mã của bizcity_errors@1 + IN-* trả về, không tự đặt lại | [FAILURE-MAP](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-FAILURE-MAP-v1.md) |
+| 13 | R-STD-LOOP-3 | Ghi nhật ký lần ghi bị từ chối theo khuôn chung (BIZCITY-FEEDBACK-LOOP §3: entity, screen, failed[{code, field}], requestId) để loi.mjs đọc được; dặn agent theo R-STD-LOOP-8 | chỉ mã — không ghi dữ liệu khách, số tiền | [FEEDBACK-LOOP](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-FEEDBACK-LOOP-v1.md) |
 
 ## Trả nợ thế nào
 
