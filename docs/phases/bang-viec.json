@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T07:03:39.477Z",
+  "generated": "2026-11-25T10:12:17.808Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -789,6 +789,55 @@
           "text": "scripts: so-tiep-theo.mjs, nhan-viec.mjs, ky-dau.mjs, lay-log.sh, kiem-nang-cap.sh",
           "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
           "line": 18
+        },
+        {
+          "id": "S016-Q1",
+          "group": "Xong",
+          "text": "logger pino + REDACT_PATHS + khoá PII Cake + installProcessHandlers + tệp lỗi theo ngày ([10-QUAN-SAT](10-QUAN-SAT.md))",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 19
+        },
+        {
+          "id": "S016-Q2",
+          "group": "Xong",
+          "text": "OTel: nhận / truyền traceparent, span HTTP · action · db, traceId vào log + lỗi",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 20
+        },
+        {
+          "id": "S016-Q3",
+          "group": "Xong",
+          "text": "/metrics (METRICS_TOKEN): bizcity_* của nền + bizcity_cake_*",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 21
+        },
+        {
+          "id": "S016-Q4",
+          "group": "Đang làm / có mã",
+          "text": "nối bộ giám sát chung của máy chủ (infrastructure/monitoring: đoạn scrape + OTLP)",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 22
+        },
+        {
+          "id": "S016-Q5",
+          "group": "Chưa làm",
+          "text": "dashboard + cảnh báo Cake* + test cảnh báo (promtool) + sổ tay",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 23
+        },
+        {
+          "id": "S016-Q6",
+          "group": "Xong",
+          "text": "ErrorBoundary web + POST /system/client-errors",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 24
+        },
+        {
+          "id": "S016-Q7",
+          "group": "Chưa làm",
+          "text": "diagnostic_runs, L0 / L1, bizcity doctor --bundle",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 25
         }
       ]
     },

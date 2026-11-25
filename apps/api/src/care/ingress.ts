@@ -12,6 +12,7 @@ import { submitTouchIn } from '@open-cake/care-kernel';
 import { cakeError, failure, fromKernel, newUlid } from '../runtime.js';
 import { PgCareRepo } from './pg-care-repo.js';
 import { notifyChanged } from '../stream.js';
+import { cakeMetrics } from '../observability.js';
 
 export const INGRESS_MAX_BYTES = 256 * 1024;
 export const INGRESS_SKEW_S = 300;
@@ -51,9 +52,10 @@ export function registerIngress(app: FastifyInstance, opts: { key?: string; secr
       const tenantId = owners[0]!.tenant_id;
       try {
         const res = await submitTouchIn({ repo: new PgCareRepo(tenantId, db), now: () => new Date().toISOString(), newId: () => newUlid() }, req.body);
+        cakeMetrics.touches.inc({ result: res.status }); // [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — số đo chạm khách
         if (res.status === 'accepted') await notifyChanged(db, tenantId, ['cake.conversation.manage', 'cake.message.send', 'cake.contact.read']); // [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9: tin vào ⇒ gợi ý (sau commit của kernel)
         return ok({ status: res.status, touchId: res.touchId === null ? null : String(res.touchId), contactId: res.contactId });
-      } catch (e) { throw fromKernel(e); }
+      } catch (e) { cakeMetrics.touches.inc({ result: 'rejected' }); throw fromKernel(e); }
     });
   });
 }

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { authOf } from '@bizcity/platform/core/auth';
 import { ok } from '@bizcity/platform/core/http';
 import { failure } from './runtime.js';
+import { cakeMetrics } from './observability.js';
 
 const Body = z.object({
   errFp: z.string().regex(/^[0-9a-f]{8}$/), route: z.string().max(200),
@@ -19,10 +20,11 @@ export function registerClientErrors(app: FastifyInstance): void {
   app.post('/api/v1/system/client-errors', { bodyLimit: 8 * 1024 }, async (req) => {
     const who = authOf(req).actor, t = Date.now();
     const recent = (seen.get(who) ?? []).filter((x) => t - x < WINDOW);
-    if (recent.length >= MAX) throw failure('RATE_LIMITED', 'Quá nhiều báo lỗi giao diện — đã ghi đủ, thử lại sau một phút.');
+    if (recent.length >= MAX) { cakeMetrics.clientErrors.inc({ result: 'limited' }); throw failure('RATE_LIMITED', 'Quá nhiều báo lỗi giao diện — đã ghi đủ, thử lại sau một phút.'); }
     seen.set(who, [...recent, t]);
     const r = Body.safeParse(req.body);
     if (!r.success) throw failure('VALIDATION_ERROR', 'Báo lỗi giao diện sai khuôn.', { field: r.error.issues[0]?.path.join('.') });
+    cakeMetrics.clientErrors.inc({ result: 'logged' }); // [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — số đo
     req.log.warn({ clientError: { ...r.data, actor: who, tenantId: authOf(req).tenantId } }, 'lỗi giao diện');
     return ok({ accepted: true });
   });

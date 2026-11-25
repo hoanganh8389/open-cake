@@ -16,3 +16,10 @@
 | S016-7 | CI: guard (`kiem-chuan.sh` + H-CAKE-*), typecheck, test (`cake_test`), migrate-upgrade, conformance | ☐ |
 | S016-8 | `tests/conformance/selfcheck.mjs` + `baseline.json` rỗng; SC-CAKE-6/7/8 tĩnh | ☑ |
 | S016-9 | scripts: `so-tiep-theo.mjs`, `nhan-viec.mjs`, `ky-dau.mjs`, `lay-log.sh`, `kiem-nang-cap.sh` | ☐ |
+| S016-Q1 | logger pino + REDACT_PATHS + khoá PII Cake + installProcessHandlers + tệp lỗi theo ngày ([10-QUAN-SAT](10-QUAN-SAT.md)) | ☑ |
+| S016-Q2 | OTel: nhận / truyền `traceparent`, span HTTP · action · db, `traceId` vào log + lỗi | ☑ |
+| S016-Q3 | `/metrics` (`METRICS_TOKEN`): `bizcity_*` của nền + `bizcity_cake_*` | ☑ |
+| S016-Q4 | nối bộ giám sát chung của máy chủ (`infrastructure/monitoring`: đoạn scrape + OTLP) | ◐ |
+| S016-Q5 | dashboard + cảnh báo Cake* + test cảnh báo (`promtool`) + sổ tay | ☐ |
+| S016-Q6 | ErrorBoundary web + `POST /system/client-errors` | ☑ |
+| S016-Q7 | `diagnostic_runs`, L0 / L1, `bizcity doctor --bundle` | ☐ |

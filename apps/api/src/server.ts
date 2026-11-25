@@ -23,12 +23,18 @@ import { registerAuthRoutes } from './auth/routes.js';
 import { staffHandlers } from './auth/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
 import { apiKeyHandlers } from './auth/apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API
 import { failure, registerActions } from './runtime.js';
+import { cakeLoggerOptions, genReqId, registerObservability } from './observability.js';
+import { installProcessHandlers } from '@bizcity/platform/core/logger';
+import { initTracing, shutdownTracing } from '@bizcity/platform/core/tracing';
 
 export const VERSION = '0.1.0';
 
 export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: { key: string; secret: string; now?: () => number }; stream?: { maxMs?: number; pingMs?: number } } = {}): Promise<FastifyInstance> {
-  const app = Fastify({ logger: opts.logger ?? { level: process.env.LOG_LEVEL ?? 'info' } });
+  // [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — logger pino của nền (service/version/commit, che REDACT_PATHS, errFp; LOG_DIR ⇒ tệp theo ngày 30 ngày);
+  //   nhận X-Request-Id của bên gọi; một dòng "xong yêu cầu" do observability.ts ghi (tắt log yêu cầu mặc định của Fastify).
+  const app = Fastify({ logger: opts.logger === false ? false : cakeLoggerOptions(VERSION), genReqId, disableRequestLogging: true });
   registerRequestContext(app);
+  registerObservability(app, VERSION);
   registerErrorHandler(app);
   // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — mọi /api/v1/* cần phiên (JWT) hoặc khoá API (authPlugin của nền), trừ route khai public; quyền + vai của Cake khai trước khi nhận yêu cầu.
   registerCakeAuthz();
@@ -59,7 +65,14 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
 }
 
 // Chạy trực tiếp: node --conditions=cake-dist dist/server.js
+// [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — truy vết bật TRƯỚC mọi việc (không OTEL_EXPORTER_OTLP_ENDPOINT ⇒ vẫn có traceId, không gửi đi đâu);
+//   lỗi không bắt ⇒ ghi fatal rồi thoát (R-LOG-3); dừng ⇒ gửi nốt span.
 if (process.argv[1]?.endsWith('server.js')) {
+  initTracing();
+  installProcessHandlers({ service: 'open-cake-api', thuMuc: 'api', dir: process.env.LOG_DIR });
   const app = await buildApp();
+  const stop = async () => { await app.close(); await shutdownTracing(); process.exit(0); };
+  process.on('SIGINT', () => void stop());
+  process.on('SIGTERM', () => void stop());
   await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8120) });
 }

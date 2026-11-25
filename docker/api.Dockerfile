@@ -17,7 +17,9 @@ RUN npm run api:build
 
 FROM node:22-alpine
 WORKDIR /app
-ENV NODE_ENV=production PORT=8120 CAKE_MIGRATIONS_DIR=/app/db/migrations
+# [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — mã commit vào mọi dòng log (trường commit, R-LOG-5): docker compose build với BIZCITY_GIT_SHA=$(git rev-parse HEAD).
+ARG BIZCITY_GIT_SHA=
+ENV NODE_ENV=production PORT=8120 CAKE_MIGRATIONS_DIR=/app/db/migrations BIZCITY_GIT_SHA=${BIZCITY_GIT_SHA}
 COPY --from=build /app/node_modules node_modules
 COPY --from=build /app/packages/contracts/package.json packages/contracts/
 COPY --from=build /app/packages/contracts/dist packages/contracts/dist
@@ -26,6 +28,7 @@ COPY --from=build /app/packages/care-kernel/dist packages/care-kernel/dist
 COPY --from=build /app/apps/api/package.json apps/api/
 COPY --from=build /app/apps/api/dist apps/api/dist
 COPY db/migrations db/migrations
+RUN mkdir -p /app/logs && chown node:node /app/logs
 WORKDIR /app/apps/api
 USER node
 EXPOSE 8120

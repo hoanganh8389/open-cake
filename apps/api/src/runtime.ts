@@ -11,6 +11,8 @@ import { AppError } from '@bizcity/platform/core/errors';
 import { ok } from '@bizcity/platform/core/http';
 import { currentRequest } from '@bizcity/platform/core/request-context';
 import { db, type Db } from '@bizcity/platform/db/client';
+import { metrics } from '@bizcity/platform/core/metrics';
+import { withSpan } from '@bizcity/platform/core/tracing';
 import { KernelError } from '@open-cake/care-kernel';
 import { notifyChanged } from './stream.js';
 import { CAKE_REASONS, ERROR_CATALOG, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
@@ -99,7 +101,8 @@ async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: 
       if (key) {
         const prev = await tx.selectFrom('action_requests').select(['request_hash', 'response']).where('tenant_id', '=', tenantId).where('action_id', '=', spec.id).where('idem_key', '=', key).executeTakeFirst();
         if (prev) {
-          if (prev.request_hash !== inputHash) throw failure('IDEMPOTENCY_CONFLICT', 'Khoá chống gửi lặp đã dùng cho một yêu cầu khác.');
+          if (prev.request_hash !== inputHash) { metrics.idempotency.inc({ result: 'conflict' }); throw failure('IDEMPOTENCY_CONFLICT', 'Khoá chống gửi lặp đã dùng cho một yêu cầu khác.'); }
+          metrics.idempotency.inc({ result: 'replayed' });
           return { out: prev.response, meta: { replayed: true as const } };
         }
       }
@@ -123,7 +126,12 @@ export function registerActions(app: FastifyInstance, specs: readonly ActionSpec
     app.route({
       method, url,
       preHandler: requirePermission(spec.permission as never), // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — quyền lấy từ CHÍNH spec (một nguồn)
-      handler: async (req) => {
+      // [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — span `action {id}` + bizcity_actions_total{action,result,code} (nhãn: mã action / mã lỗi — tập cố định).
+      handler: (req) => withSpan(`action ${spec.id}`, { attributes: { 'bizcity.action': spec.id } }, () => runAction(req)).then(
+        (r) => { metrics.actions.inc({ action: spec.id, result: 'ok', code: '' }); return r; },
+        (e: unknown) => { metrics.actions.inc({ action: spec.id, result: 'error', code: e instanceof AppError ? e.code : e instanceof z.ZodError ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR' }); throw e; }),
+    });
+    async function runAction(req: FastifyRequest) {
         const h = handlers[spec.id];
         if (!h) throw cakeError('CAKE_NOT_ON_SERVER', `Máy chủ chưa có ${spec.id}.`);
         const params = (req.params ?? {}) as Any;
@@ -137,7 +145,6 @@ export function registerActions(app: FastifyInstance, specs: readonly ActionSpec
         const isPaged = typeof out === 'object' && out !== null && PAGED in out;
         const data = isPaged ? (out as Paged).data : out;
         return ok(spec.output.parse(data), isPaged ? ((out as Paged).meta as never) : undefined);
-      },
-    });
+    }
   }
 }

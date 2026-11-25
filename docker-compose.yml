@@ -26,7 +26,7 @@ services:
     logging: *log
 
   db-migrate:
-    build: { context: ., dockerfile: docker/api.Dockerfile }
+    build: { context: ., dockerfile: docker/api.Dockerfile, args: { BIZCITY_GIT_SHA: "${BIZCITY_GIT_SHA:-}" } }
     image: open-cake-api:0.1.0
     # [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — tạo vai ứng dụng cake_app (không siêu người dùng) sau migration.
     environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}", CAKE_APP_ROLE: cake_app }
@@ -42,10 +42,15 @@ services:
       <<: *dbenv
       LOG_LEVEL: "${LOG_LEVEL:-info}"
       DB_SET_ROLE: cake_app
+      OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"
+      OTEL_SERVICE_NAME: open-cake-api
+      METRICS_TOKEN: "${METRICS_TOKEN:-}"
+      LOG_DIR: /app/logs
       CAKE_DEV_AUTH: "${CAKE_DEV_AUTH:-0}"
       WP_SSO_SECRET: "${WP_SSO_SECRET:-}"
       WP_SSO_TENANT: "${WP_SSO_TENANT:-hoa-mai}"
       WP_SSO_LOGIN_URL: "${WP_SSO_LOGIN_URL:-}"
+    volumes: [cake-logs:/app/logs]   # nhật ký lỗi theo ngày, giữ 30 ngày (R-LOG-9)
     depends_on: { db-migrate: { condition: service_completed_successfully } }
     ports:
       - "${API_BIND:-127.0.0.1}:${API_PORT:-8120}:8120"
@@ -62,3 +67,4 @@ services:
 
 volumes:
   cake-db:
+  cake-logs:

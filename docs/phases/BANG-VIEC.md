@@ -6,15 +6,15 @@
 
 | Cột | Số việc |
 |---|---|
-| Đang làm / có mã | 9 |
+| Đang làm / có mã | 10 |
 | Bị chặn | 0 |
-| Chưa làm | 50 |
+| Chưa làm | 52 |
 | Hoãn | 0 |
-| Xong | 46 |
+| Xong | 50 |
 | Huỷ | 0 |
 | Đã chuyển | 0 |
 | Theo dõi ở repo khác | 0 |
-| **Tổng** | **105** |
+| **Tổng** | **112** |
 
 ## Theo phase
 
@@ -35,10 +35,10 @@
 | [PHASE-013-MCP-TWIN-BRAIN](PHASE-013-MCP-TWIN-BRAIN/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-014-NHIEU-SITE-OPEN-SETUP](PHASE-014-NHIEU-SITE-OPEN-SETUP/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-015-KIEM-CHUNG-PHAT-HANH](PHASE-015-KIEM-CHUNG-PHAT-HANH/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
-| [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 3 | 3 | 0 | 3 | 9 |
+| [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 7 | 4 | 0 | 5 | 16 |
 | [PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/) | Xong | 8 | 0 | 0 | 0 | 8 |
 
-## Đang làm / có mã (9)
+## Đang làm / có mã (10)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -51,8 +51,9 @@
 | [S016-1](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L9) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | npm workspaces apps/{api,web}, packages/{contracts,platform,care-kernel,module-sdk,ui-kit,cli}, modules/; Node ≥ 22.12, TS strict |
 | [S016-2](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L10) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | phụ thuộc @bizcity/platform, @bizcity/contracts, @bizcity/module-sdk, @bizcity/ui-kit, @bizcity/cli, @bizcity/conformance **theo phiên bản*… |
 | [S016-5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L14) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | /api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.* |
+| [S016-Q4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L22) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | nối bộ giám sát chung của máy chủ (infrastructure/monitoring: đoạn scrape + OTLP) |
 
-## Chưa làm (50)
+## Chưa làm (52)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -106,3 +107,5 @@
 | [S016-4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L13) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | ngữ cảnh site ở chế độ một site (SITE_MODE=single, Database Router một pool) — cùng đường mã với multi (R-SITE-5) |
 | [S016-7](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L16) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | CI: guard (kiem-chuan.sh + H-CAKE-*), typecheck, test (cake_test), migrate-upgrade, conformance |
 | [S016-9](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L18) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | scripts: so-tiep-theo.mjs, nhan-viec.mjs, ky-dau.mjs, lay-log.sh, kiem-nang-cap.sh |
+| [S016-Q5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L23) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | dashboard + cảnh báo Cake* + test cảnh báo (promtool) + sổ tay |
+| [S016-Q7](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L25) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | diagnostic_runs, L0 / L1, bizcity doctor --bundle |

@@ -1,0 +1,14 @@
+# [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — ĐOẠN thêm vào prometheus.yml của BỘ GIÁM SÁT CHUNG trên máy chủ (bizcity_observability@1 §1):
+#   open-cake không mang Prometheus / Grafana / Tempo / Loki riêng. Dán khối dưới vào scrape_configs của bộ chung; mạng Docker của bộ chung phải thấy dịch vụ api.
+#   /metrics không ra Internet (nginx chỉ chuyển /api/); đặt METRICS_TOKEN ở .env của open-cake thì bỏ chú thích authorization.
+scrape_configs:
+  - job_name: open-cake-api
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["api:8120"]
+        labels:
+          service: open-cake-api
+    # authorization:
+    #   type: Bearer
+    #   credentials_file: /etc/prometheus/secrets/open-cake-metrics-token

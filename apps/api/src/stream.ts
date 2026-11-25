@@ -9,11 +9,13 @@ import type pg from 'pg';
 import { sql } from 'kysely';
 import { authOf } from '@bizcity/platform/core/auth';
 import { pool, type Db } from '@bizcity/platform/db/client';
+import { cakeMetrics } from './observability.js';
 
 const CHANNEL = 'cake_stream';
 type Sub = (caps: string[]) => void;
 const subs = new Map<string, Set<Sub>>();
 let listener: Promise<pg.PoolClient> | null = null;
+let open = 0;
 
 /** Gọi TRONG giao dịch ghi: phát khi commit, mất khi quay lui. Payload không có dữ liệu người dùng. */
 export async function notifyChanged(conn: Db, tenantId: string, caps: string[]): Promise<void> {
@@ -48,8 +50,9 @@ export function registerStream(app: FastifyInstance, opts: { maxMs?: number; pin
     const fn: Sub = (caps) => send('changed', { caps });
     if (!subs.has(tenantId)) subs.set(tenantId, new Set());
     subs.get(tenantId)!.add(fn);
+    cakeMetrics.streamClients.set({}, ++open); // [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — số luồng đang mở
     const ping = setInterval(() => res.write(': ping\n\n'), opts.pingMs ?? 25_000);
     const end = setTimeout(() => { send('bye', { reconnect: true }); res.end(); }, opts.maxMs ?? 10 * 60_000);
-    res.on('close', () => { clearInterval(ping); clearTimeout(end); subs.get(tenantId)?.delete(fn); });
+    res.on('close', () => { clearInterval(ping); clearTimeout(end); subs.get(tenantId)?.delete(fn); cakeMetrics.streamClients.set({}, --open); });
   });
 }
