@@ -97,7 +97,7 @@ Contact 360 ──(touch kind=document)──► cake.order_request:01J…   (bu
 ```
 
 - Cake tạo **`cake.order_request`** (khách chốt trong chat) và **`cake.quote`** — chứng từ nghiệp vụ, **không** nộp sổ.
-- POS / Kiot nhận `order_request` (REST hoặc MCP nháp) và ghi `document_links (pos.order → cake.order_request, role source)`.
+- open-pos-backend nhận `order_request` vào **hàng đơn chờ** (`bizcity_order_request@1`), POS xác nhận rồi **bàn giao vận chuyển mới ghi nhận bán**; ghi `document_links (pos.order → cake.order_request, role source)`. Hợp đồng và quyết định: [`bizcity_order_flow@1`](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-ORDER-FLOW-v1.md); việc: [PHASE-010](../phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/README.md). <!-- [2026-11-25 06:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — theo luồng đơn xuyên app đã chốt -->
 - Cake nghe sự kiện POS (`pos.order.*` qua webhook) để ghi touch `kind=document` với `dims.doc_ref` ⇒ Contact 360 thấy đơn, giao hàng, hoá đơn **bằng tham chiếu**, không sao chép.
 - Đối chiếu 3 chiều (Twin Brain, canon §5): `cake.order_request` ⇄ `pos.delivery` ⇄ thu tiền ketoan; lệch ⇒ finding `CAKE-DOC-*`.
 

@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T10:12:17.808Z",
+  "generated": "2026-11-25T11:26:26.743Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -471,44 +471,58 @@
         {
           "id": "S010-1",
           "group": "Chưa làm",
-          "text": "cake",
-          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
-          "line": 9
-        },
-        {
-          "id": "S010-2",
-          "group": "Chưa làm",
-          "text": "cake",
+          "text": "cake — cake.order_request (LD-CAKE-1)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 10
         },
         {
-          "id": "S010-3",
+          "id": "S010-2",
           "group": "Chưa làm",
-          "text": "cake",
+          "text": "cake — tạo khách công nợ",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 11
         },
         {
-          "id": "S010-4",
+          "id": "S010-3",
           "group": "Chưa làm",
-          "text": "open-pos",
+          "text": "cake — công nợ ở Contact 360",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 12
         },
         {
-          "id": "S010-5",
-          "group": "Chưa làm",
-          "text": "cake",
+          "id": "S010-4",
+          "group": "Theo dõi ở repo khác",
+          "text": "open-pos-backend PHASE-003 — đơn chờ (LD-OPB-*)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 13
         },
         {
-          "id": "S010-6",
+          "id": "S010-5",
           "group": "Chưa làm",
-          "text": "cake",
+          "text": "cake — nghe sự kiện POS ⇒ Contact 360 (LD-CAKE-4)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 14
+        },
+        {
+          "id": "S010-6",
+          "group": "Chưa làm",
+          "text": "cake — RC-ORDER-1 + RC-ORDER-3 (LD-CAKE-5)",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S010-7",
+          "group": "Chưa làm",
+          "text": "cake — đọc tồn Kế Toán, mockup trước (LD-CAKE-2)",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 16
+        },
+        {
+          "id": "S010-8",
+          "group": "Chưa làm",
+          "text": "cake — gửi đơn sang POS (LD-CAKE-3)",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 17
         }
       ]
     },
