@@ -2,6 +2,7 @@
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — chủ (2026-11-24): hình thành UI/UX trước; giao diện chạy trên action + schema của PHASE-002 với bộ giả lập, chưa cần backend. -->
 
 > **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☑ 2026-11-24 — S003-1..10 xong (ảnh build bằng Edge headless); nợ chuyển tiếp: phép so ≥ 90 % bằng máy, i18n (R-WEB-11) · **Phụ thuộc:** 002
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** `apps/web` chạy được các màn lõi **giống ảnh duyệt** ([docs/ui/mockup-shots](../../ui/mockup-shots/)) nhưng mọi dữ liệu đi qua **client action** đúng hợp đồng (`useAction`, `useQueryAction`) với **bộ giả lập** (mock adapter) — đổi sang backend thật = đổi adapter, không sửa màn.
 > **Ngoài phạm vi:** backend, đăng nhập thật, kênh thật.
 

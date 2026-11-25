@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W3 · **Áp dụng cho:** cake + zalo-hub (Cell) + llm-router · **Trạng thái:** ☐ · **Phụ thuộc:** 006, 007
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** golden G1–G4: một người comment bài Page → được trả lời riêng → chat Messenger Page → để lại số điện thoại, **một `contact_id`**, ghép bằng bằng chứng.
 
 ## Đầu ra

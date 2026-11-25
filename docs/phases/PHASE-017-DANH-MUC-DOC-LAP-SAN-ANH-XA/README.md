@@ -2,6 +2,7 @@
 <!-- [2026-11-24 05:03 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 — chủ (2026-11-24): "ưu tiên standalone giống Deplao, open-pos-backend: sản phẩm hàng hoá, danh mục, bảng giá phải độc lập nhưng ready chuẩn cho tình huống ánh xạ được từ open-ketoan về sau". Đồng bộ contact / item / tenant làm sau (PHASE-010). -->
 
 > **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☑ 2026-11-24 (trừ tab nhiều bảng giá — làm khi có bảng giá thứ hai) · **Phụ thuộc:** 002 (nền hợp đồng), [ADR-0004](../../adr/ADR-0004-doc-lap-truoc-san-anh-xa.md)
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** Cake chạy một mình với danh mục hàng / nhóm / ĐVT / bảng giá của riêng nó, dữ liệu nhập vào luôn đúng chuẩn open-ketoan (H-1…H-18) để sau này gắn `item_id`, mã đối tượng, `tenant_id` mà không phải sửa dữ liệu.
 > **Ngoài phạm vi:** kéo / đẩy với Kế Toán (PHASE-010), tồn kho, đơn hàng, giá theo nhóm khách.
 

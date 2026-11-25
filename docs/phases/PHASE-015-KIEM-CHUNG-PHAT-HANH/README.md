@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W6 · **Áp dụng cho:** cả hai · **Trạng thái:** ☐ · **Phụ thuộc:** 008–014
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** đổi nhãn CRM trên bizcity.vn từ "Sắp ra mắt" sang "Đang chạy" **có bằng chứng** (R-CANON-10).
 
 ## Đầu ra

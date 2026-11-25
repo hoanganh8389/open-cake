@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W5 · **Áp dụng cho:** cake + open-ketoan + open-pos · **Trạng thái:** ☐ · **Phụ thuộc:** 005, 007
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** golden G7–G8: khách chốt trong chat ⇒ `cake.order_request` ⇒ POS tạo đơn (`document_links` role `source`) ⇒ Kế Toán ghi sổ; Contact 360 thấy đơn / giao / công nợ **bằng tham chiếu**. Chi tiết: [20-DATA-SPINE §5–6](../../architecture/20-DATA-SPINE.md).
 
 ## Đầu ra

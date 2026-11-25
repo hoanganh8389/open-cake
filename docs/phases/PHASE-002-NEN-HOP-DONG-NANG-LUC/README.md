@@ -2,6 +2,7 @@
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-002 — chủ (2026-11-24): "phase này cần tập trung làm open-cake foundation framework contract và hình thành UI/UX trước, làm open-ketoan sau". -->
 
 > **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ☑ xong 2026-11-24 (S002-1..8; bằng chứng cuối file) · **Phụ thuộc:** 001 (kiến trúc) — **không** phụ thuộc open-ketoan, không phụ thuộc backend
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** mọi hình dữ liệu, mọi năng lực (action), mọi mã lỗi, mọi khoá lớp mềm của open-cake được **khai bằng zod một chỗ** (`packages/contracts`), có fixture và test — để giao diện (PHASE-003), backend (007+), MCP và Cell cùng dựa vào **một** nguồn.
 > **Ngoài phạm vi:** bảng SQL, Fastify, DB, Docker (PHASE-016 / 007), mọi việc trong open-ketoan.
 

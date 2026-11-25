@@ -3,6 +3,7 @@
 <!-- [2026-11-24 03:30 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — màn lõi dựng ở PHASE-003 trên hợp đồng + giả lập; phase này chỉ nối backend thật (adapter http, SSE), giữ bảng đầu ra cũ làm danh sách kiểm. -->
 
 > **Việc lộ trình:** W2 · **Áp dụng cho:** cake · **Trạng thái:** ◐ 2026-11-25 — mọi việc không cần kênh thật đã xong (đọc + ghi không Cell, R-WEB-8..11, 15, S007-8, SC-CAKE-WEB-1..3); còn gửi tin / trả lời bình luận (006, 008), Contact 360 hiện tin Zalo thật (006), chọn nhiều + gắn nhãn hàng loạt ở Danh bạ · **Phụ thuộc:** 004, 005, 006
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** 6 màn lõi giống ảnh duyệt ([docs/ui/mockup-shots](../../ui/mockup-shots/)) chạy trên dữ liệu thật. Chi tiết: [60-UI](../../architecture/60-UI.md), [80-REACT](../../architecture/80-REACT.md).
 
 ## Đầu ra

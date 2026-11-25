@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W6 · **Áp dụng cho:** cake · **Trạng thái:** ☐ · **Phụ thuộc:** 006, 007
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** màn Chiến dịch như [ảnh duyệt](../../ui/mockup-shots/campaigns.png): danh sách · chi tiết · tạo 3 bước; Send Guard ở kernel, không ai vượt được.
 
 ## Đầu ra

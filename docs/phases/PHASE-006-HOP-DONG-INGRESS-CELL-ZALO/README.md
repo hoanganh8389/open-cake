@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W2 · **Áp dụng cho:** cake + zalo-hub + llm-router · **Trạng thái:** ☐ · **Phụ thuộc:** 005
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** một số Zalo cá nhân thật (Cell zalo-hub) nhắn vào ⇒ dòng sổ trong Cake; nhân viên trả lời ⇒ tin tới Zalo; phát lại không trùng. Kênh đã chạy ổn định nên làm đầu.
 
 ## Đầu ra

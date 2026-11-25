@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W6 · **Áp dụng cho:** cake + twin-brain · **Trạng thái:** ☐ · **Phụ thuộc:** 005, 010
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** Twin Brain dùng Cake như một công cụ an toàn: đọc khách / dòng thời gian (R0), soạn nháp (R1), gửi (R2, người xác nhận), nhận sự kiện. Kịch bản / skill nằm ở Twin Brain, **không** ở Cake.
 
 ## Đầu ra

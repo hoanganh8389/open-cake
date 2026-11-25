@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W4 · **Áp dụng cho:** cake + zalo-hub · **Trạng thái:** ☐ · **Phụ thuộc:** 008; mở lại WP PHASE-017 (bridge Go, Q017-1…5)
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** golden G5–G6: cùng người nhắn Messenger cá nhân của chủ shop và comment trong Group ⇒ gợi ý cùng người ⇒ nhân viên ghép ⇒ một dòng thời gian.
 
 ## Đầu ra

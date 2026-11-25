@@ -4,6 +4,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake (khuôn phase open-ketoan). -->
 
 > **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ◐ · **Phụ thuộc:** 002, 003 · gói chung `bizcity-platform` dựng từ bản sao chỉ đọc của open-ketoan ([ADR-0003](../../adr/ADR-0003-nen-hop-dong-va-ui-truoc.md)) — open-ketoan không phải đổi
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** `docker compose up` ra một API + web rỗng đúng khuôn open-ketoan (một site ngầm định), CI xanh, selfcheck chạy được — chưa có nghiệp vụ.
 > **Ngoài phạm vi:** bảng care-kernel (005), giao diện thật (007), nhiều site (014).
 

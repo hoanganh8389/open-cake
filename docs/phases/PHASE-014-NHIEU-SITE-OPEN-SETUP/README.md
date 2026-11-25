@@ -2,6 +2,7 @@
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
 > **Việc lộ trình:** W5 · **Áp dụng cho:** cake + open-setup + llm-router · **Trạng thái:** ☐ · **Phụ thuộc:** 002 (ngữ cảnh site), 006
+> **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 <!-- [2026-11-24 03:10 PM Johnny Chu - Chu Hoàng Anh] PLATFORM-SPLIT — máy nhiều site đã nằm trong @bizcity/platform (db/site-*.ts) ⇒ phase này là cấu hình + kiểm, không viết lại. -->
 > **Mục tiêu:** **dùng** máy nhiều site có sẵn trong `@bizcity/platform` (`db/site-registry`, `site-provisioner`, `site-migrate`, `site-backup` — PHASE-039 của open-ketoan), chỉ cấu hình tiền tố `cake_` và kiểm: registry `cake_control`, router theo Host, provisioner `CREATE DATABASE … TEMPLATE cake_template`, migration từng site, sao lưu từng site, `/_sites/v1`.
 

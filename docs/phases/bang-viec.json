@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T06:58:17.202Z",
+  "generated": "2026-11-25T06:59:36.150Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -12,97 +12,848 @@
       "name": "PHASE-002-NEN-HOP-DONG-NANG-LUC",
       "path": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC",
       "status": "Xong",
-      "items": []
+      "items": [
+        {
+          "id": "S002-1",
+          "group": "Xong",
+          "text": "Monorepo tối thiểu: npm workspaces, TypeScript strict, vitest",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S002-2",
+          "group": "Xong",
+          "text": "**Hợp đồng nền** (bản đầu, sẽ chuyển sang @bizcity/contracts): phong bì API bizcity_api@1, mã lỗi chung + lý do CAKE_*, khuôn sự kiện bizcity_event@1, p",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S002-3",
+          "group": "Xong",
+          "text": "**Khung năng lực**: defineActionSpec({id, input, output, permission, risk, idempotent, emits, expose}) + danh mục năng lực cake.*",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S002-4",
+          "group": "Xong",
+          "text": "**Trục contact**: kiểu ID (ULID có nhãn), channel, scope, identity, contact, conversation, message, touch, contact_state",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S002-5",
+          "group": "Xong",
+          "text": "**Ba hợp đồng cake**: bizcity_touch@1, bizcity_channel_command@1, bizcity_contact@1 (zod khớp file docs/contracts/*.md)",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S002-6",
+          "group": "Xong",
+          "text": "**Registry lớp mềm**: khoá entity_meta / user_meta / options + record_type khởi đầu (cake.quick_reply, cake.label, cake.saved_bank…)",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S002-7",
+          "group": "Xong",
+          "text": "**Fixture** cho mỗi hợp đồng + bộ dữ liệu mẫu \"Shop Hoa Mai\" (từ bản mẫu giao diện) đều qua zod",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S002-8",
+          "group": "Xong",
+          "text": "Test: mọi fixture hợp lệ; ca sai (thiếu scope, channel: \"facebook\" trơn, ghép theo tên) bị từ chối; không hai action trùng id / expose.rest (SC-REUSE-4)",
+          "file": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC/CHECKLIST.md",
+          "line": 16
+        }
+      ]
     },
     {
       "name": "PHASE-003-UI-UX-TREN-HOP-DONG",
       "path": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG",
       "status": "Xong",
-      "items": []
+      "items": [
+        {
+          "id": "S003-1",
+          "group": "Xong",
+          "text": "packages/ui-kit: token (tokens.css), thành phần (Button, Sheet, Field, Table, Avatar, ChannelBadge, Tag, 4 trạng thái) chuyển từ docs/ui/mockup-src sang T",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S003-2",
+          "group": "Xong",
+          "text": "Client action: ActionClient (phong bì, ApiError, Idempotency-Key), useAction / useQueryAction trên react-query; adapter mock (dữ liệu từ fixture PHA",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S003-3",
+          "group": "Xong",
+          "text": "Khung: thanh tiêu đề, rail tài khoản kênh + 6 mục, thanh trạng thái, điều hướng theo URL",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S003-4",
+          "group": "Xong",
+          "text": "Hộp thư 3 cột",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S003-5",
+          "group": "Xong",
+          "text": "Danh bạ",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S003-6",
+          "group": "Xong",
+          "text": "**Contact 360** (mới): dòng thời gian đa kênh, danh tính + độ tin, Ghép / Tách",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S003-7",
+          "group": "Xong",
+          "text": "**Kênh** (mới) + sheet Kết nối kênh 4 bước",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S003-8",
+          "group": "Xong",
+          "text": "Tổng quan tài khoản",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 16
+        },
+        {
+          "id": "S003-9",
+          "group": "Xong",
+          "text": "RecordTypeScreen tự sinh từ registry lớp mềm (thử với cake.quick_reply)",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 17
+        },
+        {
+          "id": "S003-10",
+          "group": "Xong",
+          "text": "Ảnh build Playwright → evidence/build-shots/, so với ảnh chuẩn",
+          "file": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG/CHECKLIST.md",
+          "line": 18
+        }
+      ]
     },
     {
       "name": "PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG",
       "path": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG",
       "status": "Xong",
-      "items": []
+      "items": [
+        {
+          "id": "S004-1",
+          "group": "Xong",
+          "text": "đăng ký quyền cake:* + test phan-quyen-dang-ky",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S004-2",
+          "group": "Xong",
+          "text": "vai hệ thống owner · manager · agent · marketer · viewer · auditor · developer; vai riêng tenant_roles",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S004-3",
+          "group": "Xong",
+          "text": "JWT {sub,tid,sid,role,name,sv}, thu hồi session_version / authz_version; khoá kc_… (băm, hiện một lần, phạm vi)",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S004-4",
+          "group": "Xong",
+          "text": "SSO /api/v1/auth/wp-sso (vé HMAC ≤ 5 phút) — nhúng từ plugin WP / bizcity.vn",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S004-5",
+          "group": "Xong",
+          "text": "channel_account_members + phạm vi xem hội thoại",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S004-6",
+          "group": "Xong",
+          "text": "defineAction + runAction + audit_logs + meta.receipt; GET /api/v1/evidence/:id",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S004-7",
+          "group": "Xong",
+          "text": "màn Cài đặt › Nhân viên theo [ảnh duyệt](../../ui/mockup-shots/settings.png): danh sách, mời, ngưng, giao tài khoản kênh, mục được dùng",
+          "file": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/CHECKLIST.md",
+          "line": 15
+        }
+      ]
     },
     {
       "name": "PHASE-005-CARE-KERNEL-SO-CHAM-KHACH",
       "path": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH",
       "status": "Đang làm / có mã",
-      "items": []
+      "items": [
+        {
+          "id": "S005-1",
+          "group": "Xong",
+          "text": "migration care-kernel: contacts, contact_identities, contact_links, channel_accounts, conversations, touch_events, touch_event_versions, touch_le",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S005-2",
+          "group": "Xong",
+          "text": "submitTouchIn (pg_advisory_xact_lock theo doc_key; unchanged / 409 / đảo + ghi)",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S005-3",
+          "group": "Xong",
+          "text": "resolver: identity có sẵn · proven phone / email / tax_code · fb_private_reply · tạo mới · gợi ý",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S005-4",
+          "group": "Xong",
+          "text": "merge / unmerge (30 ngày) + view bizcity_read.touches_by_contact",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S005-5",
+          "group": "Xong",
+          "text": "contact_state cùng giao dịch + bizcity cake rebuild-state",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S005-6",
+          "group": "Chưa làm",
+          "text": "sự kiện outbox bizcity.cake.* (không PII)",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S005-7",
+          "group": "Chưa làm",
+          "text": "SC-CAKE-1..8 trong selfcheck + chẩn đoán L3",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S005-8",
+          "group": "Xong",
+          "text": "test: phát lại 1 000 touch trùng ⇒ 0 dòng mới; đổi version ⇒ 1 đảo + 1 mới; ghép theo tên ⇒ từ chối CAKE_MERGE_NO_PROOF",
+          "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
+          "line": 16
+        }
+      ]
     },
     {
       "name": "PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
       "path": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S006-1",
+          "group": "Xong",
+          "text": "cake",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S006-2",
+          "group": "Đang làm / có mã",
+          "text": "cake",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S006-3",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S006-4",
+          "group": "Chưa làm",
+          "text": "zalo-hub",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S006-5",
+          "group": "Chưa làm",
+          "text": "llm-router",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S006-6",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360",
       "path": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360",
       "status": "Đang làm / có mã",
-      "items": []
+      "items": [
+        {
+          "id": "S007-1",
+          "group": "Xong",
+          "text": "packages/ui-kit từ docs/ui/mockup-src (TSX, token, Sheet, ChannelBadge, 4 trạng thái)",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S007-2",
+          "group": "Đang làm / có mã",
+          "text": "Shell: thanh tiêu đề, rail tài khoản kênh + 6 mục, thanh trạng thái Send Guard, SSE /api/v1/stream",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S007-3",
+          "group": "Đang làm / có mã",
+          "text": "Hộp thư 3 cột: danh sách theo tài khoản kênh, tin (con trỏ), thẻ, gửi chữ / ảnh / tệp, gán người",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S007-4",
+          "group": "Đang làm / có mã",
+          "text": "Danh bạ: bảng, lọc nhãn / giới tính / sinh nhật, chọn nhiều, gắn nhãn, xuất (quyền cao)",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S007-5",
+          "group": "Đang làm / có mã",
+          "text": "**Contact 360**: dòng thời gian mọi kênh, danh tính + độ tin, Ghép / Tách",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S007-6",
+          "group": "Đang làm / có mã",
+          "text": "**Kênh** + sheet Kết nối kênh 4 bước (Zalo trước)",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S007-7",
+          "group": "Xong",
+          "text": "Tổng quan tài khoản",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S007-8",
+          "group": "Xong",
+          "text": "Playwright chụp evidence/build-shots/ và so với ảnh chuẩn",
+          "file": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md",
+          "line": 16
+        }
+      ]
     },
     {
       "name": "PHASE-008-FACEBOOK-PAGE-COMMENT",
       "path": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S008-1",
+          "group": "Chưa làm",
+          "text": "Cell",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S008-2",
+          "group": "Chưa làm",
+          "text": "Cell",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S008-3",
+          "group": "Chưa làm",
+          "text": "Cell",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S008-4",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S008-5",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S008-6",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-009-FACEBOOK-CA-NHAN-NHOM",
       "path": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S009-1",
+          "group": "Chưa làm",
+          "text": "zalo-hub",
+          "file": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S009-2",
+          "group": "Chưa làm",
+          "text": "Cell",
+          "file": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S009-3",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S009-4",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md",
+          "line": 12
+        }
+      ]
     },
     {
       "name": "PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
       "path": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S010-1",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S010-2",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S010-3",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S010-4",
+          "group": "Chưa làm",
+          "text": "open-pos",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S010-5",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S010-6",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-011-GUI-HANG-LOAT-SEND-GUARD",
       "path": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S011-1",
+          "group": "Chưa làm",
+          "text": "module modules/broadcast (mod_broadcast: broadcasts, broadcast_targets); mỗi người nhận một touch broadcast_target",
+          "file": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S011-2",
+          "group": "Chưa làm",
+          "text": "Send Guard trong care-kernel: trần theo tài khoản kênh / giờ, giờ gửi, danh sách không nhận, cửa sổ Page; đếm từ sổ; /api/v1/m/broadcast/quota",
+          "file": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S011-3",
+          "group": "Chưa làm",
+          "text": "duyệt chiến dịch (cake:broadcast-duyet, R2)",
+          "file": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S011-4",
+          "group": "Chưa làm",
+          "text": "trần qua bizcity_settings@1 (bizcity.cake.send_cap_per_hour…)",
+          "file": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md",
+          "line": 12
+        }
+      ]
     },
     {
       "name": "PHASE-012-BAO-CAO-CONG-VIEC",
       "path": "docs/phases/PHASE-012-BAO-CAO-CONG-VIEC",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S012-1",
+          "group": "Chưa làm",
+          "text": "module reports: 8 KPI, gửi / nhận theo ngày, theo kênh, theo nhãn, thời gian phản hồi — chỉ đọc sổ",
+          "file": "docs/phases/PHASE-012-BAO-CAO-CONG-VIEC/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S012-2",
+          "group": "Chưa làm",
+          "text": "KPI chưa có nguồn hiện \"—\" + lý do (R-NO-FAKE)",
+          "file": "docs/phases/PHASE-012-BAO-CAO-CONG-VIEC/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S012-3",
+          "group": "Chưa làm",
+          "text": "module tasks: Kanban 5 cột, lịch, ghi chú, theo người, nguồn manual · cell · automation; việc gắn contact_id",
+          "file": "docs/phases/PHASE-012-BAO-CAO-CONG-VIEC/CHECKLIST.md",
+          "line": 11
+        }
+      ]
     },
     {
       "name": "PHASE-013-MCP-TWIN-BRAIN",
       "path": "docs/phases/PHASE-013-MCP-TWIN-BRAIN",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S013-1",
+          "group": "Chưa làm",
+          "text": "/mcp (bizcity_mcp@1): tool sinh từ action expose.ai — cake_contact_lookup, cake_contact_timeline, cake_conversation_list_unanswered, cake_message_d",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S013-2",
+          "group": "Chưa làm",
+          "text": "actor {kind:'ai', via:'mcp:<client>', onBehalfOf, turnId} trong bằng chứng; danh sách tối đa 50 / trần 500",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S013-3",
+          "group": "Chưa làm",
+          "text": "webhook HMAC bizcity.cake.* tới Twin Brain",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S013-4",
+          "group": "Chưa làm",
+          "text": "màn Kịch bản: danh mục trigger (sự kiện) + action (tool) cho Twin Brain / Open Automation — không canvas",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S013-5",
+          "group": "Chưa làm",
+          "text": "dải \"Gợi ý AI\" trong hộp thư = nháp từ Twin Brain; nhân viên bấm mới gửi",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S013-6",
+          "group": "Chưa làm",
+          "text": "test prompt-injection: tin khách chứa lệnh ⇒ không tool ghi nào chạy khi chưa xác nhận",
+          "file": "docs/phases/PHASE-013-MCP-TWIN-BRAIN/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-014-NHIEU-SITE-OPEN-SETUP",
       "path": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S014-1",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S014-2",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S014-3",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S014-4",
+          "group": "Chưa làm",
+          "text": "cake",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S014-5",
+          "group": "Chưa làm",
+          "text": "open-setup",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S014-6",
+          "group": "Chưa làm",
+          "text": "llm-router",
+          "file": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-015-KIEM-CHUNG-PHAT-HANH",
       "path": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH",
       "status": "Chưa làm",
-      "items": []
+      "items": [
+        {
+          "id": "S015-1",
+          "group": "Chưa làm",
+          "text": "golden Facebook G1–G8 + Zalo cá nhân trên site do open-setup cấp; evidence/golden-<ngày>.md",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S015-2",
+          "group": "Chưa làm",
+          "text": "DOD-SYS-1..7 từng dòng có bằng chứng",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S015-3",
+          "group": "Chưa làm",
+          "text": "thử tải: 50 site, 200 tin / phút / site, p95 ingress < 300 ms, không mất / trùng",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S015-4",
+          "group": "Chưa làm",
+          "text": "phát hành 0.1.0 (tag ký, SBOM, CHANGELOG ba phần)",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S015-5",
+          "group": "Chưa làm",
+          "text": "kế hoạch chuyển dữ liệu WP → cake (crm-ledger@1 → bizcity_touch@1 backfill, chạy song song, dừng ở identity chưa giải — bài học #17) và mốc đóng băng tính n",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S015-6",
+          "group": "Chưa làm",
+          "text": "70-REFLECT: bài học mới thành luật (R-REV-10)",
+          "file": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH/CHECKLIST.md",
+          "line": 14
+        }
+      ]
     },
     {
       "name": "PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT",
       "path": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT",
       "status": "Đang làm / có mã",
-      "items": []
+      "items": [
+        {
+          "id": "S016-1",
+          "group": "Đang làm / có mã",
+          "text": "npm workspaces apps/{api,web}, packages/{contracts,platform,care-kernel,module-sdk,ui-kit,cli}, modules/; Node ≥ 22.12, TS strict",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S016-2",
+          "group": "Đang làm / có mã",
+          "text": "phụ thuộc @bizcity/platform, @bizcity/contracts, @bizcity/module-sdk, @bizcity/ui-kit, @bizcity/cli, @bizcity/conformance **theo phiên bản** (0.2.x)",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S016-3",
+          "group": "Xong",
+          "text": "db/migrations/0001… nền tảng: tenants, users, roles, api_keys, audit_logs, action_requests, setting_values, **user_meta, entity_meta, record_types, records (l",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S016-4",
+          "group": "Chưa làm",
+          "text": "ngữ cảnh site ở chế độ một site (SITE_MODE=single, Database Router một pool) — cùng đường mã với multi (R-SITE-5)",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S016-5",
+          "group": "Đang làm / có mã",
+          "text": "/api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.*",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S016-6",
+          "group": "Xong",
+          "text": "docker/{api,web}.Dockerfile, nginx.conf, docker-compose.yml (db, db-migrate, api, web, redis profile), .env.example",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S016-7",
+          "group": "Chưa làm",
+          "text": "CI: guard (kiem-chuan.sh + H-CAKE-*), typecheck, test (cake_test), migrate-upgrade, conformance",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 16
+        },
+        {
+          "id": "S016-8",
+          "group": "Chưa làm",
+          "text": "tests/conformance/selfcheck.mjs + baseline.json rỗng; SC-CAKE-6/7/8 tĩnh",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 17
+        },
+        {
+          "id": "S016-9",
+          "group": "Chưa làm",
+          "text": "scripts: so-tiep-theo.mjs, nhan-viec.mjs, ky-dau.mjs, lay-log.sh, kiem-nang-cap.sh",
+          "file": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md",
+          "line": 18
+        }
+      ]
     },
     {
       "name": "PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA",
       "path": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA",
       "status": "Xong",
-      "items": []
+      "items": [
+        {
+          "id": "S017-1",
+          "group": "Xong",
+          "text": "packages/contracts/src/catalog/standard.ts — chuẩn H-*: 40 tên ĐVT, mã thuế, SKU (H-1…H-5), tên ≤ 50, giá 2 số lẻ, bộ ĐVT (một tỉ lệ 1, ≤ 10, không trùng); cả",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 9
+        },
+        {
+          "id": "S017-2",
+          "group": "Xong",
+          "text": "catalog/entities.ts — hàng, mã có hiệu lực, nhóm 3 cấp, bảng giá, dòng giá; khối ánh xạ MasterSync chung; tenant_links; **một cổng ghi** catalogWriteGate",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 10
+        },
+        {
+          "id": "S017-3",
+          "group": "Xong",
+          "text": "catalog/actions.ts — 9 action cake.catalog_* (REST + MCP đọc + UI), quyền cake:catalog-xem · lap · sua · gia; lý do CAKE_CATALOG_READONLY, CAKE_SKU_TAK",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 11
+        },
+        {
+          "id": "S017-4",
+          "group": "Xong",
+          "text": "Bộ giả lập handlers-catalog.ts + hàng mẫu Shop Hoa Mai; test chuẩn H-* và cổng ghi",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 12
+        },
+        {
+          "id": "S017-5",
+          "group": "Xong",
+          "text": "Migration db/migrations/0102_catalog.sql: catalog_categories, catalog_items, catalog_item_codes, catalog_item_units, catalog_price_lists, catalog_p",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 13
+        },
+        {
+          "id": "S017-6",
+          "group": "Xong",
+          "text": "Màn **Hàng hoá** (danh sách, tạo / sửa theo chuẩn, cảnh báo CAT-*, nhãn \"Lấy từ Kế Toán\" khi chỉ đọc) và **Bảng giá** trong apps/web + ảnh build",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 14
+        },
+        {
+          "id": "S017-7",
+          "group": "Xong",
+          "text": "Gửi giá trong chat: nút thẻ giá cạnh ⚡, tìm hàng \"Bán trong CRM\" có giá → chèn câu báo giá vào ô soạn (composer-panels.tsx, không thêm kiểu tin / API)",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 15
+        },
+        {
+          "id": "S017-8",
+          "group": "Xong",
+          "text": "Đối chiếu SPINE 1.1 + làm gọn ([20-DOI-CHIEU-SPINE-VA-LEAN.md](20-DOI-CHIEU-SPINE-VA-LEAN.md)): cột riêng sang lớp mềm cake.item.*, itemRefOf, tenant slug,",
+          "file": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/CHECKLIST.md",
+          "line": 16
+        }
+      ]
     }
   ]
 }
