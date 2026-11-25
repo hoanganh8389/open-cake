@@ -44,5 +44,12 @@ Xem trạng thái: `node ../bizcity-platform/tools/delivery-check.mjs --repo . -
 ## Danh sách phiếu
 
 <!-- nghiem-thu:danh-sach:bat-dau — phần dưới do `delivery-check.mjs --repo . --write-index` sinh, không sửa tay -->
-Chưa có phiếu.
+| Mã | Tính năng | Trạng thái |
+|---|---|---|
+| [NT-NV-001](nhan-vien/NT-NV-001-moi-nhan-vien-doi-vai.md) | Mời nhân viên, vào lần đầu đúng vai, đổi vai | Nháp |
+| [NT-NV-002](nhan-vien/NT-NV-002-vai-rieng-cho-cam.md) | Vai riêng: Cho / Cấm từng quyền, áp ngay | Nháp |
+| [NT-NV-003](nhan-vien/NT-NV-003-gioi-han-quan-ly.md) | Giới hạn của quản lý khi quản nhân viên | Nháp |
+| [NT-NV-004](nhan-vien/NT-NV-004-ngung-bat-lai.md) | Ngưng / bật lại nhân viên | Nháp |
+| [NT-NV-005](nhan-vien/NT-NV-005-khoa-api.md) | Khoá API: tạo (hiện một lần), dùng theo phạm vi, thu hồi | Nháp |
+| [NT-NV-006](nhan-vien/NT-NV-006-pham-vi-hop-thu.md) | Nhân viên chỉ thấy hội thoại của tài khoản kênh được giao | Nháp |
 <!-- nghiem-thu:danh-sach:ket-thuc -->

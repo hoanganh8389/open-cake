@@ -38,7 +38,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
   afterAll(async () => { await app?.close(); delete process.env.CAKE_DEV_AUTH; });
 
   let lan = '', minh = '';
-  it('mời: SSO lần đầu nhận đúng vai đã mời + tài khoản kênh; email trùng ⇒ 409; không mời được Chủ', async () => {
+  it('NT-NV-001 · mời: SSO lần đầu nhận đúng vai đã mời + tài khoản kênh; email trùng ⇒ 409; không mời được Chủ', async () => {
     const r = await req('POST', '/api/v1/staff', owner, { email: 'Lan@HoaMai.vn', name: 'Nguyễn Thị Lan', role: 'agent', channelAccountIds: [zalo] });
     expect(r.statusCode).toBe(200);
     expect(r.json().data).toMatchObject({ email: 'lan@hoamai.vn', role: 'agent', active: true, lastLoginAt: null, channelAccountIds: [zalo] });
@@ -52,7 +52,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     minh = (await req('POST', '/api/v1/staff', owner, { email: 'minh@hoamai.vn', name: 'Trần Văn Minh', role: 'manager' })).json().data.userId;
   });
 
-  it('vai riêng: nền + Cho / Cấm (Cấm thắng); áp ngay cho phiên đang mở, không cần đăng nhập lại', async () => {
+  it('NT-NV-002 · vai riêng: nền + Cho / Cấm (Cấm thắng); áp ngay cho phiên đang mở, không cần đăng nhập lại', async () => {
     const created = await req('POST', '/api/v1/roles', owner, { label: 'Trưởng ca', baseRole: 'agent' });
     expect(created.statusCode).toBe(200);
     const key = created.json().data.key as string;
@@ -80,7 +80,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     expect(list.permissions.find((p: { key: string }) => p.key === 'users:write').risk).toBe('high');
   });
 
-  it('đổi vai chính ⇒ phiên cũ hết (session_version), vào lại nhận vai mới', async () => {
+  it('NT-NV-001 · đổi vai chính ⇒ phiên cũ hết (session_version), vào lại nhận vai mới', async () => {
     const old = await login('lan@hoamai.vn');
     expect((await req('PATCH', `/api/v1/staff/${lan}`, owner, { role: 'marketer' })).json().data.role).toBe('marketer');
     expect((await req('GET', '/api/v1/auth/me', old)).statusCode).toBe(401);
@@ -88,7 +88,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     await req('PATCH', `/api/v1/staff/${lan}`, owner, { role: 'agent', channelAccountIds: [zalo, fb] });
   });
 
-  it('R-CAKE-AUTHZ-5: quản lý sửa được nhân viên, không sửa Chủ / chính mình / vai riêng; không cấp quyền mình không có', async () => {
+  it('NT-NV-003 · R-CAKE-AUTHZ-5: quản lý sửa được nhân viên, không sửa Chủ / chính mình / vai riêng; không cấp quyền mình không có', async () => {
     const m = await login('minh@hoamai.vn');
     expect((await req('GET', '/api/v1/staff', m)).statusCode).toBe(200);
     const ownerId = ((await req('GET', '/api/v1/staff', m)).json().data as { userId: string; role: string }[]).find((s) => s.role === 'owner')!.userId;
@@ -104,7 +104,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     expect((await req('GET', '/api/v1/staff', await login('lan@hoamai.vn'))).statusCode).toBe(403);
   });
 
-  it('ngưng: phiên hết, gỡ tài khoản kênh, hội thoại về hàng chung, vé WordPress bị chặn; bật lại vào được', async () => {
+  it('NT-NV-004 · ngưng: phiên hết, gỡ tài khoản kênh, hội thoại về hàng chung, vé WordPress bị chặn; bật lại vào được', async () => {
     const t = await login('lan@hoamai.vn');
     const conv = ((await req('GET', '/api/v1/conversations', owner)).json().data as { conversationId: string }[])[0]!;
     await req('POST', `/api/v1/conversations/${conv.conversationId}/assign`, owner, { userId: lan });
@@ -118,7 +118,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
   });
 
   // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API: hiện một lần, không lưu rõ, dùng theo phạm vi, thu hồi ⇒ hết; chỉ chủ.
-  it('khoá API: khoá rõ một lần (gửi lặp nhận bản ẩn, DB không có khoá rõ); dùng theo phạm vi; thu hồi ⇒ 401; quản lý không tạo được', async () => {
+  it('NT-NV-005 · khoá API: khoá rõ một lần (gửi lặp nhận bản ẩn, DB không có khoá rõ); dùng theo phạm vi; thu hồi ⇒ 401; quản lý không tạo được', async () => {
     const mk = () => app.inject({ method: 'POST', url: '/api/v1/api-keys', payload: { name: 'POS Quận 3', scopes: ['cake:read'] }, headers: { authorization: `Bearer ${owner}`, 'idempotency-key': 'khoa-api-0001' } });
     const r = await mk();
     expect(r.statusCode).toBe(200);

@@ -45,19 +45,19 @@ describe.skipIf(!url)('phạm vi xem hội thoại theo tài khoản kênh', () 
   }, 90_000);
   afterAll(async () => { await app?.close(); delete process.env.CAKE_DEV_AUTH; });
 
-  it('quyền: chủ có cake:all-inbox-xem; agent thì không', async () => {
+  it('NT-NV-006 · quyền: chủ có cake:all-inbox-xem; agent thì không', async () => {
     expect((await req('GET', '/api/v1/auth/me', owner)).json().data.permissions).toContain('cake:all-inbox-xem');
     expect((await req('GET', '/api/v1/auth/me', agent)).json().data.permissions).not.toContain('cake:all-inbox-xem');
   });
 
-  it('chưa được giao gì ⇒ không thấy tài khoản, hội thoại; chủ thấy cả hai kênh', async () => {
+  it('NT-NV-006 · chưa được giao gì ⇒ không thấy tài khoản, hội thoại; chủ thấy cả hai kênh', async () => {
     expect(await convs(agent)).toEqual([]);
     expect((await req('GET', '/api/v1/channels', agent)).json().data).toEqual([]);
     const all = await convs(owner);
     expect(new Set(all.map((c) => c.channelAccountId))).toEqual(new Set([zalo, fb]));
   });
 
-  it('đặt thành viên: nhân viên lạ ⇒ 400; giao Zalo ⇒ chỉ thấy Zalo; FB ⇒ 404 khi đọc tin / gắn nhãn', async () => {
+  it('NT-NV-006 · đặt thành viên: nhân viên lạ ⇒ 400; giao Zalo ⇒ chỉ thấy Zalo; FB ⇒ 404 khi đọc tin / gắn nhãn', async () => {
     expect((await req('PUT', `/api/v1/channels/${zalo}/members`, owner, { userIds: ['987654321'] })).statusCode).toBe(400);
     const set = await req('PUT', `/api/v1/channels/${zalo}/members`, owner, { userIds: [agentId] });
     expect(set.statusCode).toBe(200);
@@ -75,7 +75,7 @@ describe.skipIf(!url)('phạm vi xem hội thoại theo tài khoản kênh', () 
     expect((await req('GET', `/api/v1/conversations/${mine[0]!.conversationId}/messages`, agent)).statusCode).toBe(200);
   });
 
-  it('dòng thời gian: chạm của hội thoại ngoài phạm vi vẫn hiện, nội dung tin thì không', async () => {
+  it('NT-NV-006 · dòng thời gian: chạm của hội thoại ngoài phạm vi vẫn hiện, nội dung tin thì không', async () => {
     const fbConv = (await convs(owner)).find((c) => c.channelAccountId === fb)!;
     const tl = async (t: string) => ((await req('GET', `/api/v1/contacts/${fbConv.contactId}/timeline`, t)).json().data as { conversationId: string | null; summary: string; kind: string }[])
       .filter((e) => e.conversationId === fbConv.conversationId && (e.kind === 'message' || e.kind === 'comment'));
@@ -87,7 +87,7 @@ describe.skipIf(!url)('phạm vi xem hội thoại theo tài khoản kênh', () 
   });
 
   // [2026-11-24 10:15 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — 40-SECURITY §2–3: giao tài khoản kênh = users:write (chủ, quản lý); vé SSO đúng app, tên theo WordPress.
-  it('quản lý giao được tài khoản kênh, nhân viên thì không; vé app khác bị từ chối; tên theo vé', async () => {
+  it('NT-NV-006 · quản lý giao được tài khoản kênh, nhân viên thì không; vé app khác bị từ chối; tên theo vé', async () => {
     await login('quan-ly@hoamai.vn');
     await q(`UPDATE users SET role = 'manager' WHERE email = 'quan-ly@hoamai.vn'`);
     const manager = await login('quan-ly@hoamai.vn');
@@ -103,7 +103,7 @@ describe.skipIf(!url)('phạm vi xem hội thoại theo tài khoản kênh', () 
     expect(u).toMatchObject({ full_name: 'Lan Chăm Sóc', last_login_at: expect.any(Date) });
   });
 
-  it('được giao MỘT hội thoại FB ⇒ thấy đúng hội thoại đó; gỡ thành viên Zalo ⇒ hết Zalo', async () => {
+  it('NT-NV-006 · được giao MỘT hội thoại FB ⇒ thấy đúng hội thoại đó; gỡ thành viên Zalo ⇒ hết Zalo', async () => {
     const fbConv = (await convs(owner)).find((c) => c.channelAccountId === fb)!;
     expect((await req('POST', `/api/v1/conversations/${fbConv.conversationId}/assign`, owner, { userId: agentId })).statusCode).toBe(200);
     expect((await convs(agent)).map((c) => c.conversationId)).toContain(fbConv.conversationId);
