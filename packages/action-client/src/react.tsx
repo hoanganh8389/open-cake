@@ -38,3 +38,9 @@ export function useAction<S extends ActionSpec>(spec: S) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cake'] }),
   });
 }
+
+// [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9: làm mới mọi truy vấn của app (react-query chỉ tải lại truy vấn đang hiện) — luồng realtime gọi khi có gợi ý.
+export function useInvalidateAll(): () => void {
+  const qc = useQueryClient();
+  return useMemo(() => () => void qc.invalidateQueries({ queryKey: ['cake'] }), [qc]);
+}

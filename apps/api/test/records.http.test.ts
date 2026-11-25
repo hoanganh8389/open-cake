@@ -81,4 +81,36 @@ describe.skipIf(!url)('lớp mềm core.record.*', () => {
     expect(codes.filter((c) => c === 200).length).toBe(9); // lần sai khuôn ở trên cũng tính vào hạn mức
     expect(codes.at(-1)).toBe(429);
   });
+
+  // [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9: luồng gợi ý thật qua cổng mạng (pg_notify phát khi commit).
+  it('SSE: không phiên ⇒ 401; lệnh thành công ⇒ "changed" {caps}; lệnh lỗi (quay lui) ⇒ không có gợi ý; không chở dữ liệu', async () => {
+    const base = await app.listen({ host: '127.0.0.1', port: 0 });
+    expect((await fetch(`${base}/api/v1/stream`)).status).toBe(401);
+    const ac = new AbortController();
+    const res = await fetch(`${base}/api/v1/stream`, { headers: { authorization: `Bearer ${owner}` }, signal: ac.signal });
+    expect(res.headers.get('content-type')).toContain('text/event-stream');
+    const reader = res.body!.getReader();
+    let buf = '';
+    let pending: Promise<ReadableStreamReadResult<Uint8Array>> | null = null; // MỘT lượt đọc treo dùng chung — hết giờ chờ không được làm mất mẩu tới sau
+    const until = async (re: RegExp, ms = 5000) => {
+      const stop = Date.now() + ms;
+      while (!re.test(buf) && Date.now() < stop) {
+        pending ??= reader.read();
+        const r = await Promise.race([pending, new Promise<null>((ok) => setTimeout(() => ok(null), Math.max(0, stop - Date.now())))]);
+        if (!r) break;
+        pending = null;
+        if (r.value) buf += new TextDecoder().decode(r.value);
+        if (r.done) break;
+      }
+      return re.test(buf);
+    };
+    expect(await until(/event: hello/)).toBe(true);
+    buf = '';
+    expect((await req('POST', '/api/v1/records', owner, { type: 'cake.label', data: { name: '', tone: 'pri' } })).statusCode).toBe(400);
+    expect(await until(/event: changed/, 800)).toBe(false);
+    expect((await req('POST', '/api/v1/records', owner, { type: 'cake.label', data: { name: 'Khách sỉ', tone: 'ok' } })).statusCode).toBe(200);
+    expect(await until(/event: changed\ndata: \{"caps":\["cake\.flex"\]\}/)).toBe(true);
+    expect(buf).not.toContain('Khách sỉ');
+    ac.abort();
+  }, 20_000);
 });

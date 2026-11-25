@@ -11,6 +11,7 @@ import '@open-cake/ui-kit/tokens.css';
 import '@open-cake/ui-kit/chat.css';
 import { Shell } from './app/Shell.js';
 import { ErrorBoundary, setErrorReporter } from './app/ErrorBoundary.js';
+import { useLiveUpdates } from './app/live.js';
 import { ensureSession, getToken } from './app/session.js';
 import { PermissionsProvider, loadPermissions } from './app/permissions.js';
 import { useRoute } from './app/route.js';
@@ -37,7 +38,10 @@ const http = () => createHttpClient({ getToken });
 const session = mock && api !== 'mix' ? Promise.resolve({ ok: true as const }) : ensureSession();
 const clientReady: Promise<ActionClient> = !mock ? Promise.resolve(http()) : api === 'mix' ? createMixClient(mock, http()) : Promise.resolve(mock);
 
+// [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9: một luồng realtime cho cả app khi nói chuyện với máy chủ.
+const live = api === 'http' || api === 'mix';
 function App() {
+  useLiveUpdates(live, getToken);
   const { path, query } = useRoute();
   const [screen = 'inbox', id] = path;
   let view: ReactNode;
@@ -59,7 +63,7 @@ function App() {
     </ErrorBoundary>
   );
 }
-if (api === 'http' || api === 'mix') {
+if (live) {
   setErrorReporter((body) => void fetch('/api/v1/system/client-errors', { method: 'POST', headers: { 'content-type': 'application/json', ...(getToken() ? { authorization: `Bearer ${getToken()}` } : {}) }, body: JSON.stringify(body) }).catch(() => undefined));
 }
 

@@ -33,7 +33,7 @@ modules/<key>/web/index.tsx  defineWebModule({ key, routes, rail?, permissions }
 | **R-WEB-6** | **Thao tác ghi qua `Sheet`**: tiêu đề = động từ + đối tượng; lỗi hiện trong sheet; khoá nút khi đang lưu; R2 (gửi, gửi hàng loạt, ghép người, kết nối kênh) có bước xác nhận. Không `alert/confirm/prompt` |
 | **R-WEB-7** | `useCan('cake:contacts-gop')` để **ẩn / khoá có giải thích** (R-BLOCK-1..6: nút khoá nói vì sao + cách mở) — server vẫn là cửa thật |
 | **R-WEB-8** | `ErrorBoundary` ở Shell + mỗi màn: gửi `POST /api/v1/system/client-errors {errFp, route, message, stack}` ≤ 10 / phút (R-LOG-10); không gửi nội dung tin |
-| **R-WEB-9** | Realtime: một `EventSource('/api/v1/stream')` ở Shell; sự kiện ⇒ `queryClient.invalidateQueries` theo khoá; không đẩy dữ liệu qua SSE |
+| **R-WEB-9** | Realtime: một luồng `/api/v1/stream` ở Shell (đọc bằng `fetch` + `Authorization`, không `EventSource` vì buộc token trên URL — 2026-11-25); sự kiện ⇒ `queryClient.invalidateQueries` theo khoá; không đẩy dữ liệu qua SSE |
 | **R-WEB-10** | Danh sách dài (hội thoại, tin, danh bạ) dùng ảo hoá + phân trang con trỏ (`useInfiniteQuery`) |
 | **R-WEB-11** | Chữ tiếng Việt nằm trong `i18n/vi.ts` theo khoá; không ghép chuỗi có dữ liệu người dùng bằng `dangerouslySetInnerHTML`; nội dung tin hiển thị dạng văn bản, link qua bộ lọc an toàn |
 | **R-WEB-12** | Token giao diện từ `tokens.css` (một màu nhấn `--primary`, 3 màu trạng thái, chữ ≥ 15 px, nút ≥ 44 px); không màu cứng trong thành phần |

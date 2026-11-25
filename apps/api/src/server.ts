@@ -17,6 +17,7 @@ import { registerIngress } from './care/ingress.js';
 import { MIGRATION_SOURCES } from './migrate.js';
 import { recordHandlers } from './records.js'; // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — lớp mềm core.record.*
 import { registerClientErrors } from './client-errors.js'; // [2026-11-25 09:57 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-8
+import { registerStream } from './stream.js'; // [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9
 import { registerCakeAuthz } from './auth/authz.js';
 import { registerAuthRoutes } from './auth/routes.js';
 import { staffHandlers } from './auth/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
@@ -25,7 +26,7 @@ import { failure, registerActions } from './runtime.js';
 
 export const VERSION = '0.1.0';
 
-export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: { key: string; secret: string; now?: () => number } } = {}): Promise<FastifyInstance> {
+export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: { key: string; secret: string; now?: () => number }; stream?: { maxMs?: number; pingMs?: number } } = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: opts.logger ?? { level: process.env.LOG_LEVEL ?? 'info' } });
   registerRequestContext(app);
   registerErrorHandler(app);
@@ -53,6 +54,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   app.get('/api/v1/system/actions', { config: { public: true } }, async () => ({ ok: true, data: { implemented: Object.keys(handlers).sort(), total: ALL_ACTIONS.length } }));
   registerIngress(app, opts.hub);
   registerClientErrors(app);
+  registerStream(app, opts.stream);
   return app;
 }
 

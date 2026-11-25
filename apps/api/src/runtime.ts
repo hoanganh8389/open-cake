@@ -12,6 +12,7 @@ import { ok } from '@bizcity/platform/core/http';
 import { currentRequest } from '@bizcity/platform/core/request-context';
 import { db, type Db } from '@bizcity/platform/db/client';
 import { KernelError } from '@open-cake/care-kernel';
+import { notifyChanged } from './stream.js';
 import { CAKE_REASONS, ERROR_CATALOG, type ActionSpec, type CakeReason, type ErrorCode } from '@open-cake/contracts';
 
 // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — ngữ cảnh mang NGƯỜI THAO TÁC thật (authPlugin của nền): actor ghi sổ / bằng chứng, userId cho "của tôi".
@@ -103,6 +104,7 @@ async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: 
         }
       }
       const out = await h(ctxOf(req, tx), input);
+      await notifyChanged(tx, tenantId, [spec.capability]); // [2026-11-25 10:02 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-9: gợi ý realtime, phát khi commit
       if (key) await tx.insertInto('action_requests').values({ tenant_id: tenantId, action_id: spec.id, idem_key: key, request_hash: inputHash, status_code: 200, response: JSON.stringify(out, (k, v) => (k === 'secret' ? '[đã ẩn — khoá chỉ hiện một lần]' : v)) as never /* [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — không lưu khoá rõ vào action_requests */, actor: authOf(req).actor } as never).execute();
       return { out, meta: { receipt: await evidence(tx, req, spec, { inputHash, key, objectId: objectIdOf(input, out), ok: true }) } };
     });
