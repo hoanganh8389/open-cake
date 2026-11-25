@@ -18,14 +18,16 @@
     "contracts:check": "vitest run packages/contracts",
     "web:dev": "npm run dev -w @open-cake/web",
     "web:build": "npm run build -w @open-cake/web",
-    "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api"
+    "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api",
+    "ui:hop-thu": "node tests/ui/hop-thu-phim.mjs"
   },
   "devDependencies": {
     "@types/node": "20.17.6",
-    "typescript": "5.6.3",
-    "vitest": "2.1.5",
     "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1"
+    "@types/react-dom": "18.3.1",
+    "playwright-core": "1.65.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.5"
   },
   "dependencies": {
     "react": "18.3.1",

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- 2026-11-25 — PHASE-007 R-WEB-15: phím tắt hộp thư (↑/↓, Enter, `/`, Esc), ô tìm hộp thư thật (từ khoá trên URL), nhãn `aria-*`; kiểm giao diện trên Chrome thật bằng `playwright-core` (`npm run ui:hop-thu`, 9 / 9).
 - 2026-11-25 — PHASE-007 R-WEB-10: con trỏ keyset cho hội thoại và tin (`meta.nextCursor`), `useInfiniteQueryAction` + `LoadMore`; khung chat tải tin cũ khi cuộn lên, giữ chỗ đang đọc. 113 test.
 - 2026-11-25 — PHASE-007 R-WEB-9 realtime: `pg_notify` trong giao dịch của mỗi lệnh ghi / tin vào (chỉ gợi ý đơn vị + năng lực, không dữ liệu), `GET /api/v1/stream` cho đúng đơn vị, web gộp 500 ms rồi làm mới truy vấn đang hiện, tự nối lại. 112 test.
 - 2026-11-25 — PHASE-007: lớp mềm `core.record.*` chạy máy chủ thật (kiểm bằng `recordDataSchema` dùng chung với form, quyền riêng từng loại, lưu trữ không xoá; `record_types` đồng bộ từ registry sau migrate). R-WEB-8 `ErrorBoundary` ở Shell + mỗi màn, cổng `POST /api/v1/system/client-errors` (≤ 10 / phút, chỉ log). 111 test.

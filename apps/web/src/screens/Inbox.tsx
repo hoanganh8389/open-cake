@@ -2,7 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: Hộp thư 3 cột theo ảnh duyệt (inbox.png). Danh sách = cake.conversation.list theo tài khoản kênh
 //   trên URL (?account=&conv=&filter=); cột thông tin dẫn sang Contact 360 — một người, mọi kênh (trục contact_id).
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { channelList, contactGet, conversationList } from '@open-cake/contracts';
 import { useQueryAction, useInfiniteQueryAction } from '@open-cake/action-client';
 import { Btn, ChannelBadge, ChannelDot, Face, GroupAvatar, Ic, Tag, cx } from '@open-cake/ui-kit';
@@ -44,15 +44,36 @@ export function Inbox() {
   const [info, setInfo] = useState(false);
   const accounts = useQueryAction(channelList, {});
   // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: con trỏ 50 hội thoại / trang, cuộn tới cuối tải tiếp.
-  const list = useInfiniteQueryAction(conversationList, { channelAccountId: account, filter, limit: 50 });
+  // [2026-11-25 10:41 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-15: ô tìm thật (q trên URL, chờ 300 ms) — phím / để vào.
+  const [q, setQ] = useState(query.get('q') ?? '');
+  useEffect(() => { const t = setTimeout(() => { if ((query.get('q') ?? '') !== q.trim()) setQuery({ q: q.trim() || null, conv: null }); }, 300); return () => clearTimeout(t); }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
+  const search = useRef<HTMLInputElement>(null);
+  const list = useInfiniteQueryAction(conversationList, { channelAccountId: account, filter, q: query.get('q') || undefined, limit: 50 });
   const convs = list.data ?? [];
   const cur = convs.find((c) => c.conversationId === query.get('conv')) ?? convs[0];
   const acc = (accounts.data ?? []).find((a) => a.channelAccountId === (cur?.channelAccountId ?? account));
+  // [2026-11-25 10:41 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-15: ↑/↓ chọn hội thoại, Enter vào ô soạn, / vào ô tìm, Esc rời ô đang gõ. Không bắt phím khi đang gõ trong ô nhập.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const typing = e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+      if (typing) { if (e.key === 'Escape') (e.target as HTMLElement).blur(); return; }
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === '/') { e.preventDefault(); search.current?.focus(); return; }
+      if (e.key === 'Enter' && cur) { e.preventDefault(); document.getElementById('composer')?.focus(); return; }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      const i = convs.findIndex((c) => c.conversationId === cur?.conversationId);
+      const next = convs[Math.min(convs.length - 1, Math.max(0, i + (e.key === 'ArrowDown' ? 1 : -1)))];
+      if (next) { setQuery({ conv: next.conversationId }); document.getElementById('conv-' + next.conversationId)?.scrollIntoView({ block: 'nearest' }); }
+    };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  }, [convs, cur, setQuery]);
   return (
     <div className="page flush">
       <div className={cx('dinbox', info && 'info')}>
         <section className="dlist">
-          <div className="top"><div className="sbox"><Ic.search />{acc ? acc.label : 'Mọi tài khoản kênh'}</div>
+          <div className="top"><label className="sbox"><Ic.search /><input ref={search} value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Tìm trong ${acc ? acc.label : 'mọi tài khoản kênh'} — phím /`} aria-label="Tìm hội thoại theo tên khách" /></label>
             {account && <button type="button" className="plus" title="Xem mọi tài khoản" onClick={() => setQuery({ account: null, conv: null })}><Ic.x style={{ width: 22, height: 22 }} /></button>}</div>
           <div className="tabs2">
             {FILTERS.map(([id, label]) => <button type="button" key={id} className={cx(filter === id && 'on')} onClick={() => setQuery({ filter: id === 'all' ? null : id, conv: null })}>{label}</button>)}
@@ -60,7 +81,7 @@ export function Inbox() {
           <div className="items">
             <QueryView q={list} empty={{ title: 'Không có hội thoại', desc: filter === 'all' ? 'Khi khách nhắn tới tài khoản kênh này, hội thoại sẽ hiện ở đây.' : 'Không có hội thoại khớp bộ lọc.' }}>
               {(cs) => <>{cs.map((c) => (
-                <div key={c.conversationId} className={cx('ditem', cur?.conversationId === c.conversationId && 'on')} onClick={() => setQuery({ conv: c.conversationId })}>
+                <div key={c.conversationId} id={`conv-${c.conversationId}`} role="option" aria-selected={cur?.conversationId === c.conversationId} className={cx('ditem', cur?.conversationId === c.conversationId && 'on')} onClick={() => setQuery({ conv: c.conversationId })}>
                   <div style={{ position: 'relative' }}>
                     {c.kind === 'group_thread' ? <GroupAvatar /> : <Face name={c.title} size={56} />}
                     <ChannelDot channel={(accounts.data ?? []).find((a) => a.channelAccountId === c.channelAccountId)?.channel} />

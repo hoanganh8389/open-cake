@@ -76,8 +76,8 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
           <div className="nm">{conv.title}</div>
           <div className="tags">{conv.tags.map((t) => <Tag key={t} name={t} size="md" />)}{isComment && <span className="badge">Bình luận · bài {conv.anchor?.postId}</span>}</div>
         </div>
-        <button type="button" className="ri" title="Mở Contact 360" onClick={() => go(`contacts/${conv.contactId}`)}><Ic.user /></button>
-        <button type="button" className="ri" title="Thông tin hội thoại" onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
+        <button type="button" className="ri" title="Mở Contact 360" aria-label="Mở Contact 360" onClick={() => go(`contacts/${conv.contactId}`)}><Ic.user /></button>
+        <button type="button" className="ri" title="Thông tin hội thoại" aria-label="Thông tin hội thoại" onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
       </div>
       <div className="msgs" ref={ref}>
         <QueryView q={{ ...msgs, data: shown }} empty={{ title: 'Chưa có tin nào', desc: 'Tin mới của khách sẽ hiện ở đây.' }}>
@@ -94,9 +94,9 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       {panel === 'quick' && <QuickReplies onPick={insert} />}
       {panel === 'price' && <PricePicker onPick={insert} />}
       <div className="dinput" style={{ gap: 8 }}>
-        <Btn ghost icon title="Tin nhắn nhanh" className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
-        <Btn ghost icon title="Gửi giá" className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
-        <textarea className="input" style={{ flex: 1, minHeight: 44, resize: 'none', border: 0, fontSize: 16 }} value={text} disabled={busy}
+        <Btn ghost icon title="Tin nhắn nhanh" aria-label="Tin nhắn nhanh" className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
+        <Btn ghost icon title="Gửi giá" aria-label="Gửi giá" className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
+        <textarea id="composer" className="input" style={{ flex: 1, minHeight: 44, resize: 'none', border: 0, fontSize: 16 }} value={text} disabled={busy}
           placeholder={isComment ? 'Trả lời bình luận… (Enter: trả lời công khai)' : 'Nhập tin, Shift+Enter xuống dòng, Enter gửi…'}
           onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }} aria-label="Soạn tin" />
         {isComment && <Btn out sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit('private')}>Trả lời riêng</Btn>}
