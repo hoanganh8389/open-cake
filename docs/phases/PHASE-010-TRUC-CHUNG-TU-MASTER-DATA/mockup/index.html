@@ -1,0 +1,192 @@
+<!doctype html>
+<!-- [2026-11-25 06:28 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — mockup lean cho chủ duyệt trước khi code (S010-1/5/7/8, luồng đơn xuyên app bizcity_order_flow@1): ① gửi giá có tồn Kế Toán, ② yêu cầu đặt hàng, ③ dấu đơn trong chat, ④ đơn ở Contact 360, ⑤ kết nối cửa hàng. Dùng CSS thật của ui-kit. Mở: index.html#gui-gia-ton … -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>PHASE-010 mockup</title>
+<link rel="stylesheet" href="../../../../packages/ui-kit/src/tokens.css">
+<link rel="stylesheet" href="../../../../packages/ui-kit/src/chat.css">
+<style>
+  .frame { display: none; } .frame:target { display: grid; }
+  .ico { width: 18px; height: 18px; flex: none; }
+  .rail2 { width: 72px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 16px; }
+  .rail2 .nb { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; color: var(--muted-foreground); }
+  .rail2 .nb.on { background: var(--primary); color: #fff; }
+  .body { display: grid; grid-template-columns: 72px 1fr; min-height: 0; }
+  .pop { position: absolute; left: 16px; bottom: 112px; width: 600px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 8px; }
+  .pop .it { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; }
+  .pop .it.on { background: var(--primary-soft); } .pop .it.dim b { color: var(--muted-foreground); }
+  .pop .it b { font-weight: 500; } .pop .it .p { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .pop .it .add { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); display: grid; place-items: center; color: var(--primary); background: var(--card); }
+  .stock { min-width: 92px; justify-content: center; }
+  .sysline { align-self: center; display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: var(--muted); font-size: var(--fs-sm); color: var(--foreground); }
+  .sysline .ico { width: 16px; height: 16px; color: var(--primary); }
+  .qty { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; }
+  .qty span { width: 32px; text-align: center; } .qty b { width: 28px; text-align: center; color: var(--muted-foreground); font-weight: 400; }
+  .steps { display: grid; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; font-size: var(--fs-sm); }
+  .steps li { display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: center; color: var(--muted-foreground); }
+  .steps li i { width: 10px; height: 10px; border-radius: 50%; background: var(--border); justify-self: center; }
+  .steps li.done { color: var(--foreground); } .steps li.done i { background: var(--success); } .steps li.now i { background: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+  .kv2 { display: grid; grid-template-columns: 200px 1fr; gap: 14px 16px; font-size: var(--fs-sm); align-items: center; }
+  .kv2 dt { color: var(--muted-foreground); } .kv2 dd { margin: 0; }
+  code { font-size: 14px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-contact" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.8-2 2-3 3.5-3s2.7 1 3.5 3M15 9h3M15 13h3"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8 12 3 3 8v8l9 5 9-5V8zM3 8l9 5 9-5M12 13v8"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 11h11L21 8H6.2M9 20a1 1 0 1 0 0-.01M18 20a1 1 0 1 0 0-.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
+
+<!-- ① GỬI GIÁ CÓ TỒN — bảng chọn hàng cũ (PHASE-017) thêm cột "Còn ở CN01" đọc từ Kế Toán; nút + đưa hàng vào đơn nháp -->
+<section class="frame app" id="gui-gia-ton">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <section class="dchat" style="position:relative">
+      <div class="hd"><div style="width:56px;height:56px;border-radius:50%;background:var(--primary-soft);display:grid;place-items:center;font-weight:700;color:var(--primary)">LH</div>
+        <div style="flex:1"><div class="nm">Lan Hương</div><div class="tags"><span class="badge">Fanpage Hoa Mai</span></div></div>
+        <button class="btn out sm"><svg class="ico"><use href="#i-cart"/></svg>Đơn nháp · 1 món</button></div>
+      <div class="msgs">
+        <div class="dmsg"><div class="bb">Váy hoa hồng size M còn không shop? Lấy 2 cái giao về Q.1 nha<span class="ts">17:18</span></div></div>
+      </div>
+      <div class="pop">
+        <div class="search"><svg><use href="#i-search"/></svg><input class="input sm" value="váy hoa"></div>
+        <div class="it on"><b>Váy hoa Thu Đông — hồng</b><span class="xs subtle">101010001</span><span class="p">390.000đ / Cái</span><span class="badge ok stock">Còn 4</span><span class="add" title="Thêm vào đơn"><svg class="ico"><use href="#i-plus"/></svg></span></div>
+        <div class="it"><b>Váy hoa Thu Đông — xanh mint</b><span class="xs subtle">101010002</span><span class="p">390.000đ / Cái</span><span class="badge warn stock">Còn 1</span><span class="add" title="Thêm vào đơn"><svg class="ico"><use href="#i-plus"/></svg></span></div>
+        <div class="it dim"><b>Váy hoa Thu Đông — đỏ</b><span class="xs subtle">101010004</span><span class="p">450.000đ / Cái</span><span class="badge err stock">Hết hàng</span><span class="add" title="Thêm vào đơn"><svg class="ico"><use href="#i-plus"/></svg></span></div>
+        <div class="xs subtle" style="padding:6px 12px">Tồn ở <b>CN01</b> theo Kế Toán, lúc 17:18 · ↑↓ chọn · Enter chèn câu báo giá · <b>+</b> thêm vào đơn</div>
+      </div>
+      <div class="dinput" style="gap:8px">
+        <button class="btn ghost icon" title="Tin nhắn nhanh"><svg class="ico"><use href="#i-bolt"/></svg></button>
+        <button class="btn ghost icon on" title="Gửi giá" style="background:var(--primary-soft);color:var(--primary)"><svg class="ico"><use href="#i-tag"/></svg></button>
+        <textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px">Dạ Váy hoa Thu Đông — hồng giá 390.000đ/Cái (đã gồm VAT), shop còn hàng ạ.</textarea>
+        <button class="btn pri sm"><svg class="ico"><use href="#i-send"/></svg>Gửi</button>
+      </div>
+      <div class="xs subtle" style="padding:0 16px 8px">Gửi qua <b>Fanpage Hoa Mai</b></div>
+    </section>
+  </div>
+</section>
+
+<!-- ② YÊU CẦU ĐẶT HÀNG — sheet trên hội thoại; gửi sang cửa hàng là đơn CHỜ, chưa phải đơn bán -->
+<section class="frame app" id="tao-don">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="sheet-bg" style="position:absolute;top:56px">
+    <div class="sheet" style="width:min(860px,94vw)">
+      <div class="hd"><div style="flex:1"><div class="h3">Yêu cầu đặt hàng</div><div class="sm muted mt8">Lan Hương · Fanpage Hoa Mai · <span class="badge">Nháp</span></div></div><button class="btn ghost icon"><svg class="ico"><use href="#i-x"/></svg></button></div>
+      <div class="bd col gap16">
+        <dl class="kv2">
+          <dt>Khách</dt><dd>Lan Hương · <b>0909 123 456</b> <span class="badge ok"><svg class="ico" style="width:14px;height:14px"><use href="#i-check"/></svg>đã xác minh</span> <span class="xs subtle">mã công nợ 0909123456</span></dd>
+          <dt>Giao tới</dt><dd><input class="input sm" style="width:100%" value="Lan Hương · 0909 123 456 · 12 Lê Lợi, P. Bến Nghé, Q.1, TP.HCM"></dd>
+          <dt>Cửa hàng xuất</dt><dd><b>CN01</b> — Shop Hoa Mai Quận 3 <span class="xs subtle">(cài ở Kết nối cửa hàng)</span></dd>
+        </dl>
+        <table class="tbl">
+          <thead><tr><th>Hàng</th><th>ĐVT</th><th>Số lượng</th><th class="r">Giá đề nghị</th><th>Còn ở CN01</th></tr></thead>
+          <tbody>
+            <tr><td><b style="font-weight:500">Váy hoa Thu Đông — hồng</b><div class="xs subtle">101010001 · size M</div></td><td>Cái</td><td><span class="qty"><b>−</b><span>2</span><b>+</b></span></td><td class="r">390.000đ</td><td><span class="badge ok">Còn 4</span></td></tr>
+            <tr><td><b style="font-weight:500">Váy hoa Thu Đông — xanh mint</b><div class="xs subtle">101010002</div></td><td>Cái</td><td><span class="qty"><b>−</b><span>2</span><b>+</b></span></td><td class="r">390.000đ</td><td><span class="badge warn">Còn 1</span><div class="xs" style="color:var(--warning);margin-top:4px">vượt 1 — cửa hàng kiểm lại khi xác nhận</div></td></tr>
+          </tbody>
+        </table>
+        <div class="row" style="justify-content:flex-end;gap:24px"><span class="muted">Tạm tính</span><b style="font-size:20px">1.560.000đ</b></div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+          <div class="col gap8"><div class="sm muted">Thanh toán</div>
+            <div class="choice on"><span class="dot"></span><div><b>Thu hộ (COD)</b></div></div>
+            <div class="choice"><span class="dot"></span><div><b>Đã chuyển khoản</b></div></div></div>
+          <div class="col gap8"><div class="sm muted">Giao hàng</div>
+            <div class="choice on"><span class="dot"></span><div><b>Gửi hãng vận chuyển</b><div class="xs subtle mt8">ưu tiên: GHTK</div></div></div>
+            <div class="choice"><span class="dot"></span><div><b>Khách lấy tại shop</b></div></div></div>
+        </div>
+        <div class="note">Gửi đi, đơn vào hàng <b>đơn chờ</b> của cửa hàng. Cửa hàng xác nhận lại tồn và giá; <b>chỉ khi bàn giao vận chuyển mới thành đơn bán</b> và ghi sổ Kế Toán.</div>
+      </div>
+      <div class="ft"><button class="btn out">Lưu nháp</button><button class="btn pri"><svg class="ico"><use href="#i-send"/></svg>Gửi sang cửa hàng</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ DẤU ĐƠN TRONG CHAT — mỗi lần cửa hàng đổi trạng thái là một dòng hệ thống (touch kind=document), không phải tin gửi khách -->
+<section class="frame app" id="don-trong-chat">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <section class="dchat">
+      <div class="hd"><div style="width:56px;height:56px;border-radius:50%;background:var(--primary-soft);display:grid;place-items:center;font-weight:700;color:var(--primary)">LH</div>
+        <div style="flex:1"><div class="nm">Lan Hương</div><div class="tags"><span class="badge">Fanpage Hoa Mai</span></div></div></div>
+      <div class="msgs" style="gap:14px">
+        <div class="dmsg"><div class="bb">Lấy 2 cái hồng size M giao về Q.1 nha<span class="ts">17:18</span></div></div>
+        <div class="dmsg out"><div class="bb">Dạ shop lên đơn cho chị ạ, giao trong ngày mai.<span class="ts">17:20</span></div></div>
+        <span class="sysline"><svg class="ico"><use href="#i-box"/></svg>Đã gửi cửa hàng <b>YC-W6Y8K2</b> · 2 món · 780.000đ · thu hộ<span class="xs subtle">17:21 · Ngọc</span></span>
+        <span class="sysline"><svg class="ico"><use href="#i-check"/></svg>Cửa hàng CN01 <b>đã xác nhận</b> · giá cuối 780.000đ<span class="xs subtle">17:40</span></span>
+        <span class="sysline"><svg class="ico"><use href="#i-truck"/></svg><b>Đã giao vận chuyển</b> GHTK · mã <b>S123456.SG01</b> · thu hộ 780.000đ<span class="xs subtle">09:05 hôm sau</span></span>
+        <div class="dmsg out"><div class="bb">Dạ đơn của chị đã gửi GHTK, mã vận đơn S123456.SG01 ạ.<span class="ts">09:06</span></div></div>
+      </div>
+      <div class="dinput" style="gap:8px">
+        <button class="btn ghost icon"><svg class="ico"><use href="#i-bolt"/></svg></button>
+        <button class="btn ghost icon"><svg class="ico"><use href="#i-tag"/></svg></button>
+        <textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px" placeholder="Nhập tin nhắn…"></textarea>
+        <button class="btn pri sm"><svg class="ico"><use href="#i-send"/></svg>Gửi</button>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ④ ĐƠN Ở CONTACT 360 — đọc bằng tham chiếu từ sự kiện của cửa hàng; một đơn bị từ chối có lý do -->
+<section class="frame app" id="don-360">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page" style="max-width:1040px">
+      <div class="row" style="gap:16px;align-items:center"><div style="width:64px;height:64px;border-radius:50%;background:var(--primary-soft);display:grid;place-items:center;font-weight:700;color:var(--primary)">LH</div>
+        <div><div class="h2">Lan Hương</div><div class="sm muted">0909 123 456 · Fanpage Hoa Mai · Zalo</div></div></div>
+      <div class="tabs mt24"><span class="tab">Dòng thời gian</span><span class="tab on">Đơn (3)</span><span class="tab">Ghi chú</span></div>
+      <div class="col gap16 mt24">
+        <div class="card pad">
+          <div class="row" style="gap:12px;align-items:center"><b>YC-W6Y8K2</b><span class="badge pri">Đã giao vận chuyển</span><span class="grow"></span><span class="sm muted">2 món · 780.000đ · thu hộ</span></div>
+          <ul class="steps">
+            <li class="done"><i></i><span>Đã gửi cửa hàng CN01</span><span class="xs subtle">25/11 17:21</span></li>
+            <li class="done"><i></i><span>Cửa hàng đã xác nhận</span><span class="xs subtle">25/11 17:40</span></li>
+            <li class="done now"><i></i><span>Bàn giao GHTK · mã S123456.SG01 — <b>đã ghi nhận bán</b></span><span class="xs subtle">26/11 09:05</span></li>
+            <li><i></i><span>Giao xong</span><span class="xs subtle">—</span></li>
+          </ul>
+        </div>
+        <div class="card pad"><div class="row" style="gap:12px;align-items:center"><b>YC-Q3M1T7</b><span class="badge warn">Chờ cửa hàng xác nhận</span><span class="grow"></span><span class="sm muted">1 món · 390.000đ · hết hạn 28/11 17:00</span><button class="btn out sm">Huỷ yêu cầu</button></div></div>
+        <div class="card pad"><div class="row" style="gap:12px;align-items:center"><b>YC-8HN2PC</b><span class="badge err">Cửa hàng từ chối</span><span class="grow"></span><span class="sm muted">Hết hàng — "Váy đỏ size S hết, gợi ý màu hồng"</span></div></div>
+      </div>
+      <div class="xs subtle mt16">Trạng thái do cửa hàng gửi về; Open CRM không lưu đơn bán, chỉ giữ yêu cầu và tham chiếu.</div>
+    </main>
+  </div>
+</section>
+
+<!-- ⑤ KẾT NỐI CỬA HÀNG (Cài đặt) — chỉ bật khi đơn vị đã nối Kế Toán (Q-ORD-6) -->
+<section class="frame app" id="ket-noi">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page" style="max-width:880px">
+      <h1 class="h2 mb24">Kết nối cửa hàng (Open POS)</h1>
+      <div class="note warn mb24">Khi <b>Nguồn danh mục</b> còn là "Shop tự quản", ô này khoá: gửi đơn cần nối Kế Toán trước để mã hàng hai bên trùng nhau. Open CRM vẫn tạo và lưu yêu cầu đặt hàng như thường.</div>
+      <dl class="kv2">
+        <dt>Trạng thái</dt><dd><span class="badge ok"><span class="dot"></span>Đã nối</span> <span class="xs subtle">thử lúc 25/11 17:02 · lần gửi cuối 17:21</span></dd>
+        <dt>Địa chỉ cửa hàng</dt><dd><input class="input sm" style="width:100%" value="https://shop.hoamai.vn"></dd>
+        <dt>Khoá cửa hàng</dt><dd><code>opb_7Kq2…</code> <span class="xs subtle">do Open POS cấp, chỉ hiện một lần khi dán</span> <button class="btn ghost sm">Đổi khoá</button></dd>
+        <dt>Bí mật ký sự kiện</dt><dd><code>••••••••</code> <button class="btn ghost sm">Đổi</button></dd>
+        <dt>Cửa hàng xuất mặc định</dt><dd><b>CN01</b> — Shop Hoa Mai Quận 3</dd>
+        <dt>Nhận trạng thái đơn tại</dt><dd><code>https://crm.hoamai.vn/ingress/v1/pos-events</code> <span class="xs subtle">dán vào Open POS</span></dd>
+      </dl>
+      <div class="row mt24" style="gap:12px"><button class="btn out">Thử kết nối</button><button class="btn pri">Lưu</button></div>
+    </main>
+  </div>
+</section>
+</body>
+</html>

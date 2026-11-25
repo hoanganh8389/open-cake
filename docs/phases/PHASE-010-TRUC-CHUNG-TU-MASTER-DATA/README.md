@@ -6,6 +6,18 @@
 > **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc; việc xuyên repo `LD-*` ở [bizcity-platform PHASE-001](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/phases/PHASE-001-LUONG-DON-CRM-POS-KE-TOAN/CHECKLIST.md)).
 > **Mục tiêu:** golden G7–G8: khách chốt trong chat ⇒ nhân viên thấy **tồn thật của Kế Toán** ⇒ `cake.order_request` ⇒ **đơn chờ** ở open-pos-backend ⇒ POS xác nhận, bàn giao vận chuyển (lúc đó mới ghi nhận bán) ⇒ Kế Toán ghi sổ; Contact 360 thấy đơn / giao / công nợ **bằng tham chiếu**. Hợp đồng: [`bizcity_order_flow@1`](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-ORDER-FLOW-v1.md). Chi tiết trục: [20-DATA-SPINE §5–6](../../architecture/20-DATA-SPINE.md).
 
+## Mockup chờ chủ duyệt (trước khi code)
+
+<!-- [2026-11-25 06:28 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — mockup S010-1/5/7/8 trên CSS thật của ui-kit; nguồn mockup/index.html, chụp lại: node docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/mockup/chup.mjs -->
+
+| Khung | Việc | Ảnh |
+|---|---|---|
+| ① Gửi giá có tồn Kế Toán (Còn 4 · Còn 1 · Hết hàng), nút **+** thêm vào đơn | S010-7 | [mockup-gui-gia-ton](evidence/build-shots/mockup-gui-gia-ton.png) |
+| ② Yêu cầu đặt hàng: khách đã xác minh, giao tới, cửa hàng xuất, dòng hàng + tồn, vượt tồn cảnh báo, COD / chuyển khoản, hãng / lấy tại shop | S010-1, S010-8 | [mockup-tao-don](evidence/build-shots/mockup-tao-don.png) |
+| ③ Dấu đơn trong chat: đã gửi → cửa hàng xác nhận → đã giao vận chuyển (dòng hệ thống, không gửi khách) | S010-5 | [mockup-don-trong-chat](evidence/build-shots/mockup-don-trong-chat.png) |
+| ④ Contact 360 › Đơn: các bước, chờ xác nhận (huỷ được), bị từ chối có lý do | S010-5 | [mockup-don-360](evidence/build-shots/mockup-don-360.png) |
+| ⑤ Cài đặt › Kết nối cửa hàng: địa chỉ, khoá `opb_…`, bí mật ký, cửa hàng xuất, địa chỉ nhận trạng thái; khoá khi chưa nối Kế Toán | S010-8 | [mockup-ket-noi](evidence/build-shots/mockup-ket-noi.png) |
+
 ## Đầu ra
 
 | # | LD | Repo | Việc |
