@@ -15,7 +15,7 @@ const live = (s: Store, id: string) => {
 const phoneOf = (s: Store, id: string) => s.identities.find((x) => x.contactId === id && x.channel === 'phone' && !x.validTo)?.externalId ?? null;
 const row = (s: Store, id: string) => {
   const m = s.meta[id] ?? {};
-  return { contact: live(s, id), state: s.states[id]!, phone: phoneOf(s, id), gender: m['cake.contact.gender'] ?? null, birthday: m['cake.contact.birthday'] ?? null };
+  return { contact: live(s, id), state: s.states[id]!, phone: phoneOf(s, id), gender: m['cake.contact.gender'] ?? null, birthday: m['cake.contact.birthday'] ?? null, realName: m['cake.contact.real_name'] ?? null };
 };
 
 export const contactHandlers: Record<string, (s: Store, input: Any) => unknown> = {

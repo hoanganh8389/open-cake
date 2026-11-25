@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- 2026-11-25 — PHASE-007 S007-8: chụp tự động 4 màn có ảnh chuẩn trên Chrome thật, đếm phần tử chính (`npm run ui:chup`): hộp thư 100 %, danh bạ 92 %, tổng quan 100 %, bốn trạng thái 100 %. Thêm tên thật trong danh bạ, ô tìm tài khoản ở Tổng quan, thẻ "Cần cài …" + bộ thành phần ở Bốn trạng thái; test tĩnh SC-CAKE-WEB-1..3. 117 test.
 - 2026-11-25 — PHASE-007 R-WEB-11: chữ hiển thị của web và ui-kit chuyển vào tệp ngôn ngữ theo khoá (`apps/web/src/i18n`, `packages/ui-kit/src/vi.ts`), test chặn chữ viết thẳng. 114 test.
 - 2026-11-25 — PHASE-007 R-WEB-15: phím tắt hộp thư (↑/↓, Enter, `/`, Esc), ô tìm hộp thư thật (từ khoá trên URL), nhãn `aria-*`; kiểm giao diện trên Chrome thật bằng `playwright-core` (`npm run ui:hop-thu`, 9 / 9).
 - 2026-11-25 — PHASE-007 R-WEB-10: con trỏ keyset cho hội thoại và tin (`meta.nextCursor`), `useInfiniteQueryAction` + `LoadMore`; khung chat tải tin cũ khi cuộn lên, giữ chỗ đang đọc. 113 test.

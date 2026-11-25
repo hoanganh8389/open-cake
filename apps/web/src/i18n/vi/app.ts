@@ -52,9 +52,16 @@ export const app = {
     emptyTitle: 'Chưa có hội thoại', emptyDesc: 'Khi khách nhắn tới, hội thoại sẽ hiện ở đây.',
     errorTitle: 'Không tải được dữ liệu', errorDesc: 'Bấm Thử lại; nếu còn lỗi, gửi mã tra cứu cho quản trị.',
     deniedDesc: 'Nhờ quản lý cấp quyền cake:contacts-xem.',
+    // [2026-11-25 12:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-8 — thẻ 'Cần cài …' + bộ thành phần như ảnh chuẩn states.png
+    gatesTitle: 'Thẻ "Cần cài …" (tính năng thuộc phần khác)', gates: [
+      { need: 'Cần Twin Brain', why: 'Trợ lý trả lời, gợi ý AI, kịch bản tự động qua MCP. Open CRM chạy đủ một mình; cài thêm thì các mục này sáng lên — PHASE-013.' },
+      { need: 'Cần Send Guard', why: 'Gửi hàng loạt, trần gửi mỗi giờ, giờ được gửi, danh sách không nhận — PHASE-011.' },
+    ],
+    kitTitle: 'Bộ thành phần', kit: { pri: 'Nút chính', def: 'Nút phụ', out: 'Viền', ghost: 'Mờ', danger: 'Nguy hiểm', disabled: 'Vô hiệu', sm: 'Nhỏ' },
+    badges: { def: 'Mặc định', pri: 'Nhấn', ok: 'Đã gửi', warn: 'Chờ', err: 'Lỗi' },
   },
   dashboard: {
     title: 'Tổng quan', accounts: (n: number) => `${n} tài khoản kênh`, addAccount: 'Thêm tài khoản', accountsHeading: 'Tài khoản',
-    empty: 'Chưa có tài khoản kênh', unread: (n: number) => `${n} chưa đọc`, details: 'Chi tiết kênh', reconnect: 'Kết nối lại',
+    search: 'Tên, mã tài khoản…', noMatch: 'Không có tài khoản khớp từ khoá', empty: 'Chưa có tài khoản kênh', unread: (n: number) => `${n} chưa đọc`, details: 'Chi tiết kênh', reconnect: 'Kết nối lại',
   },
 } as const;

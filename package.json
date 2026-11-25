@@ -19,7 +19,8 @@
     "web:dev": "npm run dev -w @open-cake/web",
     "web:build": "npm run build -w @open-cake/web",
     "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api",
-    "ui:hop-thu": "node tests/ui/hop-thu-phim.mjs"
+    "ui:hop-thu": "node tests/ui/hop-thu-phim.mjs",
+    "ui:chup": "node tests/ui/chup-man.mjs"
   },
   "devDependencies": {
     "@types/node": "20.17.6",

@@ -19,7 +19,7 @@ function decCursor(raw: string | undefined): [string, string] | null {
   throw failure('VALIDATION_ERROR', 'Con trỏ trang không hợp lệ — tải lại danh sách.', { field: 'cursor' });
 }
 const isoN = (d: Date | string | null) => (d === null ? null : iso(d));
-const META = { gender: 'cake.contact.gender', birthday: 'cake.contact.birthday' } as const;
+const META = { gender: 'cake.contact.gender', birthday: 'cake.contact.birthday', realName: 'cake.contact.real_name' } as const;
 const KIND_LABEL: Record<string, string> = { message: 'Tin nhắn', comment: 'Bình luận', reaction: 'Bày tỏ cảm xúc', tag: 'Gắn nhãn', merge: 'Ghép khách', note: 'Ghi chú' };
 
 /** Trạng thái (dẫn xuất) của nhiều khách một lượt — khách chưa có dòng nào thì trạng thái rỗng. */
@@ -113,7 +113,7 @@ export const inboxHandlers: Record<string, Handler> = {
       ids.length ? ctx.tx.selectFrom('entity_meta').select(['entity_id', 'key', 'value']).where('tenant_id', '=', ctx.tenantId).where('entity_type', '=', 'contact').where('entity_id', 'in', ids).execute() : [],
     ]);
     const m = (id: string, k: string) => (meta.find((x) => x.entity_id === id && x.key === k)?.value as string | undefined) ?? null;
-    return paged(rows.map((r) => ({ contact: toContact(r), state: state(r.contact_id), phone: phones.find((p) => p.contact_id === r.contact_id)?.external_id ?? null, gender: m(r.contact_id, META.gender), birthday: m(r.contact_id, META.birthday) })),
+    return paged(rows.map((r) => ({ contact: toContact(r), state: state(r.contact_id), phone: phones.find((p) => p.contact_id === r.contact_id)?.external_id ?? null, gender: m(r.contact_id, META.gender), birthday: m(r.contact_id, META.birthday), realName: m(r.contact_id, META.realName) })),
       { page: i.page, pageSize: i.pageSize, total: Number(n) });
   },
   'cake.contact.get': async (ctx, i) => {

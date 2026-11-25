@@ -50,6 +50,7 @@ export function Contacts() {
                     <td><Face name={r.contact.displayName} size={48} female={r.gender === t.inbox.contacts.female} /></td>
                     <td>
                       <div style={{ fontSize: 19 }}>{r.contact.displayName}{r.state.unanswered && <span className="onl" title={t.inbox.contacts.unanswered} />}</div>
+                      {r.realName && r.realName !== r.contact.displayName && <div className="xs subtle">{r.realName}</div>}
                       {r.state.tags.length > 0 && <div className="row gap8" style={{ marginTop: 6 }}>{r.state.tags.map((x) => <Tag key={x} name={x} />)}</div>}
                     </td>
                     <td>{r.gender && <span className={`gender ${r.gender === t.inbox.contacts.female ? 'f' : 'm'}`}>{r.gender === t.inbox.contacts.female ? '♀' : '♂'} {r.gender}</span>}</td>

@@ -95,7 +95,8 @@ export const conversationTag = defineActionSpec({
 });
 
 // ── Khách (Contact 360) ─────────────────────────────────────────────────
-const ContactRowSchema = z.object({ contact: ContactSchema, state: ContactStateSchema, phone: z.string().nullable(), gender: z.string().nullable(), birthday: z.string().nullable() });
+const ContactRowSchema = z.object({ contact: ContactSchema, state: ContactStateSchema, phone: z.string().nullable(), gender: z.string().nullable(), birthday: z.string().nullable(),
+  realName: z.string().nullable().default(null) }); // [2026-11-25 12:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-8 — tên thật (meta cake.contact.real_name) dưới tên hiển thị, như ảnh chuẩn danh bạ
 export const contactList = defineActionSpec({
   id: 'cake.contact.list', capability: 'cake.contact.read', title: 'Danh bạ', kind: 'query',
   input: z.object({ tag: z.string().optional(), gender: z.string().optional(), birthday: z.enum(['today', 'month']).optional(), q: z.string().max(100).optional(), sort: z.enum(['name', 'last']).default('last'), ...page }),

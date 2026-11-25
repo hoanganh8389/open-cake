@@ -89,7 +89,7 @@ export function Inbox() {
                     <ChannelDot channel={(accounts.data ?? []).find((a) => a.channelAccountId === c.channelAccountId)?.channel} />
                   </div>
                   <div className="b">
-                    <div className="r1">{c.pinned && <span style={{ color: '#ef4444' }}>📍</span>}<span className="nm">{c.title}</span><span className="tm">{hhmm(c.lastAt)}</span></div>
+                    <div className="r1">{c.pinned && <span style={{ color: 'var(--destructive)' }}>📍</span>}<span className="nm">{c.title}</span><span className="tm">{hhmm(c.lastAt)}</span></div>
                     <div className="r2"><span className="pv">{c.kind === 'comment_thread' && '💬 '}{c.lastText}</span>{c.unread ? <span className="un">{c.unread}</span> : c.lastDirection === 'out' ? <Ic.back className="rp" /> : null}</div>
                     {c.tags.length > 0 && <div className="tags">{c.tags.map((x) => <Tag key={x} name={x} />)}</div>}
                   </div>
