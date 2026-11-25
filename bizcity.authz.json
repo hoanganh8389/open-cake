@@ -1,0 +1,341 @@
+{
+  "schema": "bizcity_authz_manifest@1",
+  "app": "open-cake",
+  "core_permissions": [
+    "conformance:approve",
+    "conformance:read",
+    "conformance:run",
+    "devtools:read",
+    "documents:bypass-date-lock",
+    "documents:edit-all",
+    "documents:read",
+    "documents:write",
+    "reports:read",
+    "review:read",
+    "settings:write",
+    "users:write"
+  ],
+  "permissions": [
+    {
+      "key": "cake:all-inbox-xem",
+      "label": "Xem mọi hội thoại (không giới hạn theo tài khoản kênh được giao)",
+      "risk": "high",
+      "module": "cake"
+    },
+    {
+      "key": "cake:catalog-gia",
+      "label": "Đặt giá (gồm VAT)",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:catalog-lap",
+      "label": "Tạo hàng (chuẩn H-*)",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:catalog-sua",
+      "label": "Sửa hàng",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:catalog-xem",
+      "label": "Danh sách hàng hoá",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:channels-lap",
+      "label": "Bắt đầu kết nối kênh",
+      "risk": "high",
+      "module": "cake"
+    },
+    {
+      "key": "cake:channels-xem",
+      "label": "Danh sách tài khoản kênh",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:contacts-gop",
+      "label": "Ghép hai khách",
+      "risk": "high",
+      "module": "cake"
+    },
+    {
+      "key": "cake:contacts-sua",
+      "label": "Tìm hoặc tạo khách theo danh tính",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:contacts-xem",
+      "label": "Danh bạ",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:inbox-lap",
+      "label": "Gửi tin",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:inbox-xem",
+      "label": "Danh sách hội thoại",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:label-lap",
+      "label": "Nhãn — lap",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:label-sua",
+      "label": "Nhãn — sua",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:label-xem",
+      "label": "Nhãn — xem",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:label-xoa",
+      "label": "Nhãn — xoa",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:quick-reply-lap",
+      "label": "Tin nhắn nhanh — lap",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:quick-reply-sua",
+      "label": "Tin nhắn nhanh — sua",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:quick-reply-xem",
+      "label": "Tin nhắn nhanh — xem",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:quick-reply-xoa",
+      "label": "Tin nhắn nhanh — xoa",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:saved-bank-lap",
+      "label": "Tài khoản ngân hàng — lap",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:saved-bank-sua",
+      "label": "Tài khoản ngân hàng — sua",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:saved-bank-xem",
+      "label": "Tài khoản ngân hàng — xem",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "cake:saved-bank-xoa",
+      "label": "Tài khoản ngân hàng — xoa",
+      "risk": "low",
+      "module": "cake"
+    },
+    {
+      "key": "core:records-lap",
+      "label": "Tạo bản ghi",
+      "risk": "low",
+      "module": "core"
+    },
+    {
+      "key": "core:records-sua",
+      "label": "Sửa bản ghi",
+      "risk": "low",
+      "module": "core"
+    },
+    {
+      "key": "core:records-xem",
+      "label": "Danh sách bản ghi theo loại",
+      "risk": "low",
+      "module": "core"
+    },
+    {
+      "key": "core:records-xoa",
+      "label": "Lưu trữ bản ghi (không xoá cứng — R-DATA-8)",
+      "risk": "low",
+      "module": "core"
+    }
+  ],
+  "roles": [
+    {
+      "key": "agent",
+      "label": "Nhân viên chăm sóc",
+      "admin": false,
+      "permissions": [
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-sua",
+        "cake:contacts-xem",
+        "cake:inbox-lap",
+        "cake:inbox-xem",
+        "cake:label-xem",
+        "cake:quick-reply-lap",
+        "cake:quick-reply-sua",
+        "cake:quick-reply-xem",
+        "cake:saved-bank-xem",
+        "core:records-lap",
+        "core:records-sua",
+        "core:records-xem"
+      ]
+    },
+    {
+      "key": "auditor",
+      "label": "Kiểm soát",
+      "admin": false,
+      "permissions": [
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-xem",
+        "cake:label-xem",
+        "cake:quick-reply-xem",
+        "cake:saved-bank-xem",
+        "core:records-xem",
+        "reports:read",
+        "review:read"
+      ]
+    },
+    {
+      "key": "developer",
+      "label": "Nhà phát triển",
+      "admin": false,
+      "permissions": [
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-xem",
+        "cake:label-xem",
+        "cake:quick-reply-xem",
+        "cake:saved-bank-xem",
+        "core:records-xem",
+        "devtools:read"
+      ]
+    },
+    {
+      "key": "manager",
+      "label": "Quản lý",
+      "admin": false,
+      "permissions": [
+        "cake:all-inbox-xem",
+        "cake:catalog-gia",
+        "cake:catalog-lap",
+        "cake:catalog-sua",
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-gop",
+        "cake:contacts-sua",
+        "cake:contacts-xem",
+        "cake:inbox-lap",
+        "cake:inbox-xem",
+        "cake:label-lap",
+        "cake:label-sua",
+        "cake:label-xem",
+        "cake:label-xoa",
+        "cake:quick-reply-lap",
+        "cake:quick-reply-sua",
+        "cake:quick-reply-xem",
+        "cake:quick-reply-xoa",
+        "cake:saved-bank-lap",
+        "cake:saved-bank-sua",
+        "cake:saved-bank-xem",
+        "cake:saved-bank-xoa",
+        "core:records-lap",
+        "core:records-sua",
+        "core:records-xem",
+        "core:records-xoa",
+        "reports:read",
+        "users:write"
+      ]
+    },
+    {
+      "key": "marketer",
+      "label": "Tiếp thị",
+      "admin": false,
+      "permissions": [
+        "cake:catalog-gia",
+        "cake:catalog-lap",
+        "cake:catalog-sua",
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-sua",
+        "cake:contacts-xem",
+        "cake:label-xem",
+        "cake:quick-reply-xem",
+        "cake:saved-bank-xem",
+        "core:records-xem"
+      ]
+    },
+    {
+      "key": "viewer",
+      "label": "Chỉ xem",
+      "admin": false,
+      "permissions": [
+        "cake:catalog-xem",
+        "cake:channels-xem",
+        "cake:contacts-xem",
+        "cake:label-xem",
+        "cake:quick-reply-xem",
+        "cake:saved-bank-xem",
+        "core:records-xem",
+        "reports:read"
+      ]
+    }
+  ],
+  "api_scopes": {
+    "cake:read": [
+      "cake:catalog-xem",
+      "cake:contacts-xem"
+    ],
+    "documents:write": [
+      "documents:edit-all",
+      "documents:read",
+      "documents:write"
+    ],
+    "reports:read": [
+      "conformance:read",
+      "reports:read"
+    ]
+  },
+  "user_meta": [
+    {
+      "key": "cake.contacts.columns",
+      "label": "Cột hiện",
+      "type": "string[]",
+      "pii": false
+    },
+    {
+      "key": "cake.inbox.filters",
+      "label": "Bộ lọc đã lưu",
+      "type": "json",
+      "pii": false
+    }
+  ],
+  "settings": []
+}

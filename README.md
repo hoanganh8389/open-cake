@@ -14,7 +14,7 @@
 
 ```bash
 npm install
-npm test            # hợp đồng + bộ giả lập; thêm TEST_DATABASE_URL=postgres://… để chạy cả test tích hợp API trên Postgres
+npm test            # hợp đồng + bộ giả lập; thêm TEST_DATABASE_URL=postgres://…/cake_test (tên CSDL PHẢI có chữ test — R-STD-SEC-5) để chạy cả test tích hợp API trên Postgres
 npm run typecheck
 npm run web:dev     # http://localhost:5173/#/inbox — ?mock=empty|error|denied|slow xem 4 trạng thái
 ```

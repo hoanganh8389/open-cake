@@ -5,6 +5,8 @@ export async function freshDb(baseUrl: string, suffix: string): Promise<string> 
   const pg = (await import('pg')).default;
   const u = new URL(baseUrl);
   const name = `${u.pathname.slice(1) || 'postgres'}_${suffix}`.replace(/[^a-z0-9_]/gi, '_');
+  // [2026-11-25 01:55 PM Johnny Chu - Chu Hoàng Anh] NO-CHUAN R-STD-SEC-5 — lớp chặn thứ hai (lớp đầu ở vitest.config.ts): KHÔNG bao giờ DROP database không mang chữ test.
+  if (!/test/i.test(name)) throw new Error(`Từ chối xoá / tạo CSDL "${name}": tên không có chữ test (R-STD-SEC-5).`);
   const admin = new pg.Client({ connectionString: baseUrl }); await admin.connect();
   try {
     await admin.query(`DROP DATABASE IF EXISTS "${name}" WITH (FORCE)`);
