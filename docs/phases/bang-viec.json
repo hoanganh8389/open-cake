@@ -1,0 +1,108 @@
+{
+  "schema": "bizcity_task_board@1",
+  "generated": "2026-11-25T06:54:39.367Z",
+  "phases": [
+    {
+      "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
+      "path": "docs/phases/PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-002-NEN-HOP-DONG-NANG-LUC",
+      "path": "docs/phases/PHASE-002-NEN-HOP-DONG-NANG-LUC",
+      "status": "Xong",
+      "items": []
+    },
+    {
+      "name": "PHASE-003-UI-UX-TREN-HOP-DONG",
+      "path": "docs/phases/PHASE-003-UI-UX-TREN-HOP-DONG",
+      "status": "Xong",
+      "items": []
+    },
+    {
+      "name": "PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG",
+      "path": "docs/phases/PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG",
+      "status": "Xong",
+      "items": []
+    },
+    {
+      "name": "PHASE-005-CARE-KERNEL-SO-CHAM-KHACH",
+      "path": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH",
+      "status": "Đang làm / có mã",
+      "items": []
+    },
+    {
+      "name": "PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
+      "path": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360",
+      "path": "docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360",
+      "status": "Đang làm / có mã",
+      "items": []
+    },
+    {
+      "name": "PHASE-008-FACEBOOK-PAGE-COMMENT",
+      "path": "docs/phases/PHASE-008-FACEBOOK-PAGE-COMMENT",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-009-FACEBOOK-CA-NHAN-NHOM",
+      "path": "docs/phases/PHASE-009-FACEBOOK-CA-NHAN-NHOM",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
+      "path": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-011-GUI-HANG-LOAT-SEND-GUARD",
+      "path": "docs/phases/PHASE-011-GUI-HANG-LOAT-SEND-GUARD",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-012-BAO-CAO-CONG-VIEC",
+      "path": "docs/phases/PHASE-012-BAO-CAO-CONG-VIEC",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-013-MCP-TWIN-BRAIN",
+      "path": "docs/phases/PHASE-013-MCP-TWIN-BRAIN",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-014-NHIEU-SITE-OPEN-SETUP",
+      "path": "docs/phases/PHASE-014-NHIEU-SITE-OPEN-SETUP",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-015-KIEM-CHUNG-PHAT-HANH",
+      "path": "docs/phases/PHASE-015-KIEM-CHUNG-PHAT-HANH",
+      "status": "Chưa làm",
+      "items": []
+    },
+    {
+      "name": "PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT",
+      "path": "docs/phases/PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT",
+      "status": "Đang làm / có mã",
+      "items": []
+    },
+    {
+      "name": "PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA",
+      "path": "docs/phases/PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA",
+      "status": "Xong",
+      "items": []
+    }
+  ]
+}
