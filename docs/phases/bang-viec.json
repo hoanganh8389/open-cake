@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T11:26:26.743Z",
+  "generated": "2026-11-25T13:47:12.934Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -470,7 +470,7 @@
       "items": [
         {
           "id": "S010-1",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — cake.order_request (LD-CAKE-1)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 10
@@ -498,7 +498,7 @@
         },
         {
           "id": "S010-5",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — nghe sự kiện POS ⇒ Contact 360 (LD-CAKE-4)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 14
@@ -512,14 +512,14 @@
         },
         {
           "id": "S010-7",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — đọc tồn Kế Toán, mockup trước (LD-CAKE-2)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 16
         },
         {
           "id": "S010-8",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — gửi đơn sang POS (LD-CAKE-3)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 17

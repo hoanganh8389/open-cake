@@ -6,9 +6,11 @@
 import { useState, type ReactNode } from 'react';
 import { catalogItemList, recordList, type Item } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
-import { Btn, Search } from '@open-cake/ui-kit';
+import { Btn, Ic, Search } from '@open-cake/ui-kit';
 import { QueryView } from '../app/QueryView.js';
-import { vnd } from '../app/format.js';
+import { hhmm, vnd } from '../app/format.js';
+import { StockBadge, useStock } from './orders/parts.js';
+import type { CartLine } from './orders/OrderSheet.js';
 import { go } from '../app/route.js';
 import { useCompanyPrices } from './catalog/use-catalog.js';
 import { t } from '../i18n/index.js';
@@ -33,12 +35,14 @@ export function QuickReplies({ onPick }: { onPick: (text: string) => void }) {
 /** Câu báo giá chèn vào ô soạn — một chỗ, để sau này đổi mẫu câu không phải sửa màn. */
 export const quoteLine = (it: Item, price: number, unit: string) => t.inbox.composer.quoteLine(it.local.displayName ?? it.name, vnd(price), unit);
 
-export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
+// [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-7 — tồn Kế Toán trên từng dòng (Còn n / Hết hàng) + nút + thêm vào đơn nháp (mockup-gui-gia-ton); chưa nối Kế Toán ⇒ không nhãn.
+export function PricePicker({ onPick, onAdd }: { onPick: (text: string) => void; onAdd?: (line: Omit<CartLine, 'qty'>) => void }) {
   const [q, setQ] = useState('');
   const [at, setAt] = useState(0);
   const items = useQueryAction(catalogItemList, { q: q || undefined, sellableOnly: true, page: 1, pageSize: 8, includeRetired: false });
   const prices = useCompanyPrices();
   const rows = (items.data ?? []).flatMap((it) => { const p = prices.byItem.get(it.itemId); return p ? [{ it, p }] : []; });
+  const stock = useStock(rows.map((r) => r.it.itemId));
   // [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — chờ đủ hàng + giá rồi mới quyết "trống" (máy chủ thật trả hai lời gọi lệch nhau; giả lập thì không lộ).
   const pick = (i: number) => { const r = rows[i]; if (r) onPick(quoteLine(r.it, r.p.price, r.p.unit)); };
   return (
@@ -52,12 +56,14 @@ export function PricePicker({ onPick }: { onPick: (text: string) => void }) {
       </div>
       <QueryView q={{ ...items, isLoading: items.isLoading || prices.isLoading, error: items.error ?? prices.error, data: items.data && prices.data ? rows : undefined }} empty={{ title: q ? t.inbox.composer.noMatch : t.inbox.composer.noPriced, action: <Btn sm out onClick={() => go('catalog')}>{t.inbox.composer.openCatalog}</Btn> }}>
         {(rs) => <>{rs.map(({ it, p }, i) => (
-          <button type="button" key={it.itemId} className={`pick-row${i === at ? ' on' : ''}`} onMouseEnter={() => setAt(i)} onClick={() => pick(i)}>
+          <div key={it.itemId} role="button" tabIndex={-1} className={`pick-row${i === at ? ' on' : ''}${(stock.byItem.get(it.itemId)?.available ?? 1) <= 0 ? ' dim' : ''}`} onMouseEnter={() => setAt(i)} onClick={() => pick(i)}>
             <b style={{ fontWeight: 500 }}>{it.local.displayName ?? it.name}</b><span className="xs subtle">{it.sku}</span><span className="p">{vnd(p.price)} / {p.unit}</span>
-          </button>
+            <StockBadge available={stock.byItem.get(it.itemId)?.available} />
+            {onAdd && <button type="button" className="add" title={t.orders.stock.addToOrder} aria-label={t.orders.stock.addToOrder} onClick={(e) => { e.stopPropagation(); onAdd({ itemId: it.itemId, name: it.local.displayName ?? it.name, sku: it.sku, unit: p.unit, price: p.price }); }}><Ic.plus /></button>}
+          </div>
         ))}</>}
       </QueryView>
-      <div className="xs subtle" style={{ padding: '6px 12px' }}>{t.inbox.composer.hint}</div>
+      <div className="xs subtle" style={{ padding: '6px 12px' }}>{stock.data?.source === 'ketoan' && stock.data.asOf ? `${t.orders.stock.hint(stock.data.branchCode ?? '', hhmm(stock.data.asOf))} · ` : ''}{t.inbox.composer.hint}</div>
     </Panel>
   );
 }

@@ -3,13 +3,15 @@
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-6: Contact 360 (màn mới) — một contact_id, dòng thời gian mọi kênh (cake.contact.timeline),
 //   danh tính + độ tin + bằng chứng (R-CAKE-UI-6), gợi ý cùng người (cake.contact.suggestions) và Ghép có bằng chứng / Tách lại (cake.contact.merge / unmerge).
 // [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
+// [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-5 — cột phải có hai tab: Dòng thời gian · Đơn (mockup-don-360); tab ở URL (?tab=orders, R-WEB-2).
 import { useState } from 'react';
-import { contactGet, contactMerge, contactSuggestions, contactTimeline, contactUnmerge, type Identity } from '@open-cake/contracts';
+import { contactGet, contactMerge, contactSuggestions, contactTimeline, contactUnmerge, orderRequestList, type Identity } from '@open-cake/contracts';
 import { useAction, useQueryAction } from '@open-cake/action-client';
-import { Badge, Btn, Card, ChannelBadge, CHANNEL_LABEL, Face, Ic, Sheet, Tag, cx } from '@open-cake/ui-kit';
+import { Badge, Btn, Card, ChannelBadge, CHANNEL_LABEL, Face, Ic, Sheet, Tabs, Tag, cx } from '@open-cake/ui-kit';
 import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { when } from '../app/format.js';
-import { go } from '../app/route.js';
+import { go, useRoute } from '../app/route.js';
+import { ContactOrders } from './orders/ContactOrders.js';
 import { needPermission, useCan } from '../app/permissions.js';
 import { t } from '../i18n/index.js';
 
@@ -35,6 +37,9 @@ export function Contact360({ contactId }: { contactId: string }) {
   const c = useQueryAction(contactGet, { contactId });
   const tl = useQueryAction(contactTimeline, { contactId, limit: 200 });
   const sug = useQueryAction(contactSuggestions, { contactId });
+  const orders = useQueryAction(orderRequestList, { contactId }, { enabled: useCan('cake:don-xem') });
+  const { query, setQuery } = useRoute();
+  const tab = query.get('tab') === 'orders' ? 'orders' : 'timeline';
   const merge = useAction(contactMerge);
   const unmerge = useAction(contactUnmerge);
   const canMerge = useCan('cake:contacts-gop'); // R-WEB-7: ghép / tách là quyền rủi ro cao
@@ -91,8 +96,8 @@ export function Contact360({ contactId }: { contactId: string }) {
                 <Card><h3 className="h3">{t.inbox.c360.links}</h3><div className="muted sm mt8">{d.links.length ? d.links.map((l) => `${l.app}: ${l.refCode}`).join(' · ') : t.inbox.c360.noLinks}</div></Card>
               </div>
               <Card>
-                <h3 className="h3 mb16">{t.inbox.c360.timeline}</h3>
-                <QueryView q={tl} empty={{ title: t.inbox.c360.noTouch }}>
+                <div className="mb16"><Tabs value={tab} onChange={(id) => setQuery({ tab: id === 'orders' ? 'orders' : null })} items={[{ id: 'timeline', label: t.orders.c360.tabTimeline }, { id: 'orders', label: t.orders.c360.tabOrders(orders.data?.length ?? 0) }]} /></div>
+                {tab === 'orders' ? <ContactOrders orders={orders.data ?? []} /> : <QueryView q={tl} empty={{ title: t.inbox.c360.noTouch }}>
                   {(items) => <>{items.map((x) => (
                     <div key={x.touchId} className={cx('row gap16')} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start', opacity: x.isReversal ? 0.7 : 1 }}>
                       <span className="muted sm" style={{ width: 96, flex: 'none' }}>{when(x.at)}</span>
@@ -101,7 +106,7 @@ export function Contact360({ contactId }: { contactId: string }) {
                       <span className="grow">{x.summary}{x.docRef && <> <Badge tone="out">{x.docRef}</Badge></>}</span>
                     </div>
                   ))}</>}
-                </QueryView>
+                </QueryView>}
               </Card>
             </div>
             <Sheet open={!!pick} onClose={() => setPick(null)} icon={Ic.users} title={t.inbox.c360.mergeTitle(pick?.name ?? '', d.contact.displayName)}

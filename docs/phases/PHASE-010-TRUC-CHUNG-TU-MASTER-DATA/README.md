@@ -18,6 +18,18 @@
 | ④ Contact 360 › Đơn: các bước, chờ xác nhận (huỷ được), bị từ chối có lý do | S010-5 | [mockup-don-360](evidence/build-shots/mockup-don-360.png) |
 | ⑤ Cài đặt › Kết nối cửa hàng: địa chỉ, khoá `opb_…`, bí mật ký, cửa hàng xuất, địa chỉ nhận trạng thái; khoá khi chưa nối Kế Toán | S010-8 | [mockup-ket-noi](evidence/build-shots/mockup-ket-noi.png) |
 
+## Tiến độ
+
+<!-- [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — phần open-cake của S010-1/5/7/8 đã có mã; ◐ vì chưa chạy với open-pos-backend PHASE-003 và open-ketoan PHASE-042 thật. -->
+
+| Việc | Đã có | Bằng chứng | Còn |
+|---|---|---|---|
+| S010-1/8 yêu cầu đặt hàng + gửi cửa hàng | migration 0105, `apps/api/src/orders/`, 8 action, giả lập, sheet Yêu cầu đặt hàng, Cài đặt › Kết nối cửa hàng | [orders.http.test.ts](../../../apps/api/test/orders.http.test.ts) (Postgres thật, cửa hàng giả: gửi lặp không nhân đôi, sập ⇒ queued ⇒ gửi lại, thân gửi qua schema chuẩn của bizcity-platform); ảnh [app-tao-don](evidence/build-shots/app-tao-don.png), [app-ket-noi](evidence/build-shots/app-ket-noi.png) | chạy với open-pos-backend PHASE-003 thật (`order-flow-check --profile receiver`) |
+| S010-7 đọc tồn | `cake.stock.read` (đệm 60 giây), nhãn Còn n / Hết hàng + nút + ở Gửi giá | test trên Kế Toán giả; ảnh [app-gui-gia-ton](evidence/build-shots/app-gui-gia-ton.png) | open-ketoan PHASE-042 (`/inventory/availability`); khoá Kế Toán còn ở biến môi trường (nợ) |
+| S010-5 trạng thái về | cổng `/ingress/v1/pos-events` (ký HMAC, chống lặp, không lùi, dấu chạm kind=document), dòng hệ thống trong chat, Contact 360 › Đơn | test 401 / áp / lặp / đến muộn; ảnh [app-don-trong-chat](evidence/build-shots/app-don-trong-chat.png), [app-don-360](evidence/build-shots/app-don-360.png) | sự kiện thật từ open-pos-backend |
+
+Chạy lại giao diện: `npm run web:build && node tests/ui/luong-don.mjs`.
+
 ## Đầu ra
 
 | # | LD | Repo | Việc |

@@ -7,6 +7,7 @@ import { CAKE_RECORD_TYPES } from '@open-cake/contracts';
 import { Badge, Card, Gate, Ic } from '@open-cake/ui-kit';
 import { go } from '../app/route.js';
 import { CatalogSourceSettings } from './catalog/source-settings.js';
+import { PosLinkSettings } from './orders/PosLinkSettings.js'; // [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-8
 import { t } from '../i18n/index.js';
 
 export function Settings() {
@@ -14,6 +15,7 @@ export function Settings() {
     <div className="page">
       <h1 className="h1 mb24">{t.app.settings.title}</h1>
       <CatalogSourceSettings />
+      <PosLinkSettings />
       <h3 className="h3 mb16">{t.app.settings.recordTypes}</h3>
       <div className="grid g3 mb24">
         {CAKE_RECORD_TYPES.map((r) => (

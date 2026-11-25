@@ -19,7 +19,7 @@ const find = (s: S, id: string) => {
   if (!o) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy yêu cầu đặt hàng.' });
   return o;
 };
-const ulid = (s: S) => `01JDAO${String(++s.seq).padStart(20, '0')}`;
+const ulid = (s: S) => `01JDAQ${String(++s.seq).padStart(20, '0')}`;
 
 export const orderHandlers: Record<string, (s: Store, input: Any) => unknown> = {
   'cake.stock.read': (st, i) => {

@@ -7,11 +7,11 @@
 
 | Mã | Việc | Trạng thái |
 |---|---|---|
-| S010-1 | cake — `cake.order_request` (LD-CAKE-1) | ☐ |
+| S010-1 | cake — `cake.order_request` (LD-CAKE-1) | ◐ |
 | S010-2 | cake — tạo khách công nợ | ☐ |
 | S010-3 | cake — công nợ ở Contact 360 | ☐ |
 | S010-4 | open-pos-backend PHASE-003 — đơn chờ (LD-OPB-*) | [→ bizcity-platform](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/phases/PHASE-001-LUONG-DON-CRM-POS-KE-TOAN/CHECKLIST.md) |
-| S010-5 | cake — nghe sự kiện POS ⇒ Contact 360 (LD-CAKE-4) | ☐ |
+| S010-5 | cake — nghe sự kiện POS ⇒ Contact 360 (LD-CAKE-4) | ◐ |
 | S010-6 | cake — RC-ORDER-1 + RC-ORDER-3 (LD-CAKE-5) | ☐ |
-| S010-7 | cake — đọc tồn Kế Toán, mockup trước (LD-CAKE-2) | ☐ |
-| S010-8 | cake — gửi đơn sang POS (LD-CAKE-3) | ☐ |
+| S010-7 | cake — đọc tồn Kế Toán, mockup trước (LD-CAKE-2) | ◐ |
+| S010-8 | cake — gửi đơn sang POS (LD-CAKE-3) | ◐ |

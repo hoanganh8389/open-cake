@@ -4,18 +4,28 @@
 //   (cake.conversation.tag) · ô soạn gửi thật (cake.message.send) — lỗi hiện dưới ô soạn với lý do CAKE_*; comment có nút Trả lời riêng (cake.comment.reply).
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-7 — thêm nút Gửi giá; Tin nhắn nhanh + Gửi giá tách ra composer-panels.tsx (một khuôn bảng chọn).
 // [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
+// [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-1/5/8 — nút Đơn nháp + sheet Yêu cầu đặt hàng; bước của đơn hiện thành dòng hệ thống xen giữa tin (mockup-don-trong-chat), không gửi khách.
 import { useLayoutEffect, useRef, useState } from 'react';
-import { commentReply, conversationTag, messageList, messageSend, type Conversation, type Message } from '@open-cake/contracts';
-import { useAction, useInfiniteQueryAction } from '@open-cake/action-client';
+import { commentReply, conversationTag, messageList, messageSend, orderRequestList, type Conversation, type Message, type OrderRequest } from '@open-cake/contracts';
+import { useAction, useInfiniteQueryAction, useQueryAction } from '@open-cake/action-client';
 import { Btn, ChannelBadge, Face, GroupAvatar, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
 import { ActionErrorNote, LoadMore, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
 import { PricePicker, QuickReplies } from './composer-panels.js';
+import { OrderSheet, type CartLine } from './orders/OrderSheet.js';
+import { OrderSysLine } from './orders/parts.js';
 import { needPermission, useCan } from '../app/permissions.js';
 import { t } from '../i18n/index.js';
 
 const LABELS = Object.keys(TAG_LOOK);
+type Row = { at: string; m?: Message; o?: OrderRequest; e?: OrderRequest['events'][number] };
+/** Tin + bước đơn theo thời gian; bước cũ hơn tin cũ nhất đang tải thì chờ cuộn lên mới hiện. */
+const interleave = (ms: Message[], os: OrderRequest[]): Row[] => {
+  const ms0 = ms[0] ? Date.parse(ms[0].at) : 0; // so THỜI ĐIỂM, không so chuỗi (tin có thể ghi +07:00, sự kiện ghi Z)
+  const ev = os.flatMap((o) => o.events.filter((e) => Date.parse(e.at) >= ms0).map((e) => ({ at: e.at, o, e })));
+  return [...ms.map((m) => ({ at: m.at, m })), ...ev].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+};
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
 
 function Bubble({ m, name }: { m: Message; name: string }) {
@@ -47,6 +57,11 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const tag = useAction(conversationTag);
   const [text, setText] = useState('');
   const [panel, setPanel] = useState<'quick' | 'price' | null>(null);
+  const canOrder = useCan('cake:don-lap');
+  const orders = useQueryAction(orderRequestList, { conversationId: conv.conversationId });
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [sheet, setSheet] = useState(false);
+  const addToCart = (l: Omit<CartLine, 'qty'>) => setCart((c) => (c.some((x) => x.itemId === l.itemId) ? c.map((x) => (x.itemId === l.itemId ? { ...x, qty: x.qty + 1 } : x)) : [...c, { ...l, qty: 1 }]));
   const insert = (s: string) => { setText((cur) => (cur.trim() ? `${cur.trimEnd()} ${s}` : s)); setPanel(null); };
   const toggle = (k: 'quick' | 'price') => setPanel(panel === k ? null : k);
   const ref = useRef<HTMLDivElement>(null);
@@ -78,12 +93,13 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
           <div className="nm">{conv.title}</div>
           <div className="tags">{conv.tags.map((x) => <Tag key={x} name={x} size="md" />)}{isComment && <span className="badge">{t.inbox.chat.commentOnPost(conv.anchor?.postId)}</span>}</div>
         </div>
+        {canOrder && <Btn out sm onClick={() => setSheet(true)}><Ic.store />{t.orders.cart(cart.length)}</Btn>}
         <button type="button" className="ri" title={t.inbox.chat.open360} aria-label={t.inbox.chat.open360} onClick={() => go(`contacts/${conv.contactId}`)}><Ic.user /></button>
         <button type="button" className="ri" title={t.inbox.chat.threadInfo} aria-label={t.inbox.chat.threadInfo} onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
       </div>
       <div className="msgs" ref={ref}>
         <QueryView q={{ ...msgs, data: shown }} empty={{ title: t.inbox.chat.emptyTitle, desc: t.inbox.chat.emptyDesc }}>
-          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{ms.map((m) => <Bubble key={m.messageId} m={m} name={conv.title} />)}</>}
+          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{interleave(ms, orders.data ?? []).map((r) => (r.m ? <Bubble key={r.m.messageId} m={r.m} name={conv.title} /> : <OrderSysLine key={`${r.o!.orderRequestId}-${r.e!.type}-${r.at}`} o={r.o!} e={r.e!} />))}</>}
         </QueryView>
       </div>
       <div className="dlabels">
@@ -94,7 +110,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       </div>
       <div style={{ padding: '0 16px' }}><ActionErrorNote error={send.error ?? reply.error ?? tag.error} /></div>
       {panel === 'quick' && <QuickReplies onPick={insert} />}
-      {panel === 'price' && <PricePicker onPick={insert} />}
+      {panel === 'price' && <PricePicker onPick={insert} onAdd={canOrder ? addToCart : undefined} />}
       <div className="dinput" style={{ gap: 8 }}>
         <Btn ghost icon title={t.inbox.chat.quickReplies} aria-label={t.inbox.chat.quickReplies} className={cx(panel === 'quick' && 'on')} onClick={() => toggle('quick')}><Ic.bolt /></Btn>
         <Btn ghost icon title={t.inbox.chat.sendPrice} aria-label={t.inbox.chat.sendPrice} className={cx(panel === 'price' && 'on')} onClick={() => toggle('price')}><Ic.tag /></Btn>
@@ -105,6 +121,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
         <Btn pri sm disabled={!canWrite || busy || !text.trim()} title={why} onClick={() => submit()}><Ic.send />{isComment ? t.inbox.chat.reply : t.inbox.chat.send}</Btn>
       </div>
       <div className="xs subtle row gap8" style={{ padding: '0 16px 8px' }}>{t.inbox.chat.via} <b>{via.label}</b><ChannelBadge channel={isComment ? 'facebook_comment' : via.channel} /></div>
+      {canOrder && <OrderSheet open={sheet} onClose={() => setSheet(false)} contactId={conv.contactId} conversationId={conv.conversationId} name={conv.title} cart={cart} setCart={setCart} />}
     </section>
   );
 }

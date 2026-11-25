@@ -7,6 +7,7 @@ import { app } from './vi/app.js';
 import { catalog } from './vi/catalog.js';
 import { inbox } from './vi/inbox.js';
 import { staff } from './vi/staff.js';
+import { orders } from './vi/orders.js'; // [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010
 
-export const t = { app, inbox, catalog, staff } as const;
+export const t = { app, inbox, catalog, staff, orders } as const;
 export type Dict = typeof t;
