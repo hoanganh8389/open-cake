@@ -14,6 +14,8 @@ x-db-env: &dbenv
   # [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — khoá + bí mật Hub cho POST /ingress/v1/touch; trống ⇒ cổng nhận trả 503 (không mở không xác thực).
   CAKE_HUB_KEY: ${CAKE_HUB_KEY:-}
   CAKE_HUB_SECRET: ${CAKE_HUB_SECRET:-}
+  CAKE_HUB_URL: ${CAKE_HUB_URL:-}
+  CAKE_HUB_SITE_KEY: ${CAKE_HUB_SITE_KEY:-}
   JWT_SECRET: ${JWT_SECRET:?Đặt JWT_SECRET trong .env (xem .env.example) — nền chặn khoá mặc định ở bản production}
 
 services:

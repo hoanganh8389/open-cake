@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T13:47:12.934Z",
+  "generated": "2026-11-25T18:02:16.893Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -288,7 +288,7 @@
         },
         {
           "id": "S006-3",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake",
           "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
           "line": 11
@@ -309,7 +309,7 @@
         },
         {
           "id": "S006-6",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake",
           "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
           "line": 14

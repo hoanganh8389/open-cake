@@ -9,6 +9,7 @@ import { KernelError } from './errors.js';
 import { resolveIdentity, type ResolveResult } from './identity.js';
 import { effectiveRows, refreshState } from './state.js';
 import type { ConversationRow, KernelDeps, LedgerRow } from './types.js';
+import { deliveryAdvances } from './send.js';
 
 export type SubmitResult = { status: 'accepted' | 'unchanged'; touchId: number | null; contactId: string | null; resolved?: ResolveResult['how'] };
 
@@ -34,11 +35,16 @@ export async function submitTouchIn(deps: KernelDeps, raw: unknown): Promise<Sub
     const event = { eventId: prev?.eventId ?? newId('event'), source: t.source, docKey: t.docKey, version: t.version, type: t.type, payload: t, receivedAt: at, actor: `service:hub via ${t.source}` };
     if (prev) {
       await repo.archiveEventVersion(prev);
-      for (const r of effectiveRows(await repo.ledgerByEvent(prev.eventId))) {
+      // báo giao (v2 của cùng tin) không thay nội dung lượt chạm ⇒ không đảo dòng sổ của v1
+      if (t.type !== 'delivery.updated') for (const r of effectiveRows(await repo.ledgerByEvent(prev.eventId))) {
         await repo.appendLedger({ ...r, qty: -1, isReversal: true, reversesId: r.touchId, at, dims: { ...r.dims, reason: 'version' } });
       }
       await repo.replaceEvent(event);
     } else await repo.insertEvent(event);
+
+    // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — delivery.updated KHÔNG phải lượt chạm mới: chỉ đổi trạng thái giao của tin đã có
+    //   (tin Cake gửi tìm theo hints.commandKey, tin khác theo mã tin) — trước đây mỗi báo giao cộng thêm một dòng sổ.
+    if (t.type === 'delivery.updated') return applyDelivery(deps, t);
 
     const kind = KIND[t.type] ?? null;
     if (!kind || !t.sender) return { status: 'accepted', touchId: null, contactId: null };
@@ -72,6 +78,12 @@ export async function submitTouchIn(deps: KernelDeps, raw: unknown): Promise<Sub
       windowUntil: t.channel === 'facebook_page' && dir === 'in' ? new Date(Date.parse(t.occurredAt) + PAGE_WINDOW_MS).toISOString() : conv.windowUntil,
     });
 
+    // Tin ra đã có (Cake gửi rồi Cell báo lại, hoặc Cell gửi lại cùng mã) ⇒ không đếm lần hai, chỉ cập nhật trạng thái.
+    if (dir === 'out' && conv0) {
+      const mine = await findOwn(deps, conv0.conversationId, t);
+      if (mine) return { status: 'accepted', touchId: mine.touchId, contactId };
+    }
+
     const row: LedgerRow = await repo.appendLedger({
       eventId: event.eventId, contactId, conversationId: conv.conversationId, channelAccountId: account.channelAccountId, channel: t.channel,
       kind, direction: dir, qty: 1, isReversal: false, reversesId: null, dims: { backfill: t.history.backfill, type: t.type }, at: t.occurredAt,
@@ -87,4 +99,25 @@ export async function submitTouchIn(deps: KernelDeps, raw: unknown): Promise<Sub
     await refreshState(repo, contactId);
     return { status: 'accepted', touchId: row.touchId, contactId, resolved: how };
   });
+}
+
+const extOf = (t: Touch) => t.docKey.split('|')[3]!;
+
+/** Tin ra của chính hội thoại này mà sự việc đang nói tới: theo khoá lệnh Cake (hints.commandKey) rồi theo mã tin của kênh. Có thì đổi trạng thái + gắn mã thật. */
+async function findOwn({ repo }: KernelDeps, conversationId: string, t: Touch) {
+  const key = t.hints.commandKey ?? null;
+  const realExt = t.delivery?.externalMessageId ?? extOf(t);
+  const m = (key ? await repo.findMessage(conversationId, key) : undefined) ?? (await repo.findMessage(conversationId, realExt));
+  if (!m) return undefined;
+  const status = t.delivery?.status ?? (t.type === 'message.sent' ? 'sent' : null);
+  const attach = m.externalMessageId.startsWith('cake:') && !realExt.startsWith('cake:') ? realExt : undefined;
+  if ((status && deliveryAdvances(m.delivery, status)) || attach) await repo.setDelivery(m.messageId, status && deliveryAdvances(m.delivery, status) ? status : (m.delivery ?? 'sent'), attach);
+  return m;
+}
+
+async function applyDelivery(deps: KernelDeps, t: Touch): Promise<SubmitResult> {
+  const account = await deps.repo.findAccount(t.channelAccount.externalAccountId, t.channelAccount.kind);
+  const conv = account ? await deps.repo.findConversation(account.channelAccountId, t.thread.externalThreadId) : undefined;
+  const m = conv ? await findOwn(deps, conv.conversationId, t) : undefined;
+  return { status: 'accepted', touchId: m?.touchId ?? null, contactId: m && conv ? conv.contactId : null };
 }

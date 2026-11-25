@@ -76,7 +76,7 @@ describe.skipIf(!url)('API danh mục trên Postgres (cùng hợp đồng với 
   });
 
   it('action chưa có máy chủ ⇒ 501 CAKE_NOT_ON_SERVER (không giả vờ thành công)', async () => {
-    const { messageSend } = await C(); // gửi tin cần Cell / Hub (PHASE-006, 008) ⇒ vẫn chưa có máy chủ
-    await expect(c.call(messageSend, { conversationId: '01JDAV00000000000000000001', text: 'Dạ', attachments: [] })).rejects.toMatchObject({ code: 'CAPABILITY_MISSING', reason: 'CAKE_NOT_ON_SERVER' });
+    const { commentReply } = await C(); // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] trả lời bình luận (PHASE-008) ⇒ vẫn chưa có máy chủ
+    await expect(c.call(commentReply, { conversationId: '01JDAV00000000000000000001', mode: 'public', text: 'Dạ' })).rejects.toMatchObject({ code: 'CAPABILITY_MISSING', reason: 'CAKE_NOT_ON_SERVER' });
   });
 });

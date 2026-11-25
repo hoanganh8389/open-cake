@@ -75,6 +75,7 @@ export class MemoryRepo implements CareRepo {
     if (i >= 0) this.d.messages[i] = m; else this.d.messages.push(m);
   }
   async findMessage(conv: string, ext: string) { return this.d.messages.find((m) => m.conversationId === conv && m.externalMessageId === ext); }
+  async setDelivery(id: string, delivery: string, ext?: string) { const m = this.d.messages.find((x) => x.messageId === id); if (m) { m.delivery = delivery; if (ext) m.externalMessageId = ext; } }
 
   async getState(id: string) { return this.d.states[id]; }
   async putState(s: StateRow) { this.d.states[s.contactId] = s; }

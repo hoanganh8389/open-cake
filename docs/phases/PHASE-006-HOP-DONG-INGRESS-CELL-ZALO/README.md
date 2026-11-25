@@ -24,7 +24,9 @@
 |---|---|---|
 | S006-1 | ☑ (PHASE-002) | zod `bizcity_touch@1` + fixture |
 | S006-2 | ◐ | `apps/api/src/care/ingress.ts`: khoá dịch vụ + HMAC trên thân thô + lệch ≤ 300 s + trần 256 KB + `X-Bizcity-Contract` ⇒ `submitTouchIn`; 3 test tích hợp. **Còn:** nonce chống lặp (hiện dựa vào idempotency `(source, docKey, version)` của kernel), khoá Hub trong `api_keys` (PHASE-004, đang đọc env) |
-| S006-3..6 | ☐ | lệnh ra kênh, Cell phát song song, Hub định tuyến — làm cùng zalo-hub / llm-router |
+| S006-3 | ◐ | <!-- [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 --> phía Cake xong: kernel `requestSend` (1 dòng sổ lúc bấm gửi, tin mang khoá lệnh `cake:<touch>:send:1`); hàng chờ `channel_commands` (0106) ghi CÙNG giao dịch; gọi `POST {CAKE_HUB_URL}/channel/v1/commands` (khoá site, ký thân, Idempotency-Key); mạng / 5xx ⇒ gửi lại cùng khoá mỗi 15 s; 4xx ⇒ gửi lỗi; quá 10 phút ⇒ chưa rõ đã gửi, không tự gửi khoá mới. `delivery.updated` (hints.commandKey) ⇒ đổi trạng thái + gắn mã thật, **không** thêm dòng sổ. Sửa luôn 2 lỗi kernel: báo giao từng cộng thêm một lượt chạm; v2 báo giao từng đảo mất lượt chạm của v1 `message.sent`. Bằng chứng: 3 kịch bản kernel (bộ nhớ + Postgres), `apps/api/test/send.http.test.ts` 5 ca với Hub giả. **Còn:** chạy với Hub thật (S006-5) |
+| S006-6 | ◐ | `cake.channel.test` ⇒ lệnh `account.test` tới Hub, Hub nhận ⇒ `tested_at`; `twoWay` = false tới khi Cell phát tin thử quay về (S006-4) |
+| S006-4..5 | ☐ | Cell phát song song, Hub định tuyến — repo zalo-hub / llm-router |
 
 ## Xong khi
 

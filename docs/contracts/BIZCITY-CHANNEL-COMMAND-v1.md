@@ -1,6 +1,6 @@
 # BIZCITY-CHANNEL-COMMAND v1 — `bizcity_channel_command@1`
 
-> **Phiên bản:** 0.1.0-draft · 2026-11-24 · **Trạng thái:** Nháp (đề xuất — chưa có mã) · **Chủ:** open-cake
+> **Phiên bản:** 0.1.1-draft · 2026-11-26 · **Trạng thái:** Nháp — phía Cake có mã (2026-11-26), chờ Hub · **Chủ:** open-cake
 
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] C-CHANNEL-COMMAND — lệnh từ Cake ra kênh qua Hub 1API tới Cell; ba mức trạng thái; hết giờ = unknown, không tự gửi lại. -->
 
@@ -41,6 +41,12 @@ Hub trả `202 {accepted: true}` ngay. Kết quả thật về Cake bằng `bizc
 
 **Luật:** `accepted ≠ sent ≠ delivered`; hết giờ chờ ⇒ `unknown`; **không tự gửi lại** — nhân viên mở hội thoại kiểm rồi bấm gửi lại (khoá mới `:send:2`).
 
+## 4. Hiện thực phía Cake
+
+<!-- [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 -->
+`apps/api/src/care/send.ts`. Header gửi Hub: `Authorization: Bearer <CAKE_HUB_SITE_KEY>`, `Idempotency-Key: <idempotencyKey>`, `X-Bizcity-Contract: bizcity_channel_command@1`, `X-Bizcity-Signature: t=<unix>,v1=<hex hmac-sha256(CAKE_HUB_SECRET, t + "." + thân)>` (cùng khuôn cổng nhận). `account.test` dùng khoá `cake:0:account_test:<unix>` (không có lượt chạm). Hub cần chống lặp theo Idempotency-Key: Cake gửi lại CÙNG khoá khi không nhận được 202. Nút **Gửi lại** của nhân viên tạo tin + lượt chạm MỚI ⇒ khoá `cake:<touch mới>:send:1` (khác khoá cũ — đúng tinh thần §3 "khoá mới", không dùng `:send:2`).
+
 ## Changelog
 
 - 0.1.0-draft (2026-11-24): bản đầu.
+- 0.1.1-draft (2026-11-26): ghi header + khoá account.test của bản hiện thực phía Cake (§4).

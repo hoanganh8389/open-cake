@@ -6,7 +6,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { KernelError, assignConversation, computeState, effectiveRows, mergeContacts, sameState, submitTouchIn, tagContact, unmergeContact, type AccountRow, type KernelDeps, type LedgerRow } from '../src/index.js';
+import { KernelError, requestSend, assignConversation, computeState, effectiveRows, mergeContacts, sameState, submitTouchIn, tagContact, unmergeContact, type AccountRow, type KernelDeps, type LedgerRow } from '../src/index.js';
 
 export interface Probe {
   ledger(): Promise<LedgerRow[]>;
@@ -150,6 +150,44 @@ export function defineKernelSuite(label: string, make: () => Promise<Harness>, o
       for (const id of await probe.contactIds()) {
         expect(sameState(await deps.repo.getState(id), await computeState(deps.repo, id, await deps.repo.mergedFrom(id))), id).toBe(true);
       }
+    });
+  });
+
+  // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — gửi tin: một lượt chạm lúc bấm gửi; báo giao / tin Cell báo lại không đếm lần hai, không kéo lùi.
+  describe(`${label} · gửi tin ra kênh và báo giao`, () => {
+    const dlv = () => fx('touch.zalo-delivery.json');
+    const zIn = () => ({ ...dlv(), eventId: '01JDAB0000000000000000T020', occurredAt: '2026-11-24T08:00:00Z', type: 'message.received', direction: 'inbound', version: 1, docKey: 'zalo_personal|7350219485123001001|u_8812|m_in1',
+      sender: { scope: 'global', externalId: '8812', displayName: 'Vy', avatarRef: null }, content: { type: 'text', text: 'Còn váy không em?', attachments: [] }, hints: {}, delivery: null });
+    const outs = async () => effectiveRows(await probe.ledger()).filter((r) => r.direction === 'out');
+
+    it('gửi ⇒ 1 dòng sổ ra + tin "đang gửi" mang khoá lệnh; delivery.updated (commandKey) ⇒ đổi trạng thái + gắn mã thật, không thêm dòng; phát lại không đổi', async () => {
+      const a = await submit(zIn());
+      const conv = (await deps.repo.conversationsOf(a.contactId!))[0]!;
+      const r = await requestSend(deps, { conversationId: conv.conversationId, text: 'Dạ còn ạ', actor: '7', userId: '7' });
+      expect(r.commandKey).toBe(`cake:${r.touchId}:send:1`);
+      expect(await deps.repo.findMessage(conv.conversationId, r.commandKey)).toMatchObject({ delivery: 'accepted', direction: 'out', sentBy: '7' });
+      expect(await deps.repo.getState(a.contactId!)).toMatchObject({ unanswered: false });
+      const d = { ...dlv(), hints: { commandKey: r.commandKey } };
+      expect(await submit(d)).toMatchObject({ status: 'accepted', touchId: r.touchId, contactId: a.contactId });
+      expect(await deps.repo.findMessage(conv.conversationId, 'm_9001')).toMatchObject({ messageId: r.messageId, delivery: 'sent' });
+      expect((await submit(d)).status).toBe('unchanged');
+      await submit({ ...d, version: 3, delivery: { status: 'read', externalMessageId: 'm_9001' } });
+      expect((await deps.repo.findMessage(conv.conversationId, 'm_9001'))?.delivery).toBe('read');
+      expect(await outs()).toHaveLength(1);
+    });
+    it('tin shop gửi từ điện thoại (v1 message.sent) rồi báo giao v2 ⇒ vẫn đúng 1 lượt chạm, không đảo', async () => {
+      await submit(zIn());
+      const sent = { ...dlv(), type: 'message.sent', version: 1, content: { type: 'text', text: 'Shop gửi từ điện thoại', attachments: [] }, hints: {}, delivery: null };
+      await submit(sent);
+      await submit({ ...dlv(), hints: {}, delivery: { status: 'delivered', externalMessageId: 'm_9001' } });
+      expect(await outs()).toHaveLength(1);
+      expect((await probe.ledger()).filter((x) => x.isReversal)).toHaveLength(0);
+    });
+    it('báo giao cho tin không có trong Cake ⇒ chỉ lưu sự việc, không dòng sổ', async () => {
+      await submit(zIn());
+      const before = (await probe.ledger()).length;
+      expect(await submit({ ...dlv(), docKey: 'zalo_personal|7350219485123001001|u_8812|m_la', hints: {} })).toMatchObject({ status: 'accepted', touchId: null });
+      expect((await probe.ledger()).length).toBe(before);
     });
   });
 }

@@ -95,7 +95,7 @@ export const inboxHandlers: Record<string, Handler> = {
     if (before) mq = mq.where(sql<boolean>`(at, message_id) < (${before[0]}::timestamptz, ${before[1]})`);
     const rows = await mq.orderBy('at', 'desc').orderBy('message_id', 'desc').limit(i.limit).execute();
     const oldest = rows.length === i.limit ? rows[rows.length - 1]! : null;
-    return paged(rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: null })), { nextCursor: oldest ? encCursor(oldest.at, oldest.message_id) : null });
+    return paged(rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: m.sent_by ?? null })), { nextCursor: oldest ? encCursor(oldest.at, oldest.message_id) : null });
   },
   'cake.contact.list': async (ctx, i) => {
     let q = ctx.tx.selectFrom('contacts as c').leftJoin('contact_state as s', 's.contact_id', 'c.contact_id').where('c.tenant_id', '=', ctx.tenantId).where('c.status', '=', 'active');

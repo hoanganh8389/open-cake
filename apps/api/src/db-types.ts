@@ -41,7 +41,7 @@ export interface TouchLedgerTable {
   touch_id: ColumnType<string, never, never>; tenant_id: string; event_id: string; contact_id: string; conversation_id: string | null; channel_account_id: string | null; channel: string | null;
   kind: string; direction: string; qty: number; is_reversal: boolean; reverses_id: string | null; dims: J; at: Ts;
 }
-export interface MessagesTable { message_id: string; tenant_id: string; touch_id: string; conversation_id: string; external_message_id: string; direction: string; body: string; attachments: ColumnType<unknown, string | undefined, string>; delivery: string | null; e2ee: ColumnType<boolean, boolean | undefined, boolean>; at: Ts }
+export interface MessagesTable { message_id: string; tenant_id: string; touch_id: string; conversation_id: string; external_message_id: string; direction: string; body: string; attachments: ColumnType<unknown, string | undefined, string>; delivery: string | null; e2ee: ColumnType<boolean, boolean | undefined, boolean>; at: Ts; sent_by: ColumnType<string | null, string | null | undefined, string | null> }
 export interface ContactStateTable { contact_id: string; tenant_id: string; tags: string[]; last_in_at: TsNull; last_out_at: TsNull; unanswered: boolean; channels: J; rev: number }
 
 // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — 0104.
@@ -67,6 +67,7 @@ declare module '@bizcity/platform/db/types' {
     order_requests: OrderRequestsTable;
     order_request_events: OrderRequestEventsTable;
     pos_links: PosLinksTable;
+    channel_commands: ChannelCommandsTable;
     channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;
     contact_identities: ContactIdentitiesTable;
@@ -88,3 +89,10 @@ declare module '@bizcity/platform/db/types' {
   }
 }
 
+
+// [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — 0106 hàng chờ lệnh ra kênh.
+export interface ChannelCommandsTable {
+  tenant_id: string; command_key: string; operation: string; channel_account_id: string; message_id: string | null; body: J;
+  state: ColumnType<string, string | undefined, string>; attempts: ColumnType<number, number | undefined, number>; next_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  last_error: string | null; created_by: string; created_at: ColumnType<Date, Date | string | undefined, never>; done_at: TsNull;
+}

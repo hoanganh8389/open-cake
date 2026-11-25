@@ -28,7 +28,8 @@ const interleave = (ms: Message[], os: OrderRequest[]): Row[] => {
 };
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
 
-function Bubble({ m, name }: { m: Message; name: string }) {
+// [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin lỗi / chưa rõ đã gửi ⇒ nút Gửi lại (tin MỚI, khoá mới — nhân viên quyết, máy không tự gửi lại; R-CAKE-SEND-2).
+function Bubble({ m, name, onResend }: { m: Message; name: string; onResend?: (m: Message) => void }) {
   const img = m.attachments.find((a) => a.type === 'image');
   const file = m.attachments.find((a) => a.type === 'file');
   return (
@@ -40,7 +41,8 @@ function Bubble({ m, name }: { m: Message; name: string }) {
       ) : (
         <div className="bb">
           {file ? <div className="file"><span className="pdf">PDF</span><div style={{ flex: 1 }}><b>{file.name}</b><div className="muted" style={{ fontSize: 15 }}>{bytes(file.size)} {t.inbox.chat.tapToDownload}</div></div><Ic.download style={{ width: 22, height: 22 }} /></div> : m.text}
-          <span className="ts">{hhmm(m.at)}{m.direction === 'out' && m.delivery && m.delivery !== 'sent' ? ` · ${t.inbox.chat.delivery[m.delivery] ?? m.delivery}` : ''}</span>
+          <span className="ts">{hhmm(m.at)}{m.direction === 'out' && m.delivery && m.delivery !== 'sent' ? ` · ${t.inbox.chat.delivery[m.delivery] ?? m.delivery}` : ''}
+            {onResend && m.direction === 'out' && (m.delivery === 'failed' || m.delivery === 'unknown') && <> · <button type="button" className="link" onClick={() => onResend(m)}>{t.inbox.chat.resend}</button></>}</span>
           {m.reaction && <span className="re" style={m.direction === 'out' ? { left: 8 } : { right: 16 }}>{m.reaction}</span>}
         </div>
       )}
@@ -99,7 +101,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       </div>
       <div className="msgs" ref={ref}>
         <QueryView q={{ ...msgs, data: shown }} empty={{ title: t.inbox.chat.emptyTitle, desc: t.inbox.chat.emptyDesc }}>
-          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{interleave(ms, orders.data ?? []).map((r) => (r.m ? <Bubble key={r.m.messageId} m={r.m} name={conv.title} /> : <OrderSysLine key={`${r.o!.orderRequestId}-${r.e!.type}-${r.at}`} o={r.o!} e={r.e!} />))}</>}
+          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{interleave(ms, orders.data ?? []).map((r) => (r.m ? <Bubble key={r.m.messageId} m={r.m} name={conv.title} onResend={(x) => send.mutate({ conversationId: conv.conversationId, text: x.text, attachments: x.attachments })} /> : <OrderSysLine key={`${r.o!.orderRequestId}-${r.e!.type}-${r.at}`} o={r.o!} e={r.e!} />))}</>}
         </QueryView>
       </div>
       <div className="dlabels">

@@ -7,5 +7,6 @@ export * from './memory-repo.js';
 export { resolveIdentity, type ResolveInput, type ResolveResult } from './identity.js';
 export { submitTouchIn, type SubmitResult } from './submit-touch.js';
 export { assignConversation, tagContact } from './commands.js';
+export { requestSend, deliveryAdvances, type SendResult } from './send.js'; // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3
 export { mergeContacts, unmergeContact, UNMERGE_WINDOW_DAYS } from './merge.js';
 export { computeState, effectiveRows, refreshState, sameState } from './state.js';

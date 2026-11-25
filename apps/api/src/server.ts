@@ -25,6 +25,7 @@ import { apiKeyHandlers } from './auth/apikeys.js'; // [2026-11-24 11:45 PM John
 import { failure, registerActions } from './runtime.js';
 import { orderHandlers, retryQueuedOrders } from './orders/service.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app
 import { linkHandlers } from './orders/link.js';
+import { retryChannelCommands, sendHandlers } from './care/send.js'; // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin ra kênh qua Hub
 import { registerPosEvents } from './orders/pos-events.js';
 import { cakeLoggerOptions, genReqId, registerObservability } from './observability.js';
 import { installProcessHandlers } from '@bizcity/platform/core/logger';
@@ -50,7 +51,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
     return { ok: true, data: { schema: 'ready' } };
   });
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
-  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers, ...recordHandlers, ...orderHandlers, ...linkHandlers };
+  const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers, ...recordHandlers, ...orderHandlers, ...linkHandlers, ...sendHandlers };
   registerActions(app, ALL_ACTIONS, handlers);
   // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — tra một bằng chứng theo meta.receipt.evidenceId (trong đơn vị; không có nội dung, chỉ băm).
   app.get<{ Params: { id: string } }>('/api/v1/evidence/:id', { preHandler: requirePermission('reports:read') }, async (req) => {
@@ -77,7 +78,9 @@ if (process.argv[1]?.endsWith('server.js')) {
   const app = await buildApp();
   // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — RC-ORDER-1: mỗi phút gửi lại yêu cầu đặt hàng chưa tới được cửa hàng.
   const retry = setInterval(() => { retryQueuedOrders().catch((e) => app.log.warn({ err: e }, 'gửi lại yêu cầu đặt hàng lỗi')); }, 60_000);
-  const stop = async () => { clearInterval(retry); await app.close(); await shutdownTracing(); process.exit(0); };
+  // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — mỗi 15 giây gửi lại lệnh ra kênh chưa tới Hub (cùng khoá; quá 10 phút ⇒ "chưa rõ đã gửi").
+  const cmds = setInterval(() => { retryChannelCommands().catch((e) => app.log.warn({ err: e }, 'gửi lại lệnh ra kênh lỗi')); }, 15_000);
+  const stop = async () => { clearInterval(retry); clearInterval(cmds); await app.close(); await shutdownTracing(); process.exit(0); };
   process.on('SIGINT', () => void stop());
   process.on('SIGTERM', () => void stop());
   await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8120) });

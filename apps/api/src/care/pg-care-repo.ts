@@ -21,7 +21,7 @@ const toAccount = (r: any): AccountRow => ({ channelAccountId: r.channel_account
 const toConv = (r: any): ConversationRow => ({ conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null, lastAt: isoN(r.last_at), lastDirection: r.last_direction, windowUntil: isoN(r.window_until), assigneeUserId: r.assignee_user_id });
 const toEvent = (r: any): EventRow => ({ eventId: r.event_id, source: r.source, docKey: r.doc_key, version: r.version, type: r.type, payload: r.payload, receivedAt: iso(r.received_at), actor: r.actor });
 export const toLedger = (r: any): LedgerRow => ({ touchId: Number(r.touch_id), eventId: r.event_id, contactId: r.contact_id, conversationId: r.conversation_id, channelAccountId: r.channel_account_id, channel: r.channel, kind: r.kind, direction: r.direction, qty: r.qty, isReversal: r.is_reversal, reversesId: r.reverses_id === null ? null : Number(r.reverses_id), dims: r.dims ?? {}, at: iso(r.at) });
-const toMessage = (r: any): MessageRow => ({ messageId: r.message_id, touchId: Number(r.touch_id), conversationId: r.conversation_id, externalMessageId: r.external_message_id, direction: r.direction, text: r.body, e2ee: r.e2ee, delivery: r.delivery, at: iso(r.at) });
+const toMessage = (r: any): MessageRow => ({ messageId: r.message_id, touchId: Number(r.touch_id), conversationId: r.conversation_id, externalMessageId: r.external_message_id, direction: r.direction, text: r.body, e2ee: r.e2ee, delivery: r.delivery, at: iso(r.at), sentBy: r.sent_by ?? null });
 const toState = (r: any): StateRow => ({ contactId: r.contact_id, tags: r.tags, lastInAt: isoN(r.last_in_at), lastOutAt: isoN(r.last_out_at), unanswered: r.unanswered, channels: r.channels ?? {}, rev: r.rev });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -117,8 +117,12 @@ export class PgCareRepo implements CareRepo {
     await this.c.insertInto('conversations').values(v).onConflict((o) => o.column('conversation_id').doUpdateSet({ contact_id: v.contact_id, last_at: v.last_at, last_direction: v.last_direction, window_until: v.window_until, anchor: v.anchor, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}) })).execute();
   }
   async upsertMessage(m: MessageRow) {
-    const v = { message_id: m.messageId, tenant_id: this.tenantId, touch_id: String(m.touchId), conversation_id: m.conversationId, external_message_id: m.externalMessageId, direction: m.direction, body: m.text, delivery: m.delivery, e2ee: m.e2ee, at: m.at };
+    const v = { message_id: m.messageId, tenant_id: this.tenantId, touch_id: String(m.touchId), conversation_id: m.conversationId, external_message_id: m.externalMessageId, direction: m.direction, body: m.text, delivery: m.delivery, e2ee: m.e2ee, at: m.at, sent_by: m.sentBy ?? null };
     await this.c.insertInto('messages').values(v).onConflict((o) => o.columns(['tenant_id', 'conversation_id', 'external_message_id']).doUpdateSet({ touch_id: v.touch_id, body: v.body, delivery: v.delivery, e2ee: v.e2ee })).execute();
+  }
+  // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — báo giao: đổi trạng thái + thay khoá lệnh bằng mã tin thật của kênh.
+  async setDelivery(id: string, delivery: string, ext?: string) {
+    await this.t(this.c.updateTable('messages').set({ delivery, ...(ext ? { external_message_id: ext } : {}) })).where('message_id', '=', id).execute();
   }
   async findMessage(conv: string, ext: string) {
     const r = await this.t(this.c.selectFrom('messages').selectAll()).where('conversation_id', '=', conv).where('external_message_id', '=', ext).executeTakeFirst();

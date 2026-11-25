@@ -16,7 +16,7 @@ export type LedgerRow = {
   touchId: number; eventId: string; contactId: string; conversationId: string | null; channelAccountId: string | null; channel: Channel | null;
   kind: string; direction: 'in' | 'out' | 'none'; qty: 1 | -1; isReversal: boolean; reversesId: number | null; dims: Record<string, unknown>; at: string;
 };
-export type MessageRow = { messageId: string; touchId: number; conversationId: string; externalMessageId: string; direction: 'in' | 'out'; text: string; e2ee: boolean; delivery: string | null; at: string };
+export type MessageRow = { messageId: string; touchId: number; conversationId: string; externalMessageId: string; direction: 'in' | 'out'; text: string; e2ee: boolean; delivery: string | null; at: string; sentBy?: string | null };
 export type StateRow = { contactId: string; tags: string[]; lastInAt: string | null; lastOutAt: string | null; unanswered: boolean; channels: Record<string, number>; rev: number };
 
 /** Cổng kho. Hàm ghi chỉ THÊM, trừ các chỗ được luật cho phép sửa (đóng identity bằng validTo, cập nhật dẫn xuất, trạng thái giao tin). */
@@ -53,6 +53,8 @@ export interface CareRepo {
   upsertConversation(c: ConversationRow): Promise<void>;
   upsertMessage(m: MessageRow): Promise<void>;
   findMessage(conversationId: string, externalMessageId: string): Promise<MessageRow | undefined>;
+  /** [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — delivery.updated: đổi trạng thái giao + gắn mã tin thật của kênh (thay khoá lệnh). */
+  setDelivery(messageId: string, delivery: string, externalMessageId?: string): Promise<void>;
   // dẫn xuất
   getState(contactId: string): Promise<StateRow | undefined>;
   putState(s: StateRow): Promise<void>;

@@ -101,10 +101,11 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
     expect((await c.call(contactList, { sort: 'name', page: 1, pageSize: 50 })).meta?.total).toBe(before);
   });
 
-  it('lệnh gửi tin chưa có máy chủ ⇒ 501 CAKE_NOT_ON_SERVER (Cell / Hub ở PHASE-006, 008)', async () => {
-    const { messageSend, conversationList } = await C();
+  // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 — gửi tin đã có máy chủ (test/send.http.test.ts); trả lời bình luận vẫn chờ PHASE-008.
+  it('trả lời bình luận chưa có máy chủ ⇒ 501 CAKE_NOT_ON_SERVER (PHASE-008)', async () => {
+    const { commentReply, conversationList } = await C();
     const v = (await c.call(conversationList, { filter: 'all', limit: 1 })).data[0]!;
-    await expect(c.call(messageSend, { conversationId: v.conversationId, text: 'Dạ', attachments: [] })).rejects.toMatchObject({ reason: 'CAKE_NOT_ON_SERVER' });
+    await expect(c.call(commentReply, { conversationId: v.conversationId, mode: 'public', text: 'Dạ' })).rejects.toMatchObject({ reason: 'CAKE_NOT_ON_SERVER' });
   });
   // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: con trỏ keyset — đi hết trang bằng limit 1 khớp đúng danh sách đầy đủ, không trùng, không sót.
   it('con trỏ: hội thoại (mới → cũ) và tin (trang mới nhất trước, lùi về cũ) khớp danh sách đầy đủ; con trỏ hỏng ⇒ 400', async () => {

@@ -17,7 +17,8 @@ export const inbox = {
   chat: {
     image: 'Hình ảnh',
     tapToDownload: 'Nhấn để tải',
-    delivery: { accepted: 'đang gửi', unknown: 'chưa rõ đã gửi' } as Record<string, string>,
+    delivery: { accepted: 'đang gửi', unknown: 'chưa rõ đã gửi', failed: 'gửi lỗi', delivered: 'đã nhận', read: 'đã xem' } as Record<string, string>,
+    resend: 'Gửi lại',
     commentOnPost: (postId: string | undefined) => `Bình luận · bài ${postId ?? ''}`,
     open360: 'Mở Contact 360',
     threadInfo: 'Thông tin hội thoại',
