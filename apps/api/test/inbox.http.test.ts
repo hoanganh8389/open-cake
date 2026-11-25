@@ -106,4 +106,32 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
     const v = (await c.call(conversationList, { filter: 'all', limit: 1 })).data[0]!;
     await expect(c.call(messageSend, { conversationId: v.conversationId, text: 'Dạ', attachments: [] })).rejects.toMatchObject({ reason: 'CAKE_NOT_ON_SERVER' });
   });
+  // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: con trỏ keyset — đi hết trang bằng limit 1 khớp đúng danh sách đầy đủ, không trùng, không sót.
+  it('con trỏ: hội thoại (mới → cũ) và tin (trang mới nhất trước, lùi về cũ) khớp danh sách đầy đủ; con trỏ hỏng ⇒ 400', async () => {
+    const { conversationList, messageList } = await C();
+    const full = (await c.call(conversationList, { filter: 'all', limit: 200 })).data.map((v) => v.conversationId);
+    const walked: string[] = [];
+    let cur: string | undefined;
+    for (let n = 0; n < 50; n++) {
+      const r = await c.call(conversationList, { filter: 'all', limit: 1, cursor: cur });
+      walked.push(...r.data.map((v) => v.conversationId));
+      if (!r.meta.nextCursor) break;
+      cur = r.meta.nextCursor;
+    }
+    expect(walked).toEqual(full);
+    const sizes = await Promise.all(full.map(async (id) => [id, (await c.call(messageList, { conversationId: id, limit: 200 })).data.length] as const));
+    const [convId] = sizes.sort((a, b) => b[1] - a[1])[0]!;
+    const all = (await c.call(messageList, { conversationId: convId, limit: 200 })).data.map((m) => m.messageId);
+    expect(all.length).toBeGreaterThan(1);
+    const pages: string[][] = [];
+    cur = undefined;
+    for (let n = 0; n < 50; n++) {
+      const r = await c.call(messageList, { conversationId: convId, limit: 1, cursor: cur });
+      pages.push(r.data.map((m) => m.messageId));
+      if (!r.meta.nextCursor) break;
+      cur = r.meta.nextCursor;
+    }
+    expect(pages.reverse().flat()).toEqual(all);
+    await expect(c.call(conversationList, { filter: 'all', limit: 1, cursor: 'khong-phai-con-tro' })).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+  });
 });

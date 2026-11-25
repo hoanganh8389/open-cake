@@ -31,7 +31,8 @@
 | Gửi tin, trả lời bình luận | ☐ | cần Cell / Hub (PHASE-006, 008) — 501 `CAKE_NOT_ON_SERVER` |
 | R-WEB-8 `ErrorBoundary` | ☑ | biên lỗi ở Shell + mỗi màn (đổi màn là thử lại), màn lỗi = `State` sẵn có kèm `errFp`; báo về `POST /api/v1/system/client-errors` (cần phiên, ≤ 10 / phút / người, một dòng log, không nội dung tin) — test 401 / 400 / 429 |
 | R-WEB-9 realtime (S007-2 SSE) | ☑ | <!-- [2026-11-25 10:08 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 --> mỗi lệnh ghi / tin vào gọi `pg_notify` **trong giao dịch** (chỉ phát khi commit, đúng khi nhiều bản API) với payload `{đơn vị, năng lực}` — không dữ liệu; `GET /api/v1/stream` (cần phiên, nhịp 25 s, đóng sau 10 phút) ⇒ web gộp 500 ms rồi làm mới truy vấn đang hiện, nối lại giãn 3 → 30 s. Đọc bằng `fetch` + `Authorization` thay `EventSource` (EventSource buộc token trên URL). Test qua cổng mạng thật: 401, lệnh lỗi không phát, lệnh đúng phát `{"caps":["cake.flex"]}` |
-| Cuộn vô hạn + ảo hoá, `i18n`, phím tắt (R-WEB-10, 11, 15) | ☐ | — |
+| R-WEB-10 cuộn vô hạn | ☑ | <!-- [2026-11-25 10:50 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 --> con trỏ keyset `(thời điểm, id)` cho hội thoại (mới → cũ) và tin (trang mới nhất trước, lùi về cũ), `meta.nextCursor`; con trỏ hỏng ⇒ 400; lọc nhãn chuyển vào SQL. Web: `useInfiniteQueryAction` + `LoadMore` (IntersectionObserver + nút), 50 dòng / trang; khung chat giữ chỗ đang đọc khi chèn tin cũ. "Ảo hoá" = CSS `content-visibility` trên dòng hội thoại (không thư viện); **không** áp cho bong bóng tin (làm lệch cuộn cuối — đã thấy ở ảnh). **Danh bạ giữ phân trang theo trang** (bảng 50 dòng + Pager) — khác luật, có chủ ý. Test: đi hết trang bằng `limit 1` khớp danh sách đầy đủ. Ảnh `cuon-con-tro-hop-thu` (giả lập ít dữ liệu nên chưa hiện nút tải thêm) |
+| `i18n`, phím tắt (R-WEB-11, 15) | ☐ | — |
 
 ## Xong khi
 

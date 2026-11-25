@@ -2,7 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: hook React trên react-query (R-WEB-3): dữ liệu máy chủ chỉ ở cache react-query,
 //   khoá cache = ['cake', action id, input]; ghi xong thì làm mới mọi query cùng năng lực (capability).
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { ActionInput, ActionSpec } from '@open-cake/contracts';
 import { newIdempotencyKey, type ActionClient, type CallResult } from './client.js';
@@ -43,4 +43,26 @@ export function useAction<S extends ActionSpec>(spec: S) {
 export function useInvalidateAll(): () => void {
   const qc = useQueryClient();
   return useMemo(() => () => void qc.invalidateQueries({ queryKey: ['cake'] }), [qc]);
+}
+
+// [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: danh sách theo con trỏ (meta.nextCursor). `items` = mọi trang nối lại theo thứ tự tải;
+//   `more()` tải trang kế. Khoá truy vấn cùng tiền tố ['cake', spec.id, …] ⇒ lệnh ghi / gợi ý realtime làm mới như mọi truy vấn khác.
+export function useInfiniteQueryAction<S extends ActionSpec>(spec: S, input: Omit<ActionInput<S>, 'cursor'>, opts: { enabled?: boolean } = {}) {
+  const client = useActionClient();
+  const q = useInfiniteQuery<CallResult<S>, Error>({
+    queryKey: [...queryKeyOf(spec, input), 'pages'],
+    queryFn: ({ pageParam }) => client.call(spec, { ...input, ...(pageParam ? { cursor: pageParam } : {}) } as ActionInput<S>),
+    initialPageParam: null as string | null,
+    getNextPageParam: (last) => last.meta.nextCursor ?? null,
+    enabled: opts.enabled ?? true,
+  });
+  // ghi nhớ theo dữ liệu của react-query: màn dùng `pages` / `data` làm phụ thuộc effect (cuộn) mà không chạy lại mỗi lần vẽ
+  const { pages, items } = useMemo(() => {
+    const ps = (q.data?.pages ?? []).map((p) => p.data as unknown as unknown[]);
+    return { pages: ps, items: ps.flat() };
+  }, [q.data]);
+  const { fetchNextPage } = q;
+  const more = useMemo(() => () => void fetchNextPage(), [fetchNextPage]);
+  type Item = CallResult<S>['data'] extends readonly (infer T)[] ? T : never;
+  return { ...q, data: q.data ? (items as Item[]) : undefined, pages: pages as Item[][], more, hasMore: q.hasNextPage, loadingMore: q.isFetchingNextPage };
 }

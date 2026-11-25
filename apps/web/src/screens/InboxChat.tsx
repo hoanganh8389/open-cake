@@ -3,11 +3,11 @@
 // [2026-11-24 04:00 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-4: khung chat theo ảnh duyệt (inbox.png): đầu hội thoại · tin (cake.message.list) · dải nhãn
 //   (cake.conversation.tag) · ô soạn gửi thật (cake.message.send) — lỗi hiện dưới ô soạn với lý do CAKE_*; comment có nút Trả lời riêng (cake.comment.reply).
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-7 — thêm nút Gửi giá; Tin nhắn nhanh + Gửi giá tách ra composer-panels.tsx (một khuôn bảng chọn).
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { commentReply, conversationTag, messageList, messageSend, type Conversation, type Message } from '@open-cake/contracts';
-import { useAction, useQueryAction } from '@open-cake/action-client';
+import { useAction, useInfiniteQueryAction } from '@open-cake/action-client';
 import { Btn, ChannelBadge, Face, GroupAvatar, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
-import { ActionErrorNote, QueryView } from '../app/QueryView.js';
+import { ActionErrorNote, LoadMore, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
 import { PricePicker, QuickReplies } from './composer-panels.js';
@@ -37,7 +37,9 @@ function Bubble({ m, name }: { m: Message; name: string }) {
 }
 
 export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversation; via: { label: string; channel: string }; info: boolean; onToggleInfo: () => void }) {
-  const msgs = useQueryAction(messageList, { conversationId: conv.conversationId, limit: 200 });
+  // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: trang tin MỚI NHẤT trước (50 tin), cuộn lên đầu tải tin cũ hơn; hiển thị cũ → mới.
+  const msgs = useInfiniteQueryAction(messageList, { conversationId: conv.conversationId, limit: 50 });
+  const shown = msgs.data ? [...msgs.pages].reverse().flat() : undefined;
   const send = useAction(messageSend);
   const reply = useAction(commentReply);
   const tag = useAction(conversationTag);
@@ -46,7 +48,15 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   const insert = (t: string) => { setText((cur) => (cur.trim() ? `${cur.trimEnd()} ${t}` : t)); setPanel(null); };
   const toggle = (k: 'quick' | 'price') => setPanel(panel === k ? null : k);
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => { const el = ref.current; if (el) el.scrollTop = el.scrollHeight; }, [msgs.data]);
+  // chèn tin cũ ở đầu ⇒ giữ nguyên chỗ đang đọc; trang mới nhất đổi (tin mới, mở hội thoại) ⇒ xuống cuối.
+  const seen = useRef({ pages: 0, h: 0 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (msgs.pages.length > seen.current.pages && seen.current.pages > 0) el.scrollTop += el.scrollHeight - seen.current.h;
+    else el.scrollTop = el.scrollHeight;
+    seen.current = { pages: msgs.pages.length, h: el.scrollHeight };
+  }, [msgs.pages]);
   const isComment = conv.kind === 'comment_thread';
   const canWrite = useCan('cake:inbox-lap'); // R-WEB-7: gắn nhãn, gửi, trả lời
   const why = canWrite ? undefined : needPermission('cake:inbox-lap');
@@ -70,8 +80,8 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
         <button type="button" className="ri" title="Thông tin hội thoại" onClick={onToggleInfo}><Panel className={info ? 'on' : undefined} /></button>
       </div>
       <div className="msgs" ref={ref}>
-        <QueryView q={msgs} empty={{ title: 'Chưa có tin nào', desc: 'Tin mới của khách sẽ hiện ở đây.' }}>
-          {(ms) => <>{ms.map((m) => <Bubble key={m.messageId} m={m} name={conv.title} />)}</>}
+        <QueryView q={{ ...msgs, data: shown }} empty={{ title: 'Chưa có tin nào', desc: 'Tin mới của khách sẽ hiện ở đây.' }}>
+          {(ms) => <><LoadMore q={msgs} label="Tải tin cũ hơn" />{ms.map((m) => <Bubble key={m.messageId} m={m} name={conv.title} />)}</>}
         </QueryView>
       </div>
       <div className="dlabels">

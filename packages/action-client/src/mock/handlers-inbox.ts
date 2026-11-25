@@ -71,7 +71,10 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
   'cake.message.list': (s, i) => {
     const c = conv(s, i.conversationId);
     c.unread = 0;
-    return sliceCursor(s.messages[i.conversationId] ?? [], i);
+    // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: như máy chủ — trang MỚI NHẤT trước, con trỏ lùi về tin cũ; trong trang xếp cũ → mới.
+    const xs = s.messages[i.conversationId] ?? [];
+    const end = i.cursor ? Number(i.cursor) : xs.length, from = Math.max(0, end - (i.limit ?? 50));
+    return paged(xs.slice(from, end), { nextCursor: from > 0 ? String(from) : null });
   },
   'cake.message.send': (s, i) => appendOut(s, i.conversationId, i.text, i.attachments, 'message'),
   'cake.message.draft': (s, i) => ({ draftId: `draft-${++s.seq}`, text: i.text }),

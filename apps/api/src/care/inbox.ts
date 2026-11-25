@@ -8,6 +8,16 @@ import { failure, paged, type Ctx, type Handler } from '../runtime.js';
 import { assertConversationVisible, scopeSql, visibleAccounts } from './scope.js';
 
 const iso = (d: Date | string) => new Date(d).toISOString();
+// [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: con trỏ keyset (thời điểm, id) — ổn định khi có dòng mới chen vào; mờ với client (base64url).
+const encCursor = (at: Date | string, id: string) => Buffer.from(JSON.stringify([iso(at), id])).toString('base64url');
+function decCursor(raw: string | undefined): [string, string] | null {
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as unknown;
+    if (Array.isArray(v) && typeof v[0] === 'string' && !Number.isNaN(Date.parse(v[0])) && typeof v[1] === 'string' && v[1].length <= 64) return [v[0], v[1]];
+  } catch { /* rơi xuống lỗi */ }
+  throw failure('VALIDATION_ERROR', 'Con trỏ trang không hợp lệ — tải lại danh sách.', { field: 'cursor' });
+}
 const isoN = (d: Date | string | null) => (d === null ? null : iso(d));
 const META = { gender: 'cake.contact.gender', birthday: 'cake.contact.birthday' } as const;
 const KIND_LABEL: Record<string, string> = { message: 'Tin nhắn', comment: 'Bình luận', reaction: 'Bày tỏ cảm xúc', tag: 'Gắn nhãn', merge: 'Ghép khách', note: 'Ghi chú' };
@@ -56,27 +66,36 @@ export const inboxHandlers: Record<string, Handler> = {
     if (i.channelAccountId) q = q.where('v.channel_account_id', '=', i.channelAccountId);
     if (i.q) q = q.where('c.display_name', 'ilike', `%${i.q}%`);
     if (i.filter === 'unanswered') q = q.where('v.last_direction', '=', 'in');
-    if (i.filter === 'mine') q = q.where('v.assignee_user_id', '=', ctx.userId ?? '-'); // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — "của tôi" = người đăng nhập
-    const rows = await q.selectAll('v').select('c.display_name').orderBy('v.last_at', 'desc').limit(i.limit).execute();
+    if (i.filter === 'mine') q = q.where('v.assignee_user_id', '=', ctx.userId ?? '-');
+    if (i.tag) q = q.where(sql<boolean>`EXISTS (SELECT 1 FROM contact_state s WHERE s.tenant_id = v.tenant_id AND s.contact_id = v.contact_id AND ${i.tag} = ANY(s.tags))`); // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: lọc nhãn trong SQL để trang đủ dòng
+    const after = decCursor(i.cursor);
+    if (after) q = q.where(sql<boolean>`(v.last_at, v.conversation_id) < (${after[0]}::timestamptz, ${after[1]})`); // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — "của tôi" = người đăng nhập
+    const rows = await q.selectAll('v').select('c.display_name').orderBy('v.last_at', 'desc').orderBy('v.conversation_id', 'desc').limit(i.limit).execute();
+    const tail = rows.length === i.limit ? rows[rows.length - 1]! : null;
     const ids = rows.map((r) => r.conversation_id);
     const [unread, state, last] = await Promise.all([
       unreadOf(ctx, ids), statesOf(ctx, rows.map((r) => r.contact_id)),
       ids.length ? sql<{ conversation_id: string; body: string }>`SELECT DISTINCT ON (conversation_id) conversation_id, body FROM messages WHERE tenant_id = ${ctx.tenantId} AND conversation_id IN (${sql.join(ids)}) ORDER BY conversation_id, at DESC`.execute(ctx.tx) : { rows: [] },
     ]);
     const lastText = new Map(last.rows.map((r) => [r.conversation_id, r.body]));
-    return rows
+    return paged(rows
       .map((r) => ({
         conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null,
         title: r.display_name, lastText: lastText.get(r.conversation_id) ?? '', lastAt: iso(r.last_at!), lastDirection: r.last_direction ?? 'in', unread: unread.get(r.conversation_id) ?? 0,
         tags: state(r.contact_id).tags, assigneeUserId: r.assignee_user_id, windowUntil: isoN(r.window_until), pinned: false,
       }))
-      .filter((c) => (i.filter !== 'unread' || c.unread > 0) && (!i.tag || c.tags.includes(i.tag)));
+      .filter((c) => i.filter !== 'unread' || c.unread > 0), { nextCursor: tail ? encCursor(tail.last_at!, tail.conversation_id) : null }); // 'chưa đọc' lọc sau ⇒ trang có thể ngắn hơn limit, con trỏ vẫn đúng
   },
   'cake.message.list': async (ctx, i) => {
     await assertConversationVisible(ctx, i.conversationId); // [2026-11-24 09:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5
     const { tx, tenantId } = ctx;
-    const rows = await tx.selectFrom('messages').selectAll().where('tenant_id', '=', tenantId).where('conversation_id', '=', i.conversationId).orderBy('at', 'desc').limit(i.limit).execute();
-    return rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: null }));
+    // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: trang MỚI NHẤT trước, con trỏ đi lùi về tin cũ hơn (cuộn lên); trong trang vẫn xếp cũ → mới.
+    const before = decCursor(i.cursor);
+    let mq = tx.selectFrom('messages').selectAll().where('tenant_id', '=', tenantId).where('conversation_id', '=', i.conversationId);
+    if (before) mq = mq.where(sql<boolean>`(at, message_id) < (${before[0]}::timestamptz, ${before[1]})`);
+    const rows = await mq.orderBy('at', 'desc').orderBy('message_id', 'desc').limit(i.limit).execute();
+    const oldest = rows.length === i.limit ? rows[rows.length - 1]! : null;
+    return paged(rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: null })), { nextCursor: oldest ? encCursor(oldest.at, oldest.message_id) : null });
   },
   'cake.contact.list': async (ctx, i) => {
     let q = ctx.tx.selectFrom('contacts as c').leftJoin('contact_state as s', 's.contact_id', 'c.contact_id').where('c.tenant_id', '=', ctx.tenantId).where('c.status', '=', 'active');

@@ -4,9 +4,9 @@
 //   trên URL (?account=&conv=&filter=); cột thông tin dẫn sang Contact 360 — một người, mọi kênh (trục contact_id).
 import { useState } from 'react';
 import { channelList, contactGet, conversationList } from '@open-cake/contracts';
-import { useQueryAction } from '@open-cake/action-client';
+import { useQueryAction, useInfiniteQueryAction } from '@open-cake/action-client';
 import { Btn, ChannelBadge, ChannelDot, Face, GroupAvatar, Ic, Tag, cx } from '@open-cake/ui-kit';
-import { QueryView } from '../app/QueryView.js';
+import { QueryView, LoadMore } from '../app/QueryView.js';
 import { hhmm } from '../app/format.js';
 import { go, useRoute } from '../app/route.js';
 import { InboxChat } from './InboxChat.js';
@@ -43,7 +43,8 @@ export function Inbox() {
   const filter = (query.get('filter') ?? 'all') as 'all' | 'unread' | 'unanswered' | 'mine';
   const [info, setInfo] = useState(false);
   const accounts = useQueryAction(channelList, {});
-  const list = useQueryAction(conversationList, { channelAccountId: account, filter, limit: 200 });
+  // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: con trỏ 50 hội thoại / trang, cuộn tới cuối tải tiếp.
+  const list = useInfiniteQueryAction(conversationList, { channelAccountId: account, filter, limit: 50 });
   const convs = list.data ?? [];
   const cur = convs.find((c) => c.conversationId === query.get('conv')) ?? convs[0];
   const acc = (accounts.data ?? []).find((a) => a.channelAccountId === (cur?.channelAccountId ?? account));
@@ -70,7 +71,7 @@ export function Inbox() {
                     {c.tags.length > 0 && <div className="tags">{c.tags.map((t) => <Tag key={t} name={t} />)}</div>}
                   </div>
                 </div>
-              ))}</>}
+              ))}<LoadMore q={list} label="Tải thêm hội thoại" /></>}
             </QueryView>
           </div>
         </section>
