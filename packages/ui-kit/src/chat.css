@@ -76,6 +76,13 @@
 .dmsg .quote { border-left: 3px solid var(--primary); background: rgba(37,99,235,.06); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; color: var(--muted-foreground); }
 .dmsg .ment { color: var(--primary); font-weight: 600; background: var(--primary-soft); border-radius: 4px; padding: 0 3px; }
 .dmsg .bb.revoked { font-style: italic; color: var(--subtle-foreground); background: transparent; border-style: dashed; }
+/* [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — thao tác trên tin (hiện khi rê chuột) */
+.dmsg { position: relative; }
+.dmsg .acts { display: none; position: absolute; top: -36px; right: 0; gap: 2px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 3px; z-index: 2; }
+.dmsg:not(.out) .acts { right: auto; left: 54px; }
+.dmsg:hover .acts, .dmsg .acts:focus-within { display: flex; }
+.dmsg .acts button { padding: 5px 10px; border-radius: 6px; font-size: 14px; }
+.dmsg .acts button:hover { background: var(--muted); } .dmsg .acts .danger { color: var(--destructive); }
 .dmsg .re { position: absolute; bottom: -14px; min-width: 30px; padding: 0 6px; white-space: nowrap; height: 26px; border-radius: 13px; background: #fff; border: 1px solid #e3e6eb; display: grid; place-items: center; font-size: 14px; }
 .dmsg .img { width: 440px; border-radius: 10px; overflow: hidden; background: #fff; border: 1px solid #c9dcfb; position: relative; }
 .dmsg .img .pic { height: 230px; background: #fde4ec; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding-bottom: 0; position: relative; }

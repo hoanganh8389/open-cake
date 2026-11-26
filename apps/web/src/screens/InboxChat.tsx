@@ -9,6 +9,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { commentReply, conversationTag, messageList, messageSend, orderRequestList, type Conversation, type Message, type OrderRequest } from '@open-cake/contracts';
 import { useAction, useInfiniteQueryAction, useQueryAction } from '@open-cake/action-client';
 import { ChannelAvatar, Btn, ChannelBadge, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
+import { MessageActions } from './message-actions.js'; // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3
 import { ActionErrorNote, LoadMore, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
@@ -61,6 +62,7 @@ function Bubble({ m, name, group, onResend }: { m: Message; name: string; group?
           {m.reaction && <span className="re" style={m.direction === 'out' ? { left: 8 } : { right: 16 }}>{m.reaction}</span>}
         </div>
       )}
+      <MessageActions m={m} />
       </div>
     </div>
   );

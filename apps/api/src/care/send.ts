@@ -18,9 +18,9 @@ import { assertConversationVisible } from './scope.js';
 
 export const HUB_COMMANDS_PATH = '/channel/v1/commands';
 const GIVE_UP_MS = 10 * 60_000;
-const CAPS = ['cake.conversation.manage', 'cake.message.send'];
+export const CAPS = ['cake.conversation.manage', 'cake.message.send'];
 
-function hub() {
+export function hub() {
   const url = process.env.CAKE_HUB_URL ?? '', key = process.env.CAKE_HUB_SITE_KEY ?? '', secret = process.env.CAKE_HUB_SECRET ?? '';
   if (!url || key.length < 16 || secret.length < 32) throw failure('NOT_READY', 'Máy chủ chưa nối Hub kênh (CAKE_HUB_URL, CAKE_HUB_SITE_KEY, CAKE_HUB_SECRET).');
   return { url: url.replace(/\/+$/, ''), key, secret };
@@ -41,10 +41,10 @@ async function callHub(cmd: ChannelCommand): Promise<{ status: number; error: st
   } catch { return null; } // nuot-loi: mạng / hết giờ ⇒ queued (gửi lại cùng khoá)
 }
 
-type CmdRow = { tenant_id: string; command_key: string; message_id: string | null; body: unknown; attempts: number; created_at: Date };
+export type CmdRow = { tenant_id: string; command_key: string; message_id: string | null; body: unknown; attempts: number; created_at: Date };
 
 /** Gửi một lệnh trong hàng chờ và ghi kết quả. */
-async function dispatch(tx: Db, r: CmdRow): Promise<'accepted' | 'rejected' | 'queued' | 'given_up'> {
+export async function dispatch(tx: Db, r: CmdRow): Promise<'accepted' | 'rejected' | 'queued' | 'given_up'> {
   const res = await callHub(r.body as ChannelCommand);
   const now = new Date();
   const where = <Q extends { where: (...a: any[]) => Q }>(q: Q) => q.where('tenant_id', '=', r.tenant_id).where('command_key', '=', r.command_key); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -81,7 +81,7 @@ export async function retryChannelCommands(limit = 50): Promise<number> {
   return due.length;
 }
 
-async function accountOf(tx: Db, tenantId: string, channelAccountId: string) {
+export async function accountOf(tx: Db, tenantId: string, channelAccountId: string) {
   const a = await tx.selectFrom('channel_accounts').select(['channel_account_id', 'channel', 'external_account_id', 'cell_ref', 'status']).where('tenant_id', '=', tenantId).where('channel_account_id', '=', channelAccountId).executeTakeFirst();
   if (!a) throw failure('NOT_FOUND', 'Không tìm thấy tài khoản kênh.');
   if (a.status !== 'connected' || !a.cell_ref) throw cakeError('CAKE_CHANNEL_NOT_CONNECTED');

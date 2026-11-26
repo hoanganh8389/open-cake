@@ -22,9 +22,24 @@ try {
   await page.locator('.dmsg .quote').first().waitFor();
   await page.getByText('Tin nhắn đã được thu hồi').waitFor();
   await shot(page, 'kn-hop-thu-nhom');
+  // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — rê chuột tin của shop ⇒ Thu hồi ⇒ xác nhận ⇒ "đã thu hồi" (giả lập áp ngay điều kênh báo lại)
+  const own = page.locator('.dmsg.out', { hasText: 'Shop gửi nhầm link' }).first();
+  await own.hover();
+  await own.locator('.acts').waitFor();
+  await shot(page, 'kn-tin-thao-tac');
+  await own.locator('.acts .danger').click();
+  await page.getByRole('dialog').waitFor();
+  await shot(page, 'kn-thu-hoi-xac-nhan');
+  await page.getByRole('dialog').getByRole('button', { name: 'Thu hồi' }).click();
+  await page.locator('.dmsg.out .bb.revoked').first().waitFor();
   await page.evaluate(() => { location.hash = '/contacts'; });
   await page.locator('table tbody tr').first().waitFor();
   await shot(page, 'kn-danh-ba');
+  await page.getByRole('button', { name: 'Đồng bộ từ kênh' }).click();
+  await page.getByRole('dialog').waitFor();
+  await page.getByRole('dialog').getByRole('button', { name: 'Đồng bộ từ kênh' }).click();
+  await page.getByText('Đã gửi lệnh. Khách và nhóm').waitFor();
+  await shot(page, 'kn-dong-bo-danh-ba');
 } catch (e) {
   console.error('✗', e.message); process.exitCode = 1;
   for (const p of browser.contexts().flatMap((c) => c.pages())) await p.screenshot({ path: join(OUT, 'app-loi.png') }).catch(() => {});

@@ -148,4 +148,44 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
     hub.mode = 'down';
     expect((await call('POST', `/api/v1/channels/${conv.accountId}/test`, {})).json().error.details.reason).toBe('CAKE_CHANNEL_NOT_CONNECTED');
   });
+
+  // [2026-11-26 08:44 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — lệnh 0.2: thu hồi / thả cảm xúc / đồng bộ danh bạ / tìm theo SĐT qua hàng chờ; thu hồi xác nhận bằng touch quay về
+  it('lệnh 0.2: thu hồi tin của shop (một khoá, không gửi trùng; touch revoked ⇒ tin đã thu hồi), thả cảm xúc, đồng bộ danh bạ, tìm theo SĐT; chặn thu hồi tin khách / tin chưa có mã kênh', { timeout: 30_000 }, async () => {
+    hub.mode = 'ok'; hub.got = [];
+    const own = (await sql("SELECT message_id, touch_id FROM messages WHERE external_message_id = 'm_out_1'")).rows[0]!;
+    const r1 = await call('POST', `/api/v1/messages/${own.message_id}/revoke`, {});
+    expect(r1.statusCode).toBe(200);
+    expect(r1.json().data).toEqual({ commandKey: `cake:${own.touch_id}:revoke:1`, state: 'accepted' });
+    expect(parseCmd(hub.got[0]!.body)).toMatchObject({ operation: 'message.revoke', target: { externalThreadId: conv.thread, externalMessageId: 'm_out_1' } });
+    expect((await call('POST', `/api/v1/messages/${own.message_id}/revoke`, {})).json().data.state).toBe('accepted');
+    expect(hub.got).toHaveLength(1); // cùng khoá ⇒ không gửi lần hai
+    // máy kết nối thu hồi xong ⇒ touch v2 revoked ⇒ tin đã thu hồi, sổ giữ nguyên
+    const before = (await sql('SELECT count(*)::int n FROM touch_ledger')).rows[0]!.n;
+    const rv = JSON.stringify({
+      contract: 'bizcity_touch@1', eventId: '01JDAB0000000000000000R001', type: 'message.sent', occurredAt: new Date().toISOString(), source: 'cell:kiem-thu',
+      docKey: `zalo_personal|${conv.account}|${conv.thread}|m_out_1`, version: 3, channel: 'zalo_personal', channelAccount: { externalAccountId: conv.account, kind: 'personal' },
+      thread: { externalThreadId: conv.thread, kind: 'dm', anchor: null }, sender: { scope: 'global', externalId: conv.account, displayName: 'Shop', avatarRef: null }, direction: 'outbound',
+      content: { type: 'revoked', text: null, attachments: [] }, hints: {}, encryption: { e2ee: false, decryptedOnCell: false }, delivery: null, history: { backfill: false, cursor: null },
+    });
+    expect((await app.inject({ method: 'POST', url: '/ingress/v1/touch', payload: rv, headers: { 'content-type': 'application/json', authorization: `Bearer ${HUB.key}`, 'x-bizcity-contract': 'bizcity_touch@1', 'x-bizcity-signature': sign(HUB.secret, rv) } })).statusCode).toBe(200);
+    expect((await sql('SELECT body, revoked_at FROM messages WHERE message_id = $1', [own.message_id])).rows[0]).toMatchObject({ body: '', revoked_at: expect.any(Date) });
+    expect((await sql('SELECT count(*)::int n FROM touch_ledger')).rows[0]!.n).toBe(before);
+    expect((await call('POST', `/api/v1/messages/${own.message_id}/revoke`, {})).statusCode).toBe(409); // đã thu hồi
+    // tin của khách ⇒ không thu hồi được; tin còn khoá cake: ⇒ chưa có mã kênh
+    const inMsg = (await sql("SELECT message_id FROM messages WHERE direction = 'in' AND conversation_id = $1 LIMIT 1", [conv.id])).rows[0]!;
+    expect((await call('POST', `/api/v1/messages/${inMsg.message_id}/revoke`, {})).statusCode).toBe(400);
+    const pending = (await sql("SELECT message_id FROM messages WHERE external_message_id LIKE 'cake:%' LIMIT 1")).rows[0];
+    if (pending) expect((await call('POST', `/api/v1/messages/${pending.message_id}/revoke`, {})).statusCode).toBe(400);
+    // thả cảm xúc lên tin của khách
+    hub.got = [];
+    expect((await call('POST', `/api/v1/messages/${inMsg.message_id}/react`, { reaction: '❤️' })).statusCode).toBe(200);
+    expect(parseCmd(hub.got[0]!.body)).toMatchObject({ operation: 'reaction.add', options: { reaction: '❤️' } });
+    // đồng bộ danh bạ + tìm theo SĐT
+    hub.got = [];
+    expect((await call('POST', `/api/v1/channels/${conv.accountId}/directory-sync`, {})).json().data.state).toBe('accepted');
+    expect((await call('POST', `/api/v1/channels/${conv.accountId}/find`, { phone: '0909123456' })).json().data.state).toBe('accepted');
+    expect(hub.got.map((g) => (parseCmd(g.body) as { operation: string }).operation)).toEqual(['directory.sync', 'contact.find']);
+    expect(parseCmd(hub.got[1]!.body)).toMatchObject({ options: { phone: '0909123456' } });
+    expect((await call('POST', `/api/v1/channels/${conv.accountId}/find`, { phone: 'abc' })).statusCode).toBe(400);
+  });
 });

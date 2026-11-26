@@ -77,6 +77,23 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     return paged(xs.slice(from, end), { nextCursor: from > 0 ? String(from) : null });
   },
   'cake.message.send': (s, i) => appendOut(s, i.conversationId, i.text, i.attachments, 'message'),
+  // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — giả lập không có kênh thật ⇒ áp ngay điều kênh sẽ báo lại (thu hồi / thả tim)
+  'cake.message.revoke': (s, i) => {
+    const m = Object.values(s.messages).flat().find((x) => x.messageId === i.messageId);
+    if (!m) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy tin.' });
+    if (m.direction !== 'out') throw new ApiError({ code: 'VALIDATION_ERROR', message: 'Chỉ thu hồi được tin của shop.' });
+    if (m.revokedAt) throw new ApiError({ code: 'CONFLICT', message: 'Tin đã được thu hồi.' });
+    Object.assign(m, { revokedAt: iso(s.now()), text: '', quote: null, mentions: [] });
+    return { commandKey: `cake:0:revoke:${++s.seq}`, state: 'accepted' };
+  },
+  'cake.message.react': (s, i) => {
+    const m = Object.values(s.messages).flat().find((x) => x.messageId === i.messageId);
+    if (!m) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy tin.' });
+    m.reaction = i.reaction;
+    return { commandKey: `cake:0:react:${++s.seq}`, state: 'accepted' };
+  },
+  'cake.directory.sync': (s) => ({ commandKey: `cake:0:directory_sync:${++s.seq}`, state: 'accepted' }),
+  'cake.contact.find': (s) => ({ commandKey: `cake:0:contact_find:${++s.seq}`, state: 'accepted' }),
   'cake.message.draft': (s, i) => ({ draftId: `draft-${++s.seq}`, text: i.text }),
   'cake.comment.reply': (s, i) => {
     const c = conv(s, i.conversationId);

@@ -15,7 +15,9 @@ export const inbox = {
   },
   info: { channels: 'Kênh của khách này', tags: 'Nhãn', open360: 'Mở Contact 360' },
   chat: {
-    revoked: 'Tin nhắn đã được thu hồi', quoteLabel: 'Trả lời', members: (n: number) => `${n} thành viên`, // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2
+    revoked: 'Tin nhắn đã được thu hồi', quoteLabel: 'Trả lời', members: (n: number) => `${n} thành viên`,
+    actions: 'Thao tác với tin', react: 'Thả tim', revoke: 'Thu hồi', revokeTitle: 'Thu hồi tin này?', cancel: 'Huỷ', // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3
+    revokeSub: 'Tin sẽ bị gỡ ở Zalo / Facebook của khách. Open CRM chỉ ghi "đã thu hồi" khi kênh báo lại.', // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2
     image: 'Hình ảnh',
     tapToDownload: 'Nhấn để tải',
     delivery: { accepted: 'đang gửi', unknown: 'chưa rõ đã gửi', failed: 'gửi lỗi', delivered: 'đã nhận', read: 'đã xem' } as Record<string, string>,
@@ -47,6 +49,13 @@ export const inbox = {
     hint: '↑↓ chọn · Enter chèn vào ô soạn · chỉ hiện hàng "Bán trong CRM" có giá',
   },
   contacts: {
+    // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — mockup ⑤
+    channel: {
+      sync: 'Đồng bộ từ kênh', syncSub: 'Lấy bạn bè và nhóm (tên, ảnh) của tài khoản kênh vào danh bạ.', find: 'Tìm theo số điện thoại', findSub: 'Tìm người dùng số này trên Zalo / Facebook của tài khoản kênh.',
+      account: 'Tài khoản kênh', phone: 'Số điện thoại', close: 'Đóng',
+      syncDone: 'Đã gửi lệnh. Khách và nhóm sẽ hiện dần trong danh bạ khi kênh trả về — không bắn thông báo, không tự trả lời.',
+      findDone: 'Đã gửi lệnh. Nếu số này có trên kênh, khách hiện trong danh bạ với số điện thoại "đã xác minh".',
+    },
     tabs: { contacts: 'Liên hệ', groups: 'Nhóm', invites: 'Lời mời', history: 'Lịch sử' },
     /** Giá trị giới tính là DỮ LIỆU (meta cake.contact.gender) — so khớp nguyên văn. */
     female: 'Nữ',

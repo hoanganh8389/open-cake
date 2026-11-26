@@ -7,6 +7,7 @@ import { contactList } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
 import { ChannelAvatar, Chip, Face, Ic, Pager, Search, StatusBar, Tabs, Tag, TAG_LOOK } from '@open-cake/ui-kit';
 import { QueryView } from '../app/QueryView.js';
+import { ContactsChannelTools } from './contacts-channel.js'; // [2026-11-26 08:46 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3
 import { ddmm, ddmmyyyy } from '../app/format.js';
 import { go, useRoute } from '../app/route.js';
 import { t } from '../i18n/index.js';
@@ -38,6 +39,7 @@ export function Contacts() {
         {[t.inbox.contacts.female, t.inbox.contacts.male].map((g) => <Chip key={g} on={gender === g} onClick={() => setQuery({ gender: gender === g ? null : g, page: null })}>{g}</Chip>)}
         <Chip on={sort === 'name'} onClick={() => setQuery({ sort: sort === 'name' ? null : 'name' })}>{t.inbox.contacts.sortName}</Chip>
         <Search placeholder={t.inbox.contacts.searchPh} sm style={{ width: 360 }} value={q} onChange={(v) => setQuery({ q: v, page: null })} />
+        <ContactsChannelTools />
       </div>
       <div className="grow" style={{ overflow: 'auto', padding: '0 32px' }}>
         <QueryView q={list} empty={{ title: t.inbox.contacts.emptyTitle, desc: t.inbox.contacts.emptyDesc }}>
