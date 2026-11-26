@@ -12,5 +12,5 @@
 | S005-4 | merge / unmerge (30 ngày) + view `bizcity_read.touches_by_contact` | ☑ |
 | S005-5 | `contact_state` cùng giao dịch + `bizcity cake rebuild-state` | ☑ |
 | S005-6 | sự kiện outbox `bizcity.cake.*` (không PII) | ☐ |
-| S005-7 | SC-CAKE-1..8 trong selfcheck + chẩn đoán L3 | ☐ |
+| S005-7 | SC-CAKE-1..8 trong selfcheck + chẩn đoán L3 | ☑ |
 | S005-8 | test: phát lại 1 000 touch trùng ⇒ 0 dòng mới; đổi version ⇒ 1 đảo + 1 mới; ghép theo tên ⇒ từ chối `CAKE_MERGE_NO_PROOF` | ☑ |

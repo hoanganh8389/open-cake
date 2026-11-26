@@ -28,6 +28,7 @@ import { linkHandlers } from './orders/link.js';
 import { partnerHandlers } from './orders/partner.js'; // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3
 import { retryChannelCommands, sendHandlers } from './care/send.js'; // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin ra kênh qua Hub
 import { registerPosEvents } from './orders/pos-events.js';
+import { registerDiagnostics } from './care/diagnose.js'; // [2026-11-26 02:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 S005-7
 import { cakeLoggerOptions, genReqId, registerObservability } from './observability.js';
 import { installProcessHandlers } from '@bizcity/platform/core/logger';
 import { initTracing, shutdownTracing } from '@bizcity/platform/core/tracing';
@@ -66,6 +67,7 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   registerIngress(app, opts.hub);
   registerClientErrors(app);
   registerPosEvents(app);
+  registerDiagnostics(app);
   registerStream(app, opts.stream);
   return app;
 }

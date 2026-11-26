@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-26T06:52:17.823Z",
+  "generated": "2026-11-26T07:04:27.471Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -253,7 +253,7 @@
         },
         {
           "id": "S005-7",
-          "group": "Chưa làm",
+          "group": "Xong",
           "text": "SC-CAKE-1..8 trong selfcheck + chẩn đoán L3",
           "file": "docs/phases/PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/CHECKLIST.md",
           "line": 15
