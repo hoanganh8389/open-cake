@@ -55,7 +55,8 @@ BizCity Hub: Cell ──► Hub (khoá site, ký) ──► Open CRM POST /ingre
 
 <!-- [2026-11-26 05:40 PM Johnny Chu - Chu Hoàng Anh] KN-2 — chủ 2026-11-26: "zalo-hub đã ready cho fbchat v2; nối vào open-cake + self host zca, fbchat là ok". -->
 
-**Máy kết nối của cả hai luồng là MỘT image: Cell zalo-hub** (chốt D-KN-2). Cell đã có sẵn:
+<!-- [2026-11-26 06:05 PM Johnny Chu - Chu Hoàng Anh] KN-3 — chủ: "tự cài chỉ cần đơn giản có zca, fbchat để kết nối zalo, fb; không cần tính năng trợ lý, agent". -->
+**Cùng mã nguồn zalo-hub, hai bản đóng gói** (chốt D-KN-2): BizCity Hub chạy **Cell đầy đủ** (kênh + trợ lý / agent / MCP); Tự cài chạy **máy kết nối gọn `zalo-hub-connector`** — chỉ zca (Zalo) + fbchat-v2 (Facebook), **không có** trợ lý, agent, LLM, MCP, harness, bảng điều khiển. Phần kênh dùng chung đã có sẵn ở zalo-hub:
 
 | Đã có ở zalo-hub `main` (2026-11-26) | Bằng chứng |
 |---|---|
@@ -76,17 +77,18 @@ BizCity Hub: Cell ──► Hub (khoá site, ký) ──► Open CRM POST /ingre
 | `encryption` | `{e2ee:false, decryptedOnCell:false}` | `{e2ee: <cờ e2ee>, decryptedOnCell: <cờ e2ee>}` — tin mã hoá đầu-cuối được giải ở Cell, khoá không rời Cell |
 | Lệnh ra (`message.send`) | lõi `/wp/outbound` | lõi `/wp/outbound` với `platform=facebook_personal` (đã có ở 1.3) |
 
-**Một image, hai cách chạy:**
+**Hai bản đóng gói:**
 
-| | BizCity Hub | Tự cài |
+| | BizCity Hub — Cell đầy đủ | Tự cài — `zalo-hub-connector` |
 |---|---|---|
-| Cell chạy ở | `zalo.bizcity.vn` (BizCity vận hành) | cùng `docker compose` của Open CRM: dịch vụ `cake-cell` (image zalo-hub), volume giữ phiên |
-| Tài khoản thuộc | tenant của khoá 1API | chế độ độc lập (`CAKE_URL` có giá trị ⇒ "cell-local nhưng có đích Cake") |
-| Tin vào | Cell ⇒ Hub `/zalo-hub/touch` ⇒ Cake | Cell ⇒ **thẳng** Cake `/ingress/v1/touch`, Cell tự ký bằng khoá nối nội bộ |
-| Lệnh ra | Cake ⇒ Hub ⇒ Cell `/channel/v1/commands` | Cake ⇒ **thẳng** Cell `/channel/v1/commands`, ký bằng khoá nối nội bộ |
-| QR / đăng nhập FB ở bước ③ | Cake hỏi qua Hub | Cake gọi thẳng API tài khoản của Cell (tạo số, QR, trạng thái, đăng nhập FB) |
-| Trợ lý AI, MCP, harness của Cell | bật theo gói | **tắt** (không có khoá LLM) — Cell chỉ làm máy kết nối; đúng §2 "trợ lý là quyền lợi Hub" |
+| Chạy ở | `zalo.bizcity.vn` (BizCity vận hành) | cùng `docker compose` của Open CRM: dịch vụ `cake-connector`, volume giữ phiên |
+| Gồm | kênh + trợ lý AI, agent, MCP, harness, bảng điều khiển | **chỉ kênh**: zca-js, bridge fbchat-v2, hợp đồng touch / command, API đăng nhập (QR Zalo, mật khẩu FB), hàng gửi + chống trùng |
+| Không có | — | LLM, trợ lý, agent, MCP, harness, bảng điều khiển, Hub sink — không có trong image, không phải "tắt đi" |
+| Tin vào | Cell ⇒ Hub `/zalo-hub/touch` ⇒ Cake | máy kết nối ⇒ **thẳng** Cake `/ingress/v1/touch`, tự ký bằng khoá nối nội bộ |
+| Lệnh ra | Cake ⇒ Hub ⇒ Cell `/channel/v1/commands` | Cake ⇒ **thẳng** máy kết nối `/channel/v1/commands`, ký bằng khoá nối nội bộ |
+| Đăng nhập ở bước ③ | Cake hỏi qua Hub | Cake gọi thẳng API của máy kết nối (tạo số, QR, trạng thái, đăng nhập FB) |
 | Facebook cá nhân | theo gói | bật / tắt ở Cài đặt › Kết nối kênh (mặc định tắt) |
+| Cấu hình | tenant theo khoá 1API | 2 biến: `CAKE_URL`, `CAKE_CONNECTOR_SECRET` (open-setup sinh sẵn) |
 
 **Giấy phép:** bridge Facebook là AGPL và chạy như tiến trình riêng trong image; bản Tự cài ghi rõ nguồn (repo `bizcity-fb-bridge`) ở Cài đặt › Kết nối kênh và trong `NOTICE`. Không gộp mã bridge vào Open CRM.
 
@@ -97,18 +99,18 @@ BizCity Hub: Cell ──► Hub (khoá site, ký) ──► Open CRM POST /ingre
 | K1 | zalo-hub (PHASE-018) | nối `buildBizcityTouch` vào đường tin đến sau cờ `targets` (S018-5/6) | Hub, Zalo |
 | K2 | zalo-hub (PHASE-018) | `buildBizcityTouch` nhận tin FB (bảng trên); `/channel/v1/commands` nhận `channel=facebook_personal` | Hub + Tự cài, FB |
 | K3 | bizcity-llm-router (PHASE-0.3) | `/zalo-hub/touch` + `/channel/v1/commands` (H1…H5) | Hub |
-| K4 | zalo-hub | **chế độ độc lập**: `CAKE_URL` + `CAKE_CONNECTOR_SECRET` ⇒ phát touch thẳng Cake (ký HMAC) cho tài khoản cell-local; `/channel/v1/commands` + API tài khoản nhận chữ ký khoá nối thay cho cell secret của Hub; tắt trợ lý | Tự cài |
+| K4 | zalo-hub | **bản gọn `zalo-hub-connector`**: điểm vào riêng (`src/connector/main.ts`) chỉ nạp phần kênh (zca, fbchat-v2, hàng gửi, chống trùng) + Dockerfile target `connector`; không kéo mã trợ lý / agent / LLM / MCP. Hành vi: `CAKE_URL` + `CAKE_CONNECTOR_SECRET` ⇒ phát touch thẳng Cake (ký HMAC) cho tài khoản cell-local; `/channel/v1/commands` + API tài khoản nhận chữ ký khoá nối thay cho cell secret của Hub | Tự cài |
 | K5 | open-cake | cấu hình kết nối theo đơn vị (`mode`, đích lệnh, bí mật — mã hoá); cổng nhận chấp nhận chữ ký của máy kết nối; `cake.channel.connect_start` / trạng thái 4 bước gọi Cell (Tự cài) hoặc Hub | cả hai |
-| K6 | open-cake | `docker-compose.yml` thêm `cake-cell` (image zalo-hub, cổng nội bộ, volume phiên), open-setup sinh khoá nối nội bộ cho cả hai phía ⇒ ① ② Đạt sẵn | Tự cài |
+| K6 | open-cake | `docker-compose.yml` thêm `cake-connector` (image `zalo-hub-connector`, cổng nội bộ, volume phiên), open-setup sinh khoá nối nội bộ cho cả hai phía ⇒ ① ② Đạt sẵn | Tự cài |
 | K7 | open-cake (PHASE-007 S007-6) | màn Cài đặt › Kết nối kênh + 4 bước theo mockup kết nối ①–④ | cả hai |
 
-Đề xuất làm **K1 → K2 → K4 → K5 → K6 → K7** (K3 song song ở router): chạy thật được Zalo + FB qua Hub trước, rồi tách ra Tự cài bằng chính image đó.
+Đề xuất làm **K1 → K2 → K4 → K5 → K6 → K7** (K3 song song ở router): chạy thật được Zalo + FB qua Hub trước, rồi đóng gói bản gọn cho Tự cài từ cùng mã kênh.
 
 ## 4. Mặc định: Tự cài chạy sẵn
 
 Khi cài Open CRM (open-setup hoặc `docker compose up`):
 
-1. Máy kết nối (`cake-cell` — image zalo-hub, §3a) được dựng cùng, **khoá nối nội bộ sinh tự động** và ghi vào cả hai phía.
+1. Máy kết nối gọn (`cake-connector` — image `zalo-hub-connector`, chỉ zca + fbchat-v2, §3a) được dựng cùng, **khoá nối nội bộ sinh tự động** và ghi vào cả hai phía.
 2. Ngay lần mở đầu, màn 4 bước đã **Đạt ① ②** (kiểm thật bằng máy chủ, không giả định — R-S4-2). Người dùng chỉ còn **③ quét QR** và **④ chọn người trực**.
 3. Facebook cá nhân (`fbchat-v2`) và các máy kết nối khác **tắt sẵn**; bật ở Cài đặt › Kết nối kênh.
 
@@ -160,7 +162,7 @@ Một màn, ba khối:
 | Mã | Câu hỏi | Đề xuất |
 |---|---|---|
 | D-KN-1 | Một đơn vị dùng **một** cách cho mọi số, hay mỗi số một cách? | một cách cho cả đơn vị (đơn giản, dễ hiểu); đổi được ở Cài đặt |
-| D-KN-2 | Máy kết nối Tự cài là gì? | ✅ **chốt 2026-11-26:** Cell zalo-hub (đã có zca + fbchat-v2) chạy chế độ độc lập — không viết bộ thứ hai (§3a, K4) |
+| D-KN-2 | Máy kết nối Tự cài là gì? | ✅ **chốt 2026-11-26:** cùng mã nguồn zalo-hub; Tự cài là bản gọn `zalo-hub-connector` chỉ có zca + fbchat-v2, **không** trợ lý / agent (§3a, K4) — không viết bộ kênh thứ hai |
 | D-KN-3 | Danh sách máy kết nối Tự cài bản đầu | ✅ **chốt 2026-11-26:** Zalo cá nhân (`zca-js`) bật sẵn; Facebook cá nhân (`fbchat-v2`) có sẵn trong image, tắt sẵn; loại khác để sau |
 | D-KN-4 | Ở Tự cài, bước ④ có cho chọn trợ lý không? | không — chỉ chọn người trực + dòng gợi ý Hub (KN-UP-1) |
 
@@ -168,3 +170,4 @@ Một màn, ba khối:
 
 - 2026-11-26: bản đầu (KN-1), kèm mockup kết nối ①–④ ở PHASE-007.
 - 2026-11-26: KN-2 — §3a nối zalo-hub (zca + fbchat-v2) vào Open CRM: một image hai cách chạy, ánh xạ tin FB, việc K1…K7; chốt D-KN-2, D-KN-3.
+- 2026-11-26: KN-3 — Tự cài là bản gọn `zalo-hub-connector` (chỉ zca + fbchat-v2), không có trợ lý / agent / MCP trong image.
