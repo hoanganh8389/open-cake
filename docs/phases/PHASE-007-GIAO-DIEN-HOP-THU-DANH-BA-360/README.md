@@ -65,3 +65,27 @@ Nhận việc: điền tên + nhánh vào dòng NỢ-007-1 ở [CLAIMS](../CLAIM
 ## Xong khi
 
 Ảnh build 4 màn có ảnh chuẩn đạt ≥ 90 % phần tử chính; Contact 360 hiện tin Zalo thật từ 006; SC-CAKE-WEB-1..3 PASS.
+
+## Đính kèm ảnh / tệp khi gửi (S007-3) — mockup chờ chủ duyệt
+
+<!-- [2026-11-26 11:17 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-3 — mockup ⑦–⑩; chưa code -->
+Hợp đồng đã cho phép (`cake.message.send` nhận `attachments` ≤ 10; lệnh kênh mang `content.attachments[{ref, name}]`); khung soạn hiện chỉ gửi chữ. Mockup (`mockup/index.html#dinh-kem-*`, ảnh `evidence/build-shots/mockup-kn-dinh-kem-*.png`):
+
+| Khung | Cho thấy |
+|---|---|
+| ⑦ `dinh-kem-soan` | khay đính kèm trên ô soạn: ảnh thumbnail, thẻ tệp, tiến độ %, nút × gỡ; Gửi mở khi tải xong; bảng giới hạn của kênh |
+| ⑧ `dinh-kem-loi` | lỗi từng tệp: quá cỡ, loại không cho phép, tải lỗi (thử lại); phải gỡ / thử lại mới gửi — không gửi âm thầm thiếu tệp |
+| ⑨ `dinh-kem-da-gui` | tin có ảnh / tệp: thumbnail, thẻ tệp, Đang gửi · Đã gửi · Gửi không thành + Gửi lại; tin khách gửi ảnh / tệp cùng cách hiện |
+| ⑩ `dinh-kem-gioi-han` | kênh không gửi được tệp (Facebook cá nhân, KN-CAP-2): nút kẹp giấy mờ + giải thích, không để bấm rồi mới báo lỗi |
+
+**Cần chủ chốt trước khi code**
+
+| Mã | Câu hỏi | Đề xuất |
+|---|---|---|
+| D-ATT-1 | Giới hạn | ≤ 10 tệp / tin · ảnh JPG / PNG / WebP ≤ 10 MB · PDF, Word, Excel, ZIP ≤ 25 MB · chặn tệp chạy được (.exe .bat .js .sh .msi…) — kiểm cả đuôi lẫn nội dung (magic bytes) |
+| D-ATT-2 | Nơi lưu | thư mục dữ liệu của Cake trên máy chủ (volume), tên ngẫu nhiên, KHÔNG nằm trong CSDL; CSDL chỉ giữ metadata (tên, cỡ, loại, băm) |
+| D-ATT-3 | Cell lấy tệp thế nào | `ref` = đường dẫn có chữ ký, hết hạn 10 phút, dùng một lượt tải được lặp; Cell tải về rồi gửi lên Zalo |
+| D-ATT-4 | Giữ bao lâu | 30 ngày kể từ lúc gửi rồi xoá tệp (tin vẫn còn, thẻ báo "tệp đã hết hạn lưu") |
+| D-ATT-5 | Facebook cá nhân | chỉ chữ (KN-CAP-2), nút mờ; Fanpage gửi tệp ở PHASE-008 |
+
+**Việc sau khi duyệt:** A1 hợp đồng `cake.attachment.upload` + tải có chữ ký · A2 lưu tệp + kiểm loại / cỡ + dọn hạn · A3 giao diện khay + tiến độ + lỗi · A4 hiện tệp trong bong bóng tin (ra và vào) · A5 zalo-hub: máy kết nối + Cell tải `ref` rồi gửi ảnh / tệp Zalo (hiện chỉ gửi chữ) · A6 test + ảnh build so mockup.

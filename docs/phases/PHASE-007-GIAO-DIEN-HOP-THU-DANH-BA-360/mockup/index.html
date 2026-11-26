@@ -55,6 +55,32 @@
   .body { grid-template-columns: 72px 1fr !important; }
   #hop-thu-nhom .dinbox { margin: 0 !important; height: 100%; }
   .av.grp { place-items: stretch; } .av.grp i { width: 100%; height: 100%; }
+
+  /* ⑦–⑩ — đính kèm ảnh / tệp khi gửi (khay đính kèm trên ô soạn, tiến độ, lỗi, tin đã gửi, giới hạn theo kênh) */
+  .tray { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 18px; border-top: 1px solid var(--border); background: var(--card); align-items: flex-start; }
+  .att { position: relative; width: 112px; height: 112px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); flex: none; color: #fff; display: grid; place-items: end start; font-size: 12px; }
+  .att .x { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(15,23,42,.65); color: #fff; display: grid; place-items: center; font-size: 13px; line-height: 1; }
+  .att .st { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; background: rgba(15,23,42,.55); font-size: 12px; display: flex; gap: 4px; align-items: center; }
+  .att .bar { position: absolute; left: 0; bottom: 0; height: 5px; background: var(--primary); }
+  .att.up::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,.45); }
+  .att.up .st, .att.up .x, .att.up .bar { z-index: 1; }
+  .fcard { display: flex; gap: 12px; align-items: center; padding: 10px 14px; min-width: 250px; max-width: 320px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); position: relative; }
+  .fcard .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; flex: none; }
+  .fcard .nm { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+  .fcard .sz { font-size: 12px; color: var(--muted-foreground); }
+  .fcard.bad { border-color: var(--destructive); background: var(--destructive-soft); }
+  .fcard.bad .sz { color: var(--destructive); }
+  .fcard .x { position: absolute; top: 6px; right: 8px; font-size: 14px; color: var(--muted-foreground); }
+  .fcard .pr { position: absolute; left: 12px; right: 12px; bottom: 5px; height: 4px; border-radius: 2px; background: var(--muted); overflow: hidden; } .fcard .pr i { display: block; height: 100%; background: var(--primary); }
+  .dmsg .bb .imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 280px; margin-bottom: 6px; } .dmsg .bb .imgs .im.att { width: 100%; height: 80px; border-radius: 10px; }
+  .dmsg .bb .imgs.one { grid-template-columns: 1fr; width: 200px; } .dmsg .bb .imgs.one .im.att { height: 84px; }
+  .dmsg .bb.fail { background: var(--destructive-soft); color: var(--foreground); border: 1px solid var(--destructive); }
+  .dmsg .bb.fail .ts { color: var(--destructive); }
+  .pop { position: absolute; left: 18px; bottom: 72px; width: 360px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; font-size: 14px; z-index: 3; }
+  .pop::after { content: ''; position: absolute; left: 22px; bottom: -7px; width: 12px; height: 12px; background: #fff; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transform: rotate(45deg); }
+  .clip { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--muted-foreground); flex: none; } .clip.on { background: var(--primary-soft); color: var(--primary); } .clip.off { opacity: .4; }
+  .rules { position: absolute; right: 18px; top: 70px; width: 300px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 13px; z-index: 2; } .rules h4 { margin: 0 0 8px; font-size: 14px; } .rules li { margin: 4px 0; }
+  .dchat { position: relative; }
 </style>
 </head>
 <body>
@@ -73,6 +99,7 @@
   <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
   <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21 11-8.6 8.6a5 5 0 0 1-7-7L14 4a3.5 3.5 0 0 1 5 5l-8.6 8.6a2 2 0 0 1-3-3L15 7"/></symbol>
 </svg>
 
 <!-- ① CÀI ĐẶT › KẾT NỐI KÊNH — cách kết nối (Tự cài đang dùng · BizCity Hub), máy kết nối, khoá, quyền lợi Hub -->
@@ -285,6 +312,89 @@
         <h4>Quản lý nhóm</h4>
         <div class="xs subtle">Thêm / bớt thành viên, đổi tên, đổi ảnh, phó nhóm — <b>đợt sau</b> (lệnh <code>group.*</code>).</div>
       </aside>
+    </div>
+  </div>
+</section>
+
+
+<!-- ⑦ Soạn tin có đính kèm — khay đính kèm trên ô soạn: ảnh có thumbnail, tệp có thẻ; mỗi tệp tự tải lên khi chọn (tiến độ %), Gửi mở khi tất cả đã tải xong; bấm × gỡ tệp -->
+<section class="frame app" id="dinh-kem-soan">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <div class="dinbox" style="grid-template-columns:360px 1fr">
+      <aside class="dlist"><div class="items"><div class="ditem on"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="b"><div class="r1"><span class="nm">Lan Hương</span><span class="tm">17:10</span></div><div class="r2"><span class="pv">Shop gửi bảng giá sỉ</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="b"><div class="r1"><span class="nm">Minh Trang</span><span class="tm">16:40</span></div><div class="r2"><span class="pv">Đã gửi ảnh</span></div><div class="tags"><span class="badge out">Facebook cá nhân</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div class="b"><div class="r1"><span class="nm">Anh Khoa - sỉ HN</span><span class="tm">15:20</span></div><div class="r2"><span class="pv">Ok em, gửi luôn nhé</span></div></div></div></div></aside>
+      <section class="dchat">
+        <div class="hd"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div style="flex:1"><div class="nm">Lan Hương</div><div class="xs subtle">Zalo cá nhân · Shop Hoa Mai</div></div></div>
+        <div class="msgs" style="padding-top:20px"><div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="bb">Shop gửi em xem mẫu váy hoa và bảng giá sỉ với ạ<span class="ts">17:08</span></div></div></div>
+        <div class="tray">
+     <div class="att" style="background:linear-gradient(135deg,#fbcfe8,#f472b6 55%,#be185d)"><span class="x">×</span><span class="st">hong.jpg · 1,4 MB ✓</span></div>
+     <div class="att up" style="background:linear-gradient(135deg,#bae6fd,#38bdf8 55%,#0369a1)"><span class="x">×</span><span class="bar" style="width:62%"></span><span class="st">xanh.jpg · 62%</span></div>
+     <div class="fcard"><span class="ic" style="background:#ef4444">PDF</span><div><div class="nm">Bang-gia-si-T11.pdf</div><div class="sz">1,2 MB · đã tải lên ✓</div></div><span class="x">×</span></div>
+     <div class="xs subtle" style="align-self:center;max-width:200px">3 / 10 tệp · còn đang tải 1 tệp — nút Gửi mở khi tải xong</div>
+   </div>
+   <div class="dinput" style="gap:8px"><span class="clip on"><svg class="ico"><use href="#i-clip"/></svg></span><textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px">Dạ em gửi chị mẫu mới và bảng giá sỉ ạ 🌸</textarea><button class="btn pri sm" disabled style="opacity:.5"><svg class="ico"><use href="#i-send"/></svg>Gửi</button></div>
+   <div class="rules"><h4>Giới hạn (Zalo cá nhân)</h4><ul style="padding-left:18px;margin:0"><li>Tối đa <b>10 tệp</b> mỗi tin</li><li>Ảnh JPG / PNG / WebP ≤ <b>10 MB</b></li><li>Tệp PDF, Word, Excel, ZIP ≤ <b>25 MB</b></li><li>Kéo thả, dán ảnh (Ctrl+V) hoặc bấm nút kẹp giấy</li><li>Không gửi tệp chạy được (.exe, .bat, .js…)</li></ul></div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ Lỗi từng tệp — quá cỡ, loại không cho phép, tải lỗi (thử lại được); tệp lỗi không chặn tệp tốt nhưng phải gỡ / thử lại mới gửi (không gửi âm thầm thiếu tệp) -->
+<section class="frame app" id="dinh-kem-loi">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <div class="dinbox" style="grid-template-columns:360px 1fr">
+      <aside class="dlist"><div class="items"><div class="ditem on"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="b"><div class="r1"><span class="nm">Lan Hương</span><span class="tm">17:10</span></div><div class="r2"><span class="pv">Shop gửi bảng giá sỉ</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="b"><div class="r1"><span class="nm">Minh Trang</span><span class="tm">16:40</span></div><div class="r2"><span class="pv">Đã gửi ảnh</span></div><div class="tags"><span class="badge out">Facebook cá nhân</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div class="b"><div class="r1"><span class="nm">Anh Khoa - sỉ HN</span><span class="tm">15:20</span></div><div class="r2"><span class="pv">Ok em, gửi luôn nhé</span></div></div></div></div></aside>
+      <section class="dchat">
+        <div class="hd"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div style="flex:1"><div class="nm">Lan Hương</div><div class="xs subtle">Zalo cá nhân · Shop Hoa Mai</div></div></div>
+        <div class="msgs" style="padding-top:20px"><div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="bb">Anh gửi em video demo với<span class="ts">17:12</span></div></div></div>
+        <div class="tray">
+     <div class="att" style="background:linear-gradient(135deg,#fde68a,#f59e0b)"><span class="x">×</span><span class="st">anh-san-pham.png ✓</span></div>
+     <div class="fcard bad"><span class="ic" style="background:#6366f1">MP4</span><div><div class="nm">video-demo.mp4</div><div class="sz">48 MB — vượt giới hạn 25 MB</div></div><span class="x">×</span></div>
+     <div class="fcard bad"><span class="ic" style="background:#64748b">EXE</span><div><div class="nm">cai-dat.exe</div><div class="sz">Loại tệp không được gửi</div></div><span class="x">×</span></div>
+     <div class="fcard bad"><span class="ic" style="background:#f59e0b">!</span><div><div class="nm">bang-gia.xlsx</div><div class="sz">Tải lên lỗi (mất mạng) — <a href="#">Thử lại</a></div></div><span class="x">×</span></div>
+   </div>
+   <div class="dinput" style="gap:8px"><span class="clip on"><svg class="ico"><use href="#i-clip"/></svg></span><textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px"></textarea><button class="btn pri sm" disabled style="opacity:.5"><svg class="ico"><use href="#i-send"/></svg>Gửi</button></div>
+   <div class="note warn" style="margin:0 18px 12px">Gỡ hoặc thử lại 3 tệp lỗi để gửi. Ảnh <b>anh-san-pham.png</b> vẫn gửi được nếu gỡ các tệp lỗi.</div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ⑨ Tin đã gửi / nhận có tệp — ảnh hiện thumbnail (bấm xem lớn), tệp hiện thẻ (tải về); trạng thái Đang gửi · Đã gửi · Gửi không thành + Gửi lại như tin chữ; tin khách gửi ảnh / tệp hiện cùng cách -->
+<section class="frame app" id="dinh-kem-da-gui">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <div class="dinbox" style="grid-template-columns:360px 1fr">
+      <aside class="dlist"><div class="items"><div class="ditem on"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="b"><div class="r1"><span class="nm">Lan Hương</span><span class="tm">17:10</span></div><div class="r2"><span class="pv">Shop gửi bảng giá sỉ</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="b"><div class="r1"><span class="nm">Minh Trang</span><span class="tm">16:40</span></div><div class="r2"><span class="pv">Đã gửi ảnh</span></div><div class="tags"><span class="badge out">Facebook cá nhân</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div class="b"><div class="r1"><span class="nm">Anh Khoa - sỉ HN</span><span class="tm">15:20</span></div><div class="r2"><span class="pv">Ok em, gửi luôn nhé</span></div></div></div></div></aside>
+      <section class="dchat">
+        <div class="hd"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div style="flex:1"><div class="nm">Lan Hương</div><div class="xs subtle">Zalo cá nhân · Shop Hoa Mai</div></div></div>
+        <div class="msgs" style="padding-top:20px"><div class="dmsg out"><div class="bb"><div class="imgs"><div class="im att" style="background:linear-gradient(135deg,#fbcfe8,#f472b6 55%,#be185d)"></div><div class="im att" style="background:linear-gradient(135deg,#bae6fd,#38bdf8 55%,#0369a1)"></div></div><div class="fcard"><span class="ic" style="background:#ef4444">PDF</span><div><div class="nm">Bang-gia-si-T11.pdf</div><div class="sz">1,2 MB</div></div></div><div style="margin-top:6px">Dạ em gửi chị mẫu mới và bảng giá sỉ ạ 🌸</div><span class="ts">17:10 · Đã gửi</span></div></div>
+   <div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="bb"><div class="imgs one"><div class="im att" style="background:linear-gradient(135deg,#fde68a,#f59e0b)"></div></div>Chị thích mẫu này, còn size M không shop?<span class="ts">17:11</span></div></div>
+   <div class="dmsg out"><div class="bb fail"><div class="fcard"><span class="ic" style="background:#16a34a">XLS</span><div><div class="nm">Bao-cao-ton-kho.xlsx</div><div class="sz">3,1 MB</div></div></div><span class="ts">17:12 · Gửi không thành — Zalo từ chối tệp · <a href="#">Gửi lại</a></span></div></div>
+   <div class="dmsg out"><div class="bb"><div class="imgs one"><div class="im att" style="background:linear-gradient(135deg,#bae6fd,#38bdf8 55%,#0369a1)"></div></div><span class="ts">17:13 · Đang gửi…</span></div></div></div>
+        <div class="dinput" style="gap:8px"><span class="clip on"><svg class="ico"><use href="#i-clip"/></svg></span><textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px" placeholder="Nhập tin nhắn…"></textarea><button class="btn pri sm"><svg class="ico"><use href="#i-send"/></svg>Gửi</button></div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ⑩ Giới hạn theo kênh (KN-CAP-2) — nút 📎 mờ + giải thích khi kênh không gửi được tệp (Facebook cá nhân); Cake chỉ hiện nút theo năng lực của kênh, không để khách bấm rồi mới báo lỗi -->
+<section class="frame app" id="dinh-kem-gioi-han">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <div class="dinbox" style="grid-template-columns:360px 1fr">
+      <aside class="dlist"><div class="items"><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="b"><div class="r1"><span class="nm">Lan Hương</span><span class="tm">17:10</span></div><div class="r2"><span class="pv">Shop gửi bảng giá sỉ</span></div></div></div><div class="ditem on"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="b"><div class="r1"><span class="nm">Minh Trang</span><span class="tm">16:40</span></div><div class="r2"><span class="pv">Đã gửi ảnh</span></div><div class="tags"><span class="badge out">Facebook cá nhân</span></div></div></div><div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div class="b"><div class="r1"><span class="nm">Anh Khoa - sỉ HN</span><span class="tm">15:20</span></div><div class="r2"><span class="pv">Ok em, gửi luôn nhé</span></div></div></div></div></aside>
+      <section class="dchat">
+        <div class="hd"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div style="flex:1"><div class="nm">Minh Trang</div><div class="xs subtle">Facebook cá nhân · Facebook bán hàng</div></div></div>
+        <div class="msgs" style="padding-top:20px"><div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="bb">Shop gửi em ảnh sản phẩm được không ạ?<span class="ts">16:38</span></div></div></div>
+        <div class="pop"><b>Facebook cá nhân chỉ gửi chữ</b><div class="muted mt8">Gửi ảnh / tệp cho khách Facebook: dùng <b>Fanpage</b> (chính thức, qua BizCity Hub). Nhận ảnh / tệp từ khách vẫn xem được.</div></div>
+   <div class="dinput" style="gap:8px"><span class="clip off"><svg class="ico"><use href="#i-clip"/></svg></span><textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px" placeholder="Nhập tin nhắn…"></textarea><button class="btn pri sm"><svg class="ico"><use href="#i-send"/></svg>Gửi</button></div>
+      </section>
     </div>
   </div>
 </section>
