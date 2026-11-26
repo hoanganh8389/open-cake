@@ -73,6 +73,8 @@ services:
       CAKE_URL: http://api:8120
       CONNECTOR_PORT: "3901"
       DATA_DIR: /data
+      # [2026-11-26 10:39 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — Facebook cá nhân (fbchat-v2) trên máy kết nối: TẮT mặc định (tài khoản phụ, có thể bị Facebook kiểm tra); bật: CONNECTOR_FB_ENABLED=true
+      FB_PERSONAL_ENABLED: "${CONNECTOR_FB_ENABLED:-false}"
       CREDENTIALS_ENCRYPTION_KEY: "${CONNECTOR_ENCRYPTION_KEY:-}"  # 64 ký tự hex (mã hoá phiên Zalo lưu trên đĩa); trống ⇒ máy kết nối từ chối khởi động
     entrypoint: ["sh", "-c", ". /link/connector.env && export CAKE_CONNECTOR_KEY CAKE_CONNECTOR_SECRET && exec node dist/src/connector/main.js"]
     volumes: [cake-link:/link:ro, cake-connector-data:/data]

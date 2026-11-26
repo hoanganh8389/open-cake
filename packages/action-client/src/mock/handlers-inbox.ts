@@ -19,7 +19,7 @@ const conv = (s: Store, id: string) => {
   if (!c) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy hội thoại.', hint: 'Hội thoại có thể đã bị ghép sang khách khác.' });
   return c;
 };
-const FLOWS = new Map<string, { label: string; polls: number }>();
+const FLOWS = new Map<string, { label: string; polls: number; fbUid?: string }>();
 const flow = (id: string) => {
   const f = FLOWS.get(id);
   if (!f) throw new ApiError({ code: 'NOT_FOUND', message: 'Không có phiên quét QR này — bấm Bắt đầu lại.' });
@@ -65,6 +65,7 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
   'cake.channel.connect_start': (s, i) => {
     const flowId = i.flowId && FLOWS.has(i.flowId) ? i.flowId : `flow-${++s.seq}`;
     FLOWS.set(flowId, { label: i.label, polls: 0 });
+    if (i.channel === 'facebook_personal') return { flowId, nextStep: NEXT_STEP.facebook_personal, qrRef: null };
     return { flowId, nextStep: NEXT_STEP[i.channel as keyof typeof NEXT_STEP], qrRef: i.channel === 'zalo_personal' ? 'demo://qr' : null };
   },
   // [2026-11-26 10:09 PM Johnny Chu - Chu Hoàng Anh] KN K7 — QR giả lập: mỗi lần hỏi tiến một nấc chờ quét → đã quét → xong; hoàn tất ⇒ thêm số vào danh sách.
@@ -73,12 +74,26 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     const status = (['waiting_scan', 'scanned', 'success'] as const)[Math.min(f.polls++, 2)];
     return { flowId: i.flowId, status, qrRef: status === 'waiting_scan' ? 'demo://qr' : null, error: null };
   },
+  // [2026-11-26 10:41 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — Facebook giả lập: start ⇒ hỏi mã 2FA ⇒ submit mã "123456" ⇒ xong (mã khác ⇒ lỗi, mật khẩu "checkpoint" ⇒ Facebook kiểm tra). Không nhớ mật khẩu / mã.
+  'cake.channel.fb_login': (_s, i) => {
+    const f = flow(i.flowId);
+    const view = (status: string, extra: Record<string, unknown> = {}) => ({ status, message: null, fields: null, uid: null, ...extra });
+    if (i.action === 'cancel') { delete f.fbUid; return view('idle'); }
+    if (i.action === 'wait') return view(f.fbUid ? 'success' : 'idle', { uid: f.fbUid ?? null });
+    if (i.action === 'cookies') { f.fbUid = '100089000000001'; return view('success', { uid: f.fbUid }); }
+    if (i.action === 'start') return i.password === 'checkpoint' ? view('checkpoint', { message: 'Facebook yêu cầu xác minh nick trên điện thoại / web.' })
+      : view('need_code', { message: 'Nhập mã xác minh Facebook gửi cho bạn.', fields: [{ id: 'code', type: 'text', name: 'Mã xác minh', description: null, options: null }] });
+    if (i.answers.code !== '123456') return view('need_code', { message: 'Mã chưa đúng — thử lại.', fields: [{ id: 'code', type: 'text', name: 'Mã xác minh', description: null, options: null }] });
+    f.fbUid = '100089000000001';
+    return view('success', { uid: f.fbUid });
+  },
   'cake.channel.connect_finish': (s, i) => {
     const f = flow(i.flowId);
-    if (f.polls < 3) throw ApiError.reason('CAKE_CHANNEL_NOT_CONNECTED');
-    const externalAccountId = `zl_${i.flowId}`;
+    const fb = f.fbUid !== undefined;
+    if (fb ? !f.fbUid : f.polls < 3) throw ApiError.reason('CAKE_CHANNEL_NOT_CONNECTED');
+    const externalAccountId = fb ? f.fbUid! : `zl_${i.flowId}`;
     let a = s.accounts.find((x) => x.externalAccountId === externalAccountId);
-    if (!a) { a = { channelAccountId: demo.fid('A', ++s.seq), channel: 'zalo_personal', kind: 'personal', externalAccountId, label: f.label, ownerUserId: '7', status: 'connected', testedAt: null, unread: 0 }; s.accounts.push(a); }
+    if (!a) { a = { channelAccountId: demo.fid('A', ++s.seq), channel: fb ? 'facebook_personal' : 'zalo_personal', kind: 'personal', externalAccountId, label: f.label, ownerUserId: '7', status: 'connected', testedAt: null, unread: 0 }; s.accounts.push(a); }
     return { channelAccountId: a.channelAccountId, externalAccountId, label: a.label, status: 'connected' };
   },
   'cake.channel.test': (s, i) => {

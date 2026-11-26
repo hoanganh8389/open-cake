@@ -89,13 +89,16 @@ async function evidence(conn: Db, req: FastifyRequest, spec: ActionSpec, x: { in
   return { evidenceId: String(r.id), hash: r.hash ?? '', at: new Date(r.created_at).toISOString() };
 }
 
+const SECRET_INPUT_KEYS = new Set(['password', 'answers', 'cookies']);
+
 /** Lệnh có Idempotency-Key: cùng khoá + cùng thân ⇒ trả lại kết quả cũ (replayed, không ghi bằng chứng mới); cùng khoá khác thân ⇒ IDEMPOTENCY_CONFLICT. */
 async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: Handler): Promise<{ out: unknown; meta: { receipt?: Receipt; replayed?: true } }> {
   const tenantId = tenantOf();
   const raw = req.headers['idempotency-key'];
   if (typeof raw === 'string' && !/^[\x21-\x7e]{8,128}$/.test(raw)) throw failure('VALIDATION_ERROR', 'Idempotency-Key phải 8–128 ký tự in được.', { field: 'idempotency-key' });
   const key = typeof raw === 'string' && raw ? raw : null;
-  const inputHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');
+  // [2026-11-26 10:39 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — băm KHÔNG gồm mật khẩu / mã / cookie (băm trần của mật khẩu yếu dò ngược được): các khoá bí mật thay bằng "[ẩn]" trước khi băm.
+  const inputHash = createHash('sha256').update(JSON.stringify(input, (k, v) => (SECRET_INPUT_KEYS.has(k) ? '[ẩn]' : v))).digest('hex');
   try {
     return await db.transaction().execute(async (tx) => {
       if (key) {

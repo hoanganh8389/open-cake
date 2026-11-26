@@ -33,6 +33,26 @@ try {
   await page.getByText('Zalo đã sẵn sàng').waitFor();
   await page.getByText('Đã thử hai chiều', { exact: true }).waitFor();
   await shot(page, 'kn-bon-buoc-xong');
+  // [2026-11-26 10:47 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — Facebook cá nhân: tên + email + mật khẩu ⇒ cần mã ⇒ mã sai báo lại ⇒ mã đúng ⇒ số được ghi; mật khẩu / mã bị xoá khỏi ô nhập sau khi gửi
+  const page2 = await browser.newPage({ viewport: { width: 1440, height: 1010 } });
+  await page2.goto(`http://localhost:${PORT}/#/channels?connect=1`);
+  await page2.getByText('2/4 bước xong').waitFor();
+  await page2.getByRole('button', { name: 'Facebook cá nhân' }).click();
+  await page2.getByText('nick phụ').first().waitFor();
+  await page2.getByLabel('Tên nick Facebook').fill('Facebook bán hàng');
+  await page2.getByLabel('Email hoặc số điện thoại').fill('shop@example.com');
+  await page2.getByLabel('Mật khẩu').fill('MatKhau-Bi-Mat-9');
+  await page2.getByRole('button', { name: 'Đăng nhập' }).click();
+  await page2.getByText('Cần mã xác minh').waitFor();
+  await shot(page2, 'kn-bon-buoc-facebook-ma');
+  await page2.getByLabel('Mã xác minh').fill('000000');
+  await page2.getByRole('button', { name: 'Gửi mã' }).click();
+  await page2.getByText('Mã chưa đúng').waitFor();
+  if ((await page2.getByLabel('Mã xác minh').inputValue()) !== '') throw new Error('mã cũ còn trong ô nhập');
+  await page2.getByLabel('Mã xác minh').fill('123456');
+  await page2.getByRole('button', { name: 'Gửi mã' }).click();
+  await page2.getByText('3/4 bước xong').waitFor();
+  await shot(page2, 'kn-bon-buoc-facebook-xong');
 } catch (e) {
   console.error('✗', e.message); process.exitCode = 1;
   for (const p of browser.contexts().flatMap((c) => c.pages())) await p.screenshot({ path: join(OUT, 'app-loi.png') }).catch(() => {});

@@ -21,6 +21,7 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
   const got: { path: string; auth: string; body: string; sig: string }[] = [];
   let conv = { id: '', thread: '', account: '' };
   let scanned = false;
+  let fbDone = false;
 
   const call = (method: 'GET' | 'POST', u: string, payload?: object) =>
     app.inject({ method, url: u, payload, headers: { authorization: `Bearer ${token}`, ...(method === 'POST' ? { 'idempotency-key': `k-${Math.random().toString(36).slice(2, 12)}` } : {}) } });
@@ -48,10 +49,18 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
       got.push({ path: req.url!, auth: String(req.headers.authorization), body: raw, sig: String(req.headers['x-bizcity-signature'] ?? '') });
       // [2026-11-26 10:09 PM Johnny Chu - Chu Hoàng Anh] KN K7 — API tài khoản của máy kết nối: thêm số, QR (chờ quét → quét xong khi test bật `scanned`), danh sách.
       const json = (code: number, b: object) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(b)); };
+      // [2026-11-26 10:42 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — Facebook cá nhân trên máy kết nối giả: tạo nick, đăng nhập (start ⇒ need_code ⇒ submit ⇒ success), danh sách có fbUid
+      if (req.method === 'POST' && req.url === '/accounts' && JSON.parse(raw).platform === 'facebook_personal') return json(200, { ok: true, account: { id: 'acc-fb1', label: JSON.parse(raw).label } });
+      if (req.method === 'POST' && req.url === '/accounts/acc-fb1/fb-login') {
+        const b = JSON.parse(raw);
+        if (b.action === 'start') return json(200, { ok: true, login: { status: 'need_code', message: 'Nhập mã', fields: [{ id: 'code', type: 'text', name: 'Mã' }] } });
+        if (b.action === 'submit' && b.input?.code === '123456') { fbDone = true; return json(200, { ok: true, login: { status: 'success', uid: '100089000000001' } }); }
+        return json(200, { ok: true, login: { status: 'need_code', message: 'Mã sai', fields: [{ id: 'code', type: 'text' }] } });
+      }
       if (req.method === 'POST' && req.url === '/accounts') return json(200, { ok: true, account: { id: 'acc-q1', label: JSON.parse(raw).label } });
       if (req.url === '/accounts/acc-q1/qr') return json(200, { ok: true, ...(scanned ? { status: 'success' } : { status: 'waiting_scan', qrDataUri: 'data:image/png;base64,QR' }) });
       if (req.url === '/accounts/nope/qr') return json(404, { ok: false, error: { code: 'account_not_found', message: 'Không có số này' } });
-      if (req.method === 'GET' && req.url === '/accounts') return json(200, { ok: true, accounts: [{ id: 'acc-q1', label: 'Zalo bán hàng 2', platform: 'zalo', status: scanned ? 'active' : 'pending', zaloUid: scanned ? 'zl_k7_999' : null, running: scanned }] });
+      if (req.method === 'GET' && req.url === '/accounts') return json(200, { ok: true, accounts: [{ id: 'acc-q1', label: 'Zalo bán hàng 2', platform: 'zalo_personal', status: scanned ? 'active' : 'pending', zaloUid: scanned ? 'zl_k7_999' : null, running: scanned }, { id: 'acc-fb1', label: 'FB Shop', platform: 'facebook_personal', status: fbDone ? 'connected' : 'pending', zaloUid: null, fbUid: fbDone ? '100089000000001' : null, running: fbDone }] });
       res.writeHead(req.url === '/health' ? 200 : 202, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: true, accepted: true }));
     });
     connUrl = await listen(connServer);
@@ -128,6 +137,33 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
     expect(rows[0]).toMatchObject({ cell_ref: 'acc-q1', status: 'connected' });
     expect(rows[0]!.owner_user_id).not.toBeNull();
     expect((await call('GET', '/api/v1/channels')).json().data.some((a: { externalAccountId: string }) => a.externalAccountId === 'zl_k7_999')).toBe(true);
+  });
+
+  it('Facebook cá nhân: tạo nick ⇒ đăng nhập (need_code ⇒ mã sai ⇒ mã đúng) ⇒ hoàn tất ghi channel_accounts facebook_personal; mật khẩu / mã không lọt vào CSDL', async () => {
+    const s = (await call('POST', '/api/v1/channels/connect', { channel: 'facebook_personal', label: 'FB Shop' })).json().data;
+    expect(s).toEqual({ flowId: 'acc-fb1', nextStep: 'approve_on_device', qrRef: null });
+    expect((await call('POST', '/api/v1/channels/connect/acc-fb1/finish', {})).json().error.code).toBe('CONFLICT'); // chưa đăng nhập
+    const L = (b: object) => call('POST', '/api/v1/channels/connect/acc-fb1/fb-login', b);
+    got.length = 0;
+    const a = (await L({ action: 'start', identifier: 'shop@example.com', password: 'MatKhau-Bi-Mat-9' })).json().data;
+    expect(a).toMatchObject({ status: 'need_code', fields: [{ id: 'code', name: 'Mã' }], uid: null });
+    const sent = got.find((x) => x.path === '/accounts/acc-fb1/fb-login')!;
+    expect(sent.sig).toMatch(/^t=\d+,v1=[0-9a-f]{64}$/);
+    expect(JSON.parse(sent.body)).toEqual({ action: 'start', identifier: 'shop@example.com', password: 'MatKhau-Bi-Mat-9' }); // thân đi nguyên sang máy kết nối
+    expect((await L({ action: 'submit', answers: { code: '000000' } })).json().data.message).toBe('Mã sai');
+    expect((await L({ action: 'submit', answers: { code: '123456' } })).json().data).toMatchObject({ status: 'success', uid: '100089000000001' });
+    const f = (await call('POST', '/api/v1/channels/connect/acc-fb1/finish', {})).json().data;
+    expect(f).toMatchObject({ externalAccountId: '100089000000001', label: 'FB Shop', status: 'connected' });
+    expect((await sql(`SELECT channel, kind, cell_ref FROM channel_accounts WHERE external_account_id = '100089000000001'`)).rows).toEqual([{ channel: 'facebook_personal', kind: 'personal', cell_ref: 'acc-fb1' }]);
+    for (const t of ['audit_logs', 'action_requests']) {
+      const all = JSON.stringify((await sql(`SELECT * FROM ${t}`)).rows);
+      expect(all, t).not.toContain('MatKhau-Bi-Mat-9');
+      expect(all, t).not.toContain('123456');
+    }
+    const h = (await sql(`SELECT input_hash FROM audit_logs WHERE action = 'cake.channel.fb_login' ORDER BY id LIMIT 1`)).rows[0]!.input_hash;
+    const { createHash } = await import('node:crypto');
+    const naive = createHash('sha256').update(JSON.stringify({ flowId: 'acc-fb1', action: 'start', identifier: 'shop@example.com', password: 'MatKhau-Bi-Mat-9' })).digest('hex');
+    expect(h).not.toBe(`sha256:${naive}`); // băm đã bỏ mật khẩu, không dò ngược được
   });
 
   it('đơn vị dùng Hub ⇒ bước ③ báo rõ chưa có (không gọi máy kết nối)', async () => {

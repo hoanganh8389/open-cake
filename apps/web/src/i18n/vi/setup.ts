@@ -45,7 +45,7 @@ export const setup = {
     see: 'Xem BizCity Hub',
   },
   steps: {
-    title: 'Thiết lập Zalo trong 4 bước',
+    title: 'Thiết lập Zalo trong 4 bước', titleFb: 'Thiết lập Facebook trong 4 bước', s3Fb: 'Bước 3 · Đăng nhập nick Facebook',
     sub: 'Làm lần lượt từ trên xuống. Mỗi bước tự kiểm tra và báo Đạt hay Chưa đạt ngay.',
     progress: (n: number) => `${n}/4 bước xong`,
     ok: 'Đạt', notYet: 'Chưa đạt', waitPrev: 'Chờ bước trước', picking: 'Đang chọn',
@@ -61,6 +61,15 @@ export const setup = {
     s3: 'Bước 3 · Đăng nhập số Zalo',
     s3Desc: 'Đặt tên cho số, rồi quét mã QR bằng ứng dụng Zalo trên điện thoại của số đó.',
     s3Hub: 'Đơn vị đang dùng BizCity Hub: quét QR ở trang của Hub, số sẽ tự hiện ở đây.',
+    // [2026-11-26 10:44 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — chọn kênh ở bước ③ + đăng nhập Facebook cá nhân (máy kết nối Tự cài)
+    pickChannel: 'Kênh cần kết nối', chZalo: 'Zalo cá nhân', chFb: 'Facebook cá nhân',
+    fbDesc: 'Đăng nhập tài khoản Facebook (nên dùng nick phụ). Mật khẩu chỉ đi qua một lần tới máy kết nối của bạn, Open CRM không lưu.',
+    fbWarn: 'Facebook có thể kiểm tra (checkpoint) nick đăng nhập từ máy lạ; dùng nick phụ, không dùng nick chính của shop.',
+    fbOff: 'Máy kết nối chưa bật Facebook cá nhân — đặt CONNECTOR_FB_ENABLED=true rồi khởi động lại máy kết nối.',
+    fbLabel: 'Tên nick Facebook', fbLabelPh: 'VD: Facebook bán hàng',
+    fbId: 'Email hoặc số điện thoại', fbPw: 'Mật khẩu',
+    fbLogin: 'Đăng nhập', fbSubmit: 'Gửi mã', fbApproved: 'Tôi đã duyệt trên điện thoại', fbRetry: 'Làm lại',
+    fbSt: { idle: 'Chưa đăng nhập', waiting_approval: 'Chờ duyệt trên điện thoại', need_code: 'Cần mã xác minh', success: 'Đăng nhập xong', checkpoint: 'Facebook yêu cầu xác minh nick', error: 'Chưa đăng nhập được' },
     label: 'Tên số Zalo', labelPh: 'VD: Zalo bán hàng — 0909 123 456',
     start: 'Lấy mã QR', newQr: 'Tạo mã mới',
     scanHow: ['Mở Zalo trên điện thoại ⇒ ', 'Quét mã QR', ' ⇒ quét mã bên cạnh ⇒ ', 'Đăng nhập', '.'] as const,
@@ -74,7 +83,7 @@ export const setup = {
     me: 'bạn',
   },
   done: {
-    title: 'Zalo đã sẵn sàng',
+    title: 'Zalo đã sẵn sàng', titleFb: 'Facebook đã sẵn sàng', addMoreFb: 'Thêm nick Facebook',
     who: (label: string, who: string) => `${label} · người trực: ${who}`,
     viewSteps: 'Xem 4 bước', addMore: 'Thêm số Zalo', openInbox: 'Mở hộp thư',
     test: 'Nhắn thử', retest: 'Nhắn thử lại', twoWay: 'Đã thử hai chiều', oneWay: 'Chưa có bằng chứng hai chiều',

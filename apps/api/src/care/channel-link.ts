@@ -90,23 +90,35 @@ export const channelLinkHandlers: Record<string, Handler> = {
     return view(tx, tenantId, issued);
   },
   'cake.channel.connect_start': async ({ tx, tenantId }: Ctx, i) => {
-    if (i.channel !== 'zalo_personal') throw failure('CONFLICT', 'Bản này kết nối Zalo cá nhân; Facebook cá nhân trên máy kết nối: đợt sau.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
-    const id = i.flowId ?? (await connectorCall<{ account: { id: string } }>(tx, tenantId, 'POST', '/accounts', { label: i.label })).account.id;
+    if (i.channel !== 'zalo_personal' && i.channel !== 'facebook_personal') throw failure('CONFLICT', 'Máy kết nối chỉ có Zalo cá nhân và Facebook cá nhân; kênh khác kết nối qua BizCity Hub.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+    const fb = i.channel === 'facebook_personal';
+    const id = i.flowId ?? (await connectorCall<{ account: { id: string } }>(tx, tenantId, 'POST', '/accounts', { label: i.label, ...(fb ? { platform: 'facebook_personal' } : {}) })).account.id;
+    if (fb) return { flowId: id, nextStep: 'approve_on_device' as const, qrRef: null }; // Facebook: nhập tài khoản ở giao diện, không QR
     const q = await connectorCall<QrView>(tx, tenantId, 'POST', `/accounts/${encodeURIComponent(id)}/qr`, {});
     return { flowId: id, nextStep: 'qr' as const, qrRef: q.qrDataUri ?? null };
   },
   'cake.channel.connect_status': async ({ tx, tenantId }: Ctx, i) => qrOut(i.flowId, await connectorCall<QrView>(tx, tenantId, 'GET', `/accounts/${encodeURIComponent(i.flowId)}/qr`)),
   'cake.channel.connect_finish': async ({ tx, tenantId, userId }: Ctx, i) => {
-    const list = await connectorCall<{ accounts: { id: string; label: string; zaloUid: string | null; running: boolean }[] }>(tx, tenantId, 'GET', '/accounts');
+    const list = await connectorCall<{ accounts: { id: string; label: string; platform?: string; zaloUid: string | null; fbUid?: string | null; running: boolean }[] }>(tx, tenantId, 'GET', '/accounts');
     const a = list.accounts.find((x) => x.id === i.flowId);
-    if (!a?.zaloUid || !a.running) throw failure('CONFLICT', 'Số chưa đăng nhập xong — quét QR rồi thử lại.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+    const fb = a?.platform === 'facebook_personal';
+    const uid = fb ? a?.fbUid : a?.zaloUid;
+    if (!a || !uid || !a.running) throw failure('CONFLICT', fb ? 'Nick Facebook chưa đăng nhập xong — hoàn tất các bước xác minh rồi thử lại.' : 'Số chưa đăng nhập xong — quét QR rồi thử lại.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+    const channel = fb ? 'facebook_personal' : 'zalo_personal';
     const now = new Date();
-    const prev = await tx.selectFrom('channel_accounts').select(['channel_account_id']).where('tenant_id', '=', tenantId).where('channel', '=', 'zalo_personal').where('external_account_id', '=', a.zaloUid).executeTakeFirst();
+    const prev = await tx.selectFrom('channel_accounts').select(['channel_account_id']).where('tenant_id', '=', tenantId).where('channel', '=', channel).where('external_account_id', '=', uid).executeTakeFirst();
     const id = prev?.channel_account_id ?? newUlid();
     if (prev) await tx.updateTable('channel_accounts').set({ cell_ref: a.id, status: 'connected', connected_at: now, label: a.label }).where('tenant_id', '=', tenantId).where('channel_account_id', '=', id).execute();
-    else await tx.insertInto('channel_accounts').values({ channel_account_id: id, tenant_id: tenantId, channel: 'zalo_personal', kind: 'personal', external_account_id: a.zaloUid, label: a.label, owner_user_id: userId ?? null, cell_ref: a.id, status: 'connected', connected_at: now } as never).execute();
+    else await tx.insertInto('channel_accounts').values({ channel_account_id: id, tenant_id: tenantId, channel, kind: 'personal', external_account_id: uid, label: a.label, owner_user_id: userId ?? null, cell_ref: a.id, status: 'connected', connected_at: now } as never).execute();
     await notifyChanged(tx, tenantId, ['cake.channel.manage']);
-    return { channelAccountId: id, externalAccountId: a.zaloUid, label: a.label, status: 'connected' as const };
+    return { channelAccountId: id, externalAccountId: uid, label: a.label, status: 'connected' as const };
+  },
+  // [2026-11-26 10:39 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — một bước đăng nhập Facebook; thân đi nguyên sang máy kết nối (không giữ lại), kết quả chỉ gồm trạng thái / ô cần nhập.
+  'cake.channel.fb_login': async ({ tx, tenantId }: Ctx, i) => {
+    const body = i.action === 'start' ? { action: 'start', identifier: i.identifier, password: i.password } : i.action === 'submit' ? { action: 'submit', input: i.answers } : i.action === 'cookies' ? { action: 'cookies', cookies: i.cookies } : { action: i.action };
+    const r = await connectorCall<{ login: { status: string; message?: string; fields?: { id: string; type: string; name?: string; description?: string; options?: string[] }[]; uid?: string } }>(tx, tenantId, 'POST', `/accounts/${encodeURIComponent(i.flowId)}/fb-login`, body);
+    const l = r.login;
+    return { status: l.status as never, message: l.message ?? null, uid: l.uid ?? null, fields: l.fields?.map((f) => ({ id: f.id, type: f.type, name: f.name ?? null, description: f.description ?? null, options: f.options ?? null })) ?? null };
   },
   'cake.channel_link.test': async ({ tx, tenantId }: Ctx) => {
     const t = await channelTarget(tx, tenantId);

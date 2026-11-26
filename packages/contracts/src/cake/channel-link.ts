@@ -64,4 +64,28 @@ export const channelConnectFinish = defineActionSpec({
   permission: 'cake:channels-lap', risk: 'medium', idempotent: true, reasons: ['CAKE_CHANNEL_NOT_CONNECTED'],
   expose: { rest: 'POST /api/v1/channels/connect/:flowId/finish', ui: true },
 });
-export const CHANNEL_CONNECT_ACTIONS = [channelConnectStatus, channelConnectFinish] as const;
+// [2026-11-26 10:39 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — đăng nhập Facebook cá nhân trên máy kết nối (Tự cài), cùng hợp đồng với /wp/accounts/:id/fb-login của cell:
+//   start (email / số + mật khẩu) ⇒ có thể need_code / waiting_approval ⇒ submit (answers) ⇒ success. "cookies" là đường dự phòng khi Facebook từ chối mật khẩu.
+//   Mật khẩu / mã / cookie CHỈ đi qua thân MỘT yêu cầu tới máy kết nối: không lưu, không vào bằng chứng (runtime băm đầu vào đã bỏ các khoá này), không trả lại.
+export const FbLoginViewSchema = z.object({
+  status: z.enum(['idle', 'waiting_approval', 'need_code', 'success', 'checkpoint', 'error']),
+  message: z.string().nullable(),
+  /** các ô người dùng phải nhập (mã 2FA, chọn cách xác minh…). */
+  fields: z.array(z.object({ id: z.string(), type: z.string(), name: z.string().nullable(), description: z.string().nullable(), options: z.array(z.string()).nullable() })).nullable(),
+  uid: z.string().nullable(),
+});
+export type FbLoginView = z.infer<typeof FbLoginViewSchema>;
+const flow = z.string().min(1).max(64);
+export const channelFbLogin = defineActionSpec({
+  id: 'cake.channel.fb_login', capability: 'cake.channel.manage', title: 'Đăng nhập Facebook cá nhân', kind: 'command',
+  input: z.discriminatedUnion('action', [
+    z.object({ flowId: flow, action: z.literal('start'), identifier: z.string().min(3).max(200), password: z.string().min(1).max(200) }),
+    z.object({ flowId: flow, action: z.literal('submit'), answers: z.record(z.string().max(64), z.string().max(200)).refine((o) => Object.keys(o).length > 0) }),
+    z.object({ flowId: flow, action: z.literal('wait') }),
+    z.object({ flowId: flow, action: z.literal('cancel') }),
+    z.object({ flowId: flow, action: z.literal('cookies'), cookies: z.record(z.string().max(16), z.string().max(700)) }),
+  ]),
+  output: FbLoginViewSchema, permission: 'cake:channels-lap', risk: 'high', reasons: ['CAKE_CHANNEL_NOT_CONNECTED'],
+  expose: { rest: 'POST /api/v1/channels/connect/:flowId/fb-login', ui: true },
+});
+export const CHANNEL_CONNECT_ACTIONS = [channelConnectStatus, channelConnectFinish, channelFbLogin] as const;
