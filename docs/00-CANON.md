@@ -42,7 +42,7 @@ Canon chung > Tier 0 (trục, sổ, cửa) > Tier 1 (ranh giới, nhiều site, 
 
 | Mã | Luật |
 |---|---|
-| **R-CAKE-CELL-1** | Kênh sống ở Cell. Không cột / log / sự kiện chứa cookie, token Page, khoá E2EE (SC-CAKE-6). Chỉ nhận `bizcity_touch@1` đã ký, chỉ gửi `bizcity_channel_command@1` qua Hub |
+| **R-CAKE-CELL-1** | Kênh sống ở Cell. Không cột / log / sự kiện chứa cookie, token Page, khoá E2EE (SC-CAKE-6). Chỉ nhận `bizcity_touch@1` đã ký, chỉ gửi `bizcity_channel_command@1` **qua Hub hoặc qua máy kết nối Tự cài của chính đơn vị** (cùng hợp đồng, cùng khuôn ký — [25-KET-NOI-KENH](architecture/25-KET-NOI-KENH.md); sửa 2026-11-26, chủ duyệt) <!-- [2026-11-26 06:01 PM Johnny Chu - Chu Hoàng Anh] KN-4 D-KN-6 --> |
 | **R-CAKE-CELL-2** | Không gọi LLM. AI / kịch bản / skill = Twin Brain qua `/mcp`; ghi chỉ tạo nháp / chờ duyệt, cần `confirm_token` |
 | **R-CAKE-MASTER-1** | **Độc lập trước** (ADR-0004): Cake có danh mục riêng — hàng, mã, ĐVT, nhóm, bảng giá — chạy đầy đủ không cần Kế Toán; nguồn theo đơn vị `catalog_source` = `local` · `ketoan` |
 | **R-CAKE-MASTER-2** | **Sẵn ánh xạ**: hình dữ liệu theo chuẩn open-ketoan ngay từ đầu — `item_id` ULID, mã có hiệu lực (đóng / mở), chuẩn H-1…H-18 của open-pos (E chặn ở hợp đồng, W thành cảnh báo `CAT-*`); mọi bảng đồng bộ mang khối `source · ext_id · ext_synced_at · ext_hash · push_status` |

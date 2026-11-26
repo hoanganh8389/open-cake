@@ -2,7 +2,7 @@
 
 <!-- [2026-11-26 04:54 PM Johnny Chu - Chu Hoàng Anh] KN-1 — tài liệu nghiệp vụ: hai cách nối Zalo / Facebook vào Open CRM; mặc định Tự cài chạy sẵn; gợi ý BizCity Hub kèm quyền lợi trợ lý. Mockup chờ duyệt: PHASE-007 mockup kết nối ①–④. -->
 
-> **Trạng thái:** nháp chờ chủ duyệt (mockup trước, chưa có mã) · **Chuẩn gốc:** R-SETUP-4 của bizcity-twin-ai (`docs/rules/PHASE-0-RULE-FOUR-STEP-SETUP-AXIS.md`, mẫu ở `core/channel-gateway/docs/PHASE-0.83-FOUR-STEP-SETUP/`) · **Liên quan:** [60-UI §3](60-UI.md#3-sheet-kết-nối-kênh--4-bước-r-lean-4-connect-setup1-của-zalo-brain), [10-ARCHITECTURE](10-ARCHITECTURE.md), hợp đồng [`bizcity_touch@1`](../contracts/BIZCITY-TOUCH-v1.md), [`bizcity_channel_command@1`](../contracts/BIZCITY-CHANNEL-COMMAND-v1.md)
+> **Trạng thái:** chủ duyệt 2026-11-26 (mockup kết nối ①–④, D-KN-1…4, nhãn bước ④, sửa R-CAKE-CELL-1) · chưa có mã · **Chuẩn gốc:** R-SETUP-4 của bizcity-twin-ai (`docs/rules/PHASE-0-RULE-FOUR-STEP-SETUP-AXIS.md`, mẫu ở `core/channel-gateway/docs/PHASE-0.83-FOUR-STEP-SETUP/`) · **Liên quan:** [60-UI §3](60-UI.md#3-sheet-kết-nối-kênh--4-bước-r-lean-4-connect-setup1-của-zalo-brain), [10-ARCHITECTURE](10-ARCHITECTURE.md), hợp đồng [`bizcity_touch@1`](../contracts/BIZCITY-TOUCH-v1.md), [`bizcity_channel_command@1`](../contracts/BIZCITY-CHANNEL-COMMAND-v1.md)
 
 ## 1. Một câu
 
@@ -98,13 +98,49 @@ BizCity Hub: Cell ──► Hub (khoá site, ký) ──► Open CRM POST /ingre
 |---|---|---|---|
 | K1 | zalo-hub (PHASE-018) | nối `buildBizcityTouch` vào đường tin đến sau cờ `targets` (S018-5/6) | Hub, Zalo |
 | K2 | zalo-hub (PHASE-018) | `buildBizcityTouch` nhận tin FB (bảng trên); `/channel/v1/commands` nhận `channel=facebook_personal` | Hub + Tự cài, FB |
+| K2b | open-cake + zalo-hub | hợp đồng 0.2 + năng lực §3b: tên / ảnh, danh bạ (`directory.sync`, `contact.find`), nhóm (`thread.updated`), trích dẫn, @nhắc, thu hồi, reaction | cả hai |
 | K3 | bizcity-llm-router (PHASE-0.3) | `/zalo-hub/touch` + `/channel/v1/commands` (H1…H5) | Hub |
 | K4 | zalo-hub | **bản gọn `zalo-hub-connector`**: điểm vào riêng (`src/connector/main.ts`) chỉ nạp phần kênh (zca, fbchat-v2, hàng gửi, chống trùng) + Dockerfile target `connector`; không kéo mã trợ lý / agent / LLM / MCP. Hành vi: `CAKE_URL` + `CAKE_CONNECTOR_SECRET` ⇒ phát touch thẳng Cake (ký HMAC) cho tài khoản cell-local; `/channel/v1/commands` + API tài khoản nhận chữ ký khoá nối thay cho cell secret của Hub | Tự cài |
 | K5 | open-cake | cấu hình kết nối theo đơn vị (`mode`, đích lệnh, bí mật — mã hoá); cổng nhận chấp nhận chữ ký của máy kết nối; `cake.channel.connect_start` / trạng thái 4 bước gọi Cell (Tự cài) hoặc Hub | cả hai |
 | K6 | open-cake | `docker-compose.yml` thêm `cake-connector` (image `zalo-hub-connector`, cổng nội bộ, volume phiên), open-setup sinh khoá nối nội bộ cho cả hai phía ⇒ ① ② Đạt sẵn | Tự cài |
 | K7 | open-cake (PHASE-007 S007-6) | màn Cài đặt › Kết nối kênh + 4 bước theo mockup kết nối ①–④ | cả hai |
 
-Đề xuất làm **K1 → K2 → K4 → K5 → K6 → K7** (K3 song song ở router): chạy thật được Zalo + FB qua Hub trước, rồi đóng gói bản gọn cho Tự cài từ cùng mã kênh.
+Đề xuất làm **K1 → K2 → K2b → K4 → K5 → K6 → K7** (K3 song song ở router): chạy thật được Zalo + FB qua Hub trước, rồi đóng gói bản gọn cho Tự cài từ cùng mã kênh.
+
+## 3b. Năng lực máy kết nối: gọn nhưng đủ năng lực kênh
+
+<!-- [2026-11-26 06:01 PM Johnny Chu - Chu Hoàng Anh] KN-4 — chủ 2026-11-26: "cake-connector lean để kết nối và đảm bảo danh bạ, nhóm, tên, ảnh, các năng lực tại Zalo, FB full là ok. Còn lại đồng ý." -->
+
+**"Gọn"** = không trợ lý / agent / LLM / MCP. **"Đủ"** = mọi năng lực Zalo cá nhân và Facebook cá nhân mà CRM cần — giống hệt Cell đầy đủ, vì cùng mã kênh. Bảng dưới là phạm vi bắt buộc của `zalo-hub-connector` (và của Cell khi đi qua Hub).
+
+| Năng lực | Zalo (zca — hàm Cell đang dùng) | Facebook (fbchat-v2) | Hợp đồng chở | Open CRM dùng ở |
+|---|---|---|---|---|
+| Tin chữ · ảnh · tệp · thoại · nhãn dán · video, hai chiều | `sendMessage`, `sendSticker`, sự kiện tin đến | tin 1-1 và nhóm (1.3) | touch `message.*` + `attachments` · command `message.send` ✓ có | Hộp thư |
+| **Tên + ảnh đại diện người nhắn** | `getUserInfo`, thông tin người gửi trong tin | `threadName` / hồ sơ (PR #9) | touch `sender.displayName` + `sender.avatarRef` ✓ có — **máy kết nối phải điền `avatarRef`** (hiện builder để `null`) | Hộp thư, Danh bạ, Contact 360 |
+| **Danh bạ** (bạn bè của nick) | `getAllFriends`, `findUser` (SĐT ⇒ uid) | danh sách bạn (cần kiểm bridge) | **thêm** command `directory.sync` ⇒ trả về từng touch `profile.updated` `backfill: true` · **thêm** command `contact.find` (SĐT ⇒ uid, bằng chứng `phone`) | Danh bạ (khách `asserted`; SĐT tìm được ⇒ danh tính `proven`) |
+| **Nhóm**: tên, ảnh, thành viên, phó nhóm | `getAllGroups`, `getGroupInfo`, `getGroupMembersInfo`, `getPendingGroupMembers` | nhóm chat FB (cần kiểm bridge) | **thêm** touch `thread.updated` `{name, avatarRef, memberCount, members[]?}` (khi đổi + khi `directory.sync`) | Hộp thư nhóm, Danh bạ › Nhóm |
+| Hồ sơ đổi (đổi tên / ảnh) | sự kiện của zca | sự kiện của bridge | **thêm** touch `profile.updated` | Danh bạ, Contact 360 (không ghi đè tên nhân viên đã sửa tay) |
+| Trích dẫn · @nhắc | `quote`, `mentions` trong tin | trả lời tin (cần kiểm) | **thêm** `content.quote`, `content.mentions[]` vào touch và command | Hộp thư |
+| Thu hồi tin | `undo` | gỡ tin (cần kiểm) | **thêm** command `message.revoke`; touch version+1 `content.type = revoked` | Hộp thư |
+| Reaction | `addReaction`, sự kiện reaction | reaction (cần kiểm) | touch `reaction.added` ✓ có · **thêm** command `reaction.add` | Hộp thư |
+| Đã xem · đang gõ | sự kiện đã xem, `sendTypingEvent` | đã đọc (cần kiểm) | command `thread.mark_read` ✓ có; `delivery.updated` `read` ✓ có; đang gõ: bỏ qua | Hộp thư (Đã xem) |
+| Lịch sử cũ | `getGroupChatHistory`, `getContext` | lịch sử (cần kiểm) | command `history.sync` ✓ có ⇒ touch `backfill: true` | Hộp thư, Contact 360 |
+| Quản lý nhóm (thêm / bớt thành viên, đổi tên, đổi ảnh, phó nhóm, chặn, chuyển trưởng nhóm, tạo nhóm) | `addUserToGroup`, `removeUserFromGroup`, `changeGroupName`, `changeGroupAvatar`, `add/removeGroupDeputy`, `add/removeGroupBlockedMember`, `changeGroupOwner`, `createGroup` | — | **thêm** command `group.*` (đợt sau) | Danh bạ › Nhóm |
+| Kết bạn | `sendFriendRequest` | — | **thêm** command `friend.request` (đợt sau) | Contact 360 |
+| Bình chọn · ghi chú nhóm | `createPoll`, `createNote` | — | để sau | — |
+| Tin mã hoá đầu-cuối | — | `fbchat-bridge-e2ee` | touch `encryption` ✓ có (giải ở máy kết nối) | Hộp thư |
+
+**Luật năng lực:**
+
+| Mã | Luật |
+|---|---|
+| KN-CAP-1 | Máy kết nối gọn và Cell đầy đủ **chung một mã kênh**; năng lực kênh mới thêm một lần, có ở cả hai bản |
+| KN-CAP-2 | Máy kết nối báo `capabilities` của từng tài khoản (`account.status`); Open CRM chỉ hiện nút cho năng lực có trong danh sách — FB thiếu gì thì nút đó không hiện, không lỗi |
+| KN-CAP-3 | Ảnh (đại diện, nhóm, tệp) đi bằng `avatarRef` / `ref` là URL có hạn của máy kết nối; Open CRM tải về kho tệp của mình khi cần giữ lâu, không giữ cookie để tải |
+| KN-CAP-4 | Danh bạ từ kênh vào Open CRM là danh tính `asserted`; chỉ SĐT tìm được bằng `contact.find` / khách tự gửi mới thành `proven` (R-CAKE-ID-2 — không ghép theo tên) |
+| KN-CAP-5 | `directory.sync` chạy khi đăng nhập xong (bước ③) và theo yêu cầu; kết quả là touch `backfill: true` ⇒ không bắn tự động, không thông báo |
+
+**Hợp đồng cần nâng** (đợt K2b, trước K4): `bizcity_touch@1` 0.2 — loại `profile.updated`, `thread.updated`; `content.quote`, `content.mentions`, `content.type = revoked`. `bizcity_channel_command@1` 0.2 — `directory.sync`, `contact.find`, `message.revoke`, `reaction.add`; `group.*`, `friend.request` để đợt sau. Thêm trường vẫn giữ `@1` (chỉ thêm, không đổi nghĩa).
 
 ## 4. Mặc định: Tự cài chạy sẵn
 
@@ -157,17 +193,21 @@ Một màn, ba khối:
 | A5 | `cake.channel.connect_start` / trạng thái 4 bước đọc từ máy chủ | `packages/contracts`, `apps/api` |
 | A6 | Màn Cài đặt › Kết nối kênh + sheet 4 bước | `apps/web` (PHASE-007 S007-6) |
 
-## 9. Quyết định chờ chủ
+## 9. Quyết định (chủ chốt 2026-11-26)
 
-| Mã | Câu hỏi | Đề xuất |
+| Mã | Câu hỏi | Chốt |
 |---|---|---|
-| D-KN-1 | Một đơn vị dùng **một** cách cho mọi số, hay mỗi số một cách? | một cách cho cả đơn vị (đơn giản, dễ hiểu); đổi được ở Cài đặt |
+| D-KN-1 | Một đơn vị dùng **một** cách cho mọi số, hay mỗi số một cách? | ✅ một cách cho cả đơn vị; đổi được ở Cài đặt |
 | D-KN-2 | Máy kết nối Tự cài là gì? | ✅ **chốt 2026-11-26:** cùng mã nguồn zalo-hub; Tự cài là bản gọn `zalo-hub-connector` chỉ có zca + fbchat-v2, **không** trợ lý / agent (§3a, K4) — không viết bộ kênh thứ hai |
 | D-KN-3 | Danh sách máy kết nối Tự cài bản đầu | ✅ **chốt 2026-11-26:** Zalo cá nhân (`zca-js`) bật sẵn; Facebook cá nhân (`fbchat-v2`) có sẵn trong image, tắt sẵn; loại khác để sau |
-| D-KN-4 | Ở Tự cài, bước ④ có cho chọn trợ lý không? | không — chỉ chọn người trực + dòng gợi ý Hub (KN-UP-1) |
+| D-KN-4 | Ở Tự cài, bước ④ có cho chọn trợ lý không? | ✅ không — chỉ chọn người trực + dòng gợi ý Hub (KN-UP-1) |
+| D-KN-5 | Nhãn bước ④ | ✅ "**Người trực & trợ lý**" cho cả hai luồng (chuẩn gốc R-S4-1 ghi "Chọn Agent Guru"; Open CRM Tự cài không có trợ lý) |
+| D-KN-6 | Sửa R-CAKE-CELL-1 | ✅ đã sửa ở `00-CANON.md`: lệnh ra đi **qua Hub hoặc máy kết nối Tự cài của đơn vị**, cùng hợp đồng, cùng khuôn ký |
+| D-KN-7 | Máy kết nối gọn có đủ năng lực kênh? | ✅ đủ — danh bạ, nhóm, tên, ảnh và mọi năng lực Zalo / FB ở §3b; chỉ bỏ trợ lý / agent |
 
 ## Changelog
 
 - 2026-11-26: bản đầu (KN-1), kèm mockup kết nối ①–④ ở PHASE-007.
 - 2026-11-26: KN-2 — §3a nối zalo-hub (zca + fbchat-v2) vào Open CRM: một image hai cách chạy, ánh xạ tin FB, việc K1…K7; chốt D-KN-2, D-KN-3.
 - 2026-11-26: KN-3 — Tự cài là bản gọn `zalo-hub-connector` (chỉ zca + fbchat-v2), không có trợ lý / agent / MCP trong image.
+- 2026-11-26: KN-4 — §3b năng lực đủ của máy kết nối (danh bạ, nhóm, tên, ảnh, trích dẫn, thu hồi, reaction…) + hợp đồng 0.2 cần nâng; chủ chốt D-KN-1, -4, -5, -6, -7; sửa R-CAKE-CELL-1.

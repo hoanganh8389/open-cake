@@ -6,7 +6,10 @@
 
 ## 1. Đường đi
 
-`Cell → Hub (xác thực khoá, tra site, ký) → POST https://<site>/ingress/v1/touch`. Header: `X-Bizcity-Contract: bizcity_touch@1` · `Idempotency-Key: <doc_key>` · `traceparent` · `X-Bizcity-Signature: t=<unix>,v1=<hex hmac-sha256(secret, t + "." + body)>` · `Authorization: Bearer hub_…`.
+<!-- [2026-11-26 06:01 PM Johnny Chu - Chu Hoàng Anh] KN-4 D-KN-6 — chủ 2026-11-26: "cake-connector lean để kết nối và đảm bảo danh bạ, nhóm, tên, ảnh, các năng lực tại Zalo, FB full là ok. Còn lại đồng ý." -->
+**Tự cài** (không qua Hub): máy kết nối `zalo-hub-connector` của đơn vị `POST https://<site>/ingress/v1/touch` trực tiếp, tự ký `X-Bizcity-Signature` bằng khoá nối nội bộ; thân và luật giống hệt bên dưới ([25-KET-NOI-KENH](../architecture/25-KET-NOI-KENH.md)). Loại mới dự kiến 0.2: `profile.updated`, `thread.updated` (§3b).
+
+**Qua Hub:** `Cell → Hub (xác thực khoá, tra site, ký) → POST https://<site>/ingress/v1/touch`. Header: `X-Bizcity-Contract: bizcity_touch@1` · `Idempotency-Key: <doc_key>` · `traceparent` · `X-Bizcity-Signature: t=<unix>,v1=<hex hmac-sha256(secret, t + "." + body)>` · `Authorization: Bearer hub_…`.
 
 ## 2. Thân
 

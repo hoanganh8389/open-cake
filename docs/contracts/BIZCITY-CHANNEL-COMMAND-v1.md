@@ -6,7 +6,10 @@
 
 ## 1. Đường đi
 
-Subscriber outbox của Cake `channel-command` → `POST {HUB_BASE_URL}/channel/v1/commands` (khoá site `biz-…`, `traceparent`, `Idempotency-Key`) → Hub kiểm gói + quyền site → Cell. Cake **không** gọi Cell trực tiếp.
+<!-- [2026-11-26 06:01 PM Johnny Chu - Chu Hoàng Anh] KN-4 D-KN-6 — chủ 2026-11-26: "cake-connector lean để kết nối và đảm bảo danh bạ, nhóm, tên, ảnh, các năng lực tại Zalo, FB full là ok. Còn lại đồng ý." -->
+**Tự cài** (không qua Hub): Cake `POST {máy kết nối}/channel/v1/commands` trực tiếp, ký bằng khoá nối nội bộ, cùng `Idempotency-Key`. Lệnh mới dự kiến 0.2: `directory.sync`, `contact.find`, `message.revoke`, `reaction.add` (§3b của [25-KET-NOI-KENH](../architecture/25-KET-NOI-KENH.md)).
+
+**Qua Hub:** Subscriber outbox của Cake `channel-command` → `POST {HUB_BASE_URL}/channel/v1/commands` (khoá site `biz-…`, `traceparent`, `Idempotency-Key`) → Hub kiểm gói + quyền site → Cell. Cake **không** gọi Cell trực tiếp.
 
 ## 2. Thân
 
