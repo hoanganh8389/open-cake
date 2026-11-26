@@ -1,0 +1,45 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000Z001",
+  "type": "message.sent",
+  "occurredAt": "2025-11-26T08:00:00.000Z",
+  "source": "cell:zh-local-1",
+  "docKey": "zalo_personal|7350219485123001001|u_8812|m_9001",
+  "version": 1,
+  "channel": "zalo_personal",
+  "channelAccount": {
+    "externalAccountId": "7350219485123001001",
+    "kind": "personal"
+  },
+  "thread": {
+    "externalThreadId": "u_8812",
+    "kind": "dm",
+    "anchor": null
+  },
+  "sender": {
+    "scope": "global",
+    "externalId": "7350219485123001001",
+    "displayName": "Shop Hoa Mai",
+    "avatarRef": null
+  },
+  "direction": "outbound",
+  "content": {
+    "type": "text",
+    "text": "Dạ còn ạ",
+    "attachments": []
+  },
+  "hints": {
+    "phone": null,
+    "email": null,
+    "privateReplyOf": null
+  },
+  "encryption": {
+    "e2ee": false,
+    "decryptedOnCell": false
+  },
+  "delivery": null,
+  "history": {
+    "backfill": false,
+    "cursor": null
+  }
+}

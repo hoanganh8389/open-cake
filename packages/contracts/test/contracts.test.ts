@@ -12,7 +12,8 @@ const fx = (name: string) => JSON.parse(readFileSync(join(__dirname, '..', 'fixt
 const issues = (r: { success: boolean; error?: { issues: { message: string }[] } }) => (r.success ? [] : r.error!.issues.map((i) => i.message));
 
 describe('bizcity_touch@1', () => {
-  it.each(['touch.page-message.json', 'touch.comment.json', 'touch.zalo-delivery.json'])('%s hợp lệ', (f) => {
+  // [2026-11-26 03:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-4 — 2 ví dụ Zalo trùng từng chữ với bài test buildBizcityTouch của zalo-hub (PHASE-018)
+  it.each(['touch.page-message.json', 'touch.comment.json', 'touch.zalo-delivery.json', 'touch.zalo-message.json', 'touch.zalo-message-sent.json'])('%s hợp lệ', (f) => {
     const r = TouchSchema.safeParse(fx(f));
     expect(issues(r)).toEqual([]);
   });
