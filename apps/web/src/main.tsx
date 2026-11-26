@@ -14,7 +14,7 @@ import { Shell } from './app/Shell.js';
 import { ErrorBoundary, setErrorReporter } from './app/ErrorBoundary.js';
 import { useLiveUpdates } from './app/live.js';
 import { ensureSession, getToken } from './app/session.js';
-import { PermissionsProvider, loadPermissions } from './app/permissions.js';
+import { PermissionsProvider, loadSession } from './app/permissions.js';
 import { useRoute } from './app/route.js';
 import { Catalog } from './screens/catalog/index.js';
 import { Channels } from './screens/Channels.js';
@@ -80,7 +80,7 @@ function NeedLogin({ loginUrl }: { loginUrl: string | null }) {
 }
 
 // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — R-WEB-7: nút ghi khoá kèm lý do khi thiếu quyền.
-const permsReady = session.then((s) => (s.ok && (api === 'http' || api === 'mix') ? loadPermissions(getToken()) : null));
-void Promise.all([session, clientReady, permsReady]).then(([s, client, perms]) => createRoot(document.getElementById('root')!).render(
-  <StrictMode>{s.ok ? <PermissionsProvider perms={perms}><ActionProvider client={client}><App /></ActionProvider></PermissionsProvider> : <NeedLogin loginUrl={s.loginUrl} />}</StrictMode>,
+const permsReady = session.then((s) => (s.ok && (api === 'http' || api === 'mix') ? loadSession(getToken()) : null));
+void Promise.all([session, clientReady, permsReady]).then(([s, client, ps]) => createRoot(document.getElementById('root')!).render(
+  <StrictMode>{s.ok ? <PermissionsProvider perms={ps?.perms ?? null} tenantName={ps?.tenantName ?? null}><ActionProvider client={client}><App /></ActionProvider></PermissionsProvider> : <NeedLogin loginUrl={s.loginUrl} />}</StrictMode>,
 ));

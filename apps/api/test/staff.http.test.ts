@@ -78,7 +78,7 @@ describe.skipIf(!url)('nhân viên + vai & quyền', () => {
     const list = (await req('GET', '/api/v1/roles', owner)).json().data;
     expect(list.roles.map((r: { key: string }) => r.key)).toEqual(expect.arrayContaining(['owner', 'manager', 'agent', key]));
     expect(list.permissions.find((p: { key: string }) => p.key === 'users:write').risk).toBe('high');
-  });
+  }, 20_000); // [2026-11-26 11:15 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — ca nặng (nhiều lượt đăng nhập băm mật khẩu), chạy ~4,7 s sát giới hạn 5 s mặc định
 
   it('NT-NV-001 · đổi vai chính ⇒ phiên cũ hết (session_version), vào lại nhận vai mới', async () => {
     const old = await login('lan@hoamai.vn');

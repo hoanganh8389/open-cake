@@ -9,6 +9,7 @@ import { channelList } from '@open-cake/contracts';
 import { useActionClient, useQueryAction } from '@open-cake/action-client';
 import { AccountAvatar, ChannelDot, CHANNEL_LABEL, Ic, cx } from '@open-cake/ui-kit';
 import { go } from './route.js';
+import { useTenantName } from './permissions.js';
 import { t } from '../i18n/index.js';
 
 const NAV = [
@@ -72,9 +73,10 @@ function Rail({ screen, account }: { screen: string; account: string | null }) {
 
 function TitleBar() {
   const client = useActionClient();
+  const tenantName = useTenantName();
   return (
     <header className="titlebar">
-      <span className="brand">Open CRM</span><span className="ver">open-cake 0.1 · Shop Hoa Mai</span>
+      <span className="brand">Open CRM</span><span className="ver">{tenantName ? `open-cake 0.1 · ${tenantName}` : 'open-cake 0.1'}</span>
       {client.kind === 'mock' && <span className="badge warn" title={t.app.shell.mockTitle}>{t.app.shell.mockBadge}</span>}
       {client.kind === 'mix' && <span className="badge warn" title={t.app.shell.mixTitle}>{t.app.shell.mixBadge}</span>}
       <span className="grow" />

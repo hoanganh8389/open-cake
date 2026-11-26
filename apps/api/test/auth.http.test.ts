@@ -63,6 +63,7 @@ describe.skipIf(!url)('đăng nhập + phân quyền', () => {
     expect(merge.statusCode).toBe(403);
     const me = (await get('/api/v1/auth/me', agent)).json().data;
     expect(me.role).toBe('agent');
+    expect(typeof me.tenantName).toBe('string'); // tên đơn vị cho thanh tiêu đề (không còn viết cứng)
     expect(me.permissions).toContain('cake:inbox-lap');
     expect(me.permissions).not.toContain('cake:contacts-gop');
   });

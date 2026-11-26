@@ -82,6 +82,8 @@ export function registerAuthRoutes(app: FastifyInstance, opts: { devTenant?: str
 
   app.get('/api/v1/auth/me', { preHandler: requireUser() }, async (req) => {
     const a = authOf(req);
-    return ok({ actor: a.actor, name: a.actorName, role: a.role, tenantId: a.tenantId, permissions: [...a.permissions].sort() });
+    // [2026-11-26 11:06 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — tên đơn vị cho thanh tiêu đề (trước viết cứng "Shop Hoa Mai")
+    const tn = await sql<{ name: string }>`SELECT name FROM tenants WHERE id = ${a.tenantId}`.execute(db);
+    return ok({ actor: a.actor, name: a.actorName, role: a.role, tenantId: a.tenantId, tenantName: tn.rows[0]?.name ?? null, permissions: [...a.permissions].sort() });
   });
 }
