@@ -108,7 +108,7 @@ Một màn, ba khối:
 |---|---|---|
 | D-KN-1 | Một đơn vị dùng **một** cách cho mọi số, hay mỗi số một cách? | một cách cho cả đơn vị (đơn giản, dễ hiểu); đổi được ở Cài đặt |
 | D-KN-2 | Máy kết nối Tự cài là gì? | Cell zalo-hub chạy chế độ độc lập (A4) — không viết bộ thứ hai |
-| D-KN-3 | Danh sách máy kết nối Tự cài bản đầu | Zalo cá nhân (`zca-js`) bật sẵn; Facebook cá nhân (`fbchat-v2`) tắt sẵn; "grim" và các loại khác: cần chủ nói rõ thư viện nào |
+| D-KN-3 | Danh sách máy kết nối Tự cài bản đầu | Zalo cá nhân (`zca-js`) bật sẵn; Facebook cá nhân (`fbchat-v2`) tắt sẵn; loại khác để sau (chủ 2026-11-26: chưa cần) |
 | D-KN-4 | Ở Tự cài, bước ④ có cho chọn trợ lý không? | không — chỉ chọn người trực + dòng gợi ý Hub (KN-UP-1) |
 
 ## Changelog
