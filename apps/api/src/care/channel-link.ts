@@ -56,6 +56,12 @@ async function connectorCall<T>(tx: Db, tenantId: string, method: 'GET' | 'POST'
 type QrView = { status: string; qrDataUri?: string; error?: string };
 const qrOut = (flowId: string, q: QrView) => ({ flowId, status: (q.status ?? 'idle') as never, qrRef: q.qrDataUri ?? null, error: q.error ?? null });
 
+/** Sinh khoá nối + bí mật mới của đơn vị (đã mã hoá cho CSDL + bản rõ để trả MỘT lần). Dùng ở cake.channel_link.set và ở cấp khoá lúc cài (connector-link.ts). */
+export function issueConnectorKey(tenantId: string) {
+  const issued = { key: `ckn.${tenantId}.${randomBytes(24).toString('base64url')}`, secret: randomBytes(32).toString('base64url') };
+  return { issued, row: { key_sealed: seal(issued.key), key_prefix: `${issued.key.slice(0, issued.key.indexOf('.', 4) + 5)}…`, secret_sealed: seal(issued.secret) } };
+}
+
 async function view(tx: Db, tenantId: string, issued: ChannelLink['issued'] = null): Promise<ChannelLink> {
   const l = await tx.selectFrom('channel_links').selectAll().where('tenant_id', '=', tenantId).executeTakeFirst();
   const iso = (d: Date | null | undefined) => (d ? new Date(d).toISOString() : null);
@@ -74,8 +80,9 @@ export const channelLinkHandlers: Record<string, Handler> = {
     if (i.mode === 'self') {
       v.connector_url = i.connectorUrl;
       if (i.rotate || !prev?.key_sealed) {
-        issued = { key: `ckn.${tenantId}.${randomBytes(24).toString('base64url')}`, secret: randomBytes(32).toString('base64url') };
-        Object.assign(v, { key_sealed: seal(issued.key), key_prefix: `${issued.key.slice(0, issued.key.indexOf('.', 4) + 5)}…`, secret_sealed: seal(issued.secret) });
+        const k = issueConnectorKey(tenantId);
+        issued = k.issued;
+        Object.assign(v, k.row);
       }
     }
     if (prev) await tx.updateTable('channel_links').set(v as never).where('tenant_id', '=', tenantId).execute();

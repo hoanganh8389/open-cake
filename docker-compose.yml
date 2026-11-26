@@ -31,8 +31,10 @@ services:
     build: { context: ., dockerfile: docker/api.Dockerfile, args: { BIZCITY_GIT_SHA: "${BIZCITY_GIT_SHA:-}" } }
     image: open-cake-api:0.1.0
     # [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — tạo vai ứng dụng cake_app (không siêu người dùng) sau migration.
-    environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}", CAKE_APP_ROLE: cake_app }
-    command: ["sh", "-c", "node --conditions=cake-dist dist/migrate.js && if [ \"$$CAKE_SEED_DEV\" = 1 ]; then node --conditions=cake-dist dist/seed-dev.js; fi"]
+    # [2026-11-26 10:23 PM Johnny Chu - Chu Hoàng Anh] KN K6 — CAKE_CONNECTOR_URL có giá trị (bật profile connector) ⇒ sau migrate / seed cấp khoá nối nội bộ (Tự cài) và ghi vào volume cake-link cho máy kết nối.
+    environment: { <<: *dbenv, CAKE_SEED_DEV: "${CAKE_SEED_DEV:-1}", CAKE_APP_ROLE: cake_app, CAKE_SECRET_KEY: "${CAKE_SECRET_KEY:-}", CAKE_CONNECTOR_URL: "${CAKE_CONNECTOR_URL:-}", CAKE_CONNECTOR_LINK_FILE: /link/connector.env }
+    volumes: [cake-link:/link]
+    command: ["sh", "-c", "node --conditions=cake-dist dist/migrate.js && if [ \"$CAKE_SEED_DEV\" = 1 ]; then node --conditions=cake-dist dist/seed-dev.js; fi && node --conditions=cake-dist dist/connector-link.js"]
     depends_on: { db: { condition: service_healthy } }
     restart: "no"
     logging: *log
@@ -61,6 +63,23 @@ services:
     restart: unless-stopped
     logging: *log
 
+  # [2026-11-26 10:23 PM Johnny Chu - Chu Hoàng Anh] KN K6 — máy kết nối gọn (zalo-hub-connector: chỉ zca + fbchat-v2, KHÔNG trợ lý / agent / MCP — 25-KET-NOI-KENH §3b). Bật: COMPOSE_PROFILES=connector
+  #   và CAKE_CONNECTOR_URL=http://cake-connector:3901 trong .env. Khoá nối nạp từ volume cake-link do db-migrate cấp (không dán tay); phiên Zalo nằm ở volume cake-connector-data (trên máy chủ của bạn).
+  #   Ảnh build từ repo zalo-hub (Dockerfile target connector — W4b): đặt CAKE_CONNECTOR_IMAGE nếu dùng tên khác.
+  cake-connector:
+    image: ${CAKE_CONNECTOR_IMAGE:-zalo-hub-connector:latest}
+    profiles: [connector]
+    environment:
+      CAKE_URL: http://api:8120
+      CONNECTOR_PORT: "3901"
+      DATA_DIR: /data
+      CREDENTIALS_ENCRYPTION_KEY: "${CONNECTOR_ENCRYPTION_KEY:-}"  # 64 ký tự hex (mã hoá phiên Zalo lưu trên đĩa); trống ⇒ máy kết nối từ chối khởi động
+    entrypoint: ["sh", "-c", ". /link/connector.env && export CAKE_CONNECTOR_KEY CAKE_CONNECTOR_SECRET && exec node dist/src/connector/main.js"]
+    volumes: [cake-link:/link:ro, cake-connector-data:/data]
+    depends_on: { db-migrate: { condition: service_completed_successfully } }
+    restart: unless-stopped
+    logging: *log
+
   web:
     build: { context: ., dockerfile: docker/web.Dockerfile }
     image: open-cake-web:0.1.0
@@ -72,3 +91,5 @@ services:
 volumes:
   cake-db:
   cake-logs:
+  cake-link:
+  cake-connector-data:
