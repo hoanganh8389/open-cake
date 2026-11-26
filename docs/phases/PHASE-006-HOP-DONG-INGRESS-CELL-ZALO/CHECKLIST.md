@@ -9,6 +9,6 @@
 | S006-1 | cake | ☑ |
 | S006-2 | cake | ◐ |
 | S006-3 | cake | ◐ |
-| S006-4 | zalo-hub | ☐ |
+| S006-4 | zalo-hub | ◐ |
 | S006-5 | llm-router | ☐ |
 | S006-6 | cake | ◐ |

@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-26T07:04:27.471Z",
+  "generated": "2026-11-26T14:20:57.805Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -295,7 +295,7 @@
         },
         {
           "id": "S006-4",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "zalo-hub",
           "file": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/CHECKLIST.md",
           "line": 12
