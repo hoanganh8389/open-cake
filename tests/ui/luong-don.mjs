@@ -46,6 +46,19 @@ try {
   await page.getByRole('button', { name: /Đơn \(1\)/ }).click().catch(async () => page.getByText(/Đơn \(1\)/).click());
   await page.locator('.steps').first().waitFor();
   await shot(page, 'don-360');
+
+  // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — Contact 360 › Công nợ: khách chưa liên kết ⇒ Tạo khách công nợ ⇒ số dư theo tài khoản (mockup ⑥ ⑦)
+  await page.getByText('Công nợ', { exact: true }).first().click();
+  await page.getByText('Khách chưa có trong Kế Toán').waitFor();
+  await page.getByRole('button', { name: 'Tạo khách công nợ' }).click();
+  await page.getByRole('dialog').waitFor();
+  await shot(page, 'tao-khach-cong-no');
+  await page.getByRole('button', { name: 'Tạo ở Kế Toán' }).click();
+  await page.getByText('Phải thu của khách hàng').waitFor();
+  await page.getByText('Khách đang nợ').waitFor();
+  await shot(page, 'cong-no');
+  await page.getByRole('button', { name: 'Đọc lại' }).click();
+  await page.getByText('Phải thu của khách hàng').waitFor();
 } catch (e) {
   console.error('✗', e.message); process.exitCode = 1;
   for (const p of browser.contexts().flatMap((c) => c.pages())) await p.screenshot({ path: join(OUT, 'app-loi.png') }).catch(() => {});

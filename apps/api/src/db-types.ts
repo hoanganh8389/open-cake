@@ -62,11 +62,19 @@ export interface PosLinksTable {
   last_ok_at: TsNull; last_sent_at: TsNull; last_error: string | null; updated_by: string; updated_at: Ts;
 }
 
+// [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2 — khớp 0102 contact_links (khách ↔ đối tượng công nợ ở Kế Toán)
+export interface ContactLinksTable {
+  tenant_id: string; contact_id: string; app: 'ketoan' | 'pos' | 'kiot'; kind: 'partner'; ref_code: string; ref_id: string | null;
+  push_status: ColumnType<'local' | 'sent' | 'accepted' | 'rejected', 'local' | 'sent' | 'accepted' | 'rejected' | undefined, 'local' | 'sent' | 'accepted' | 'rejected'>;
+  push_error: string | null; linked_at: Ts;
+}
+
 declare module '@bizcity/platform/db/types' {
   interface AppDatabase {
     order_requests: OrderRequestsTable;
     order_request_events: OrderRequestEventsTable;
     pos_links: PosLinksTable;
+    contact_links: ContactLinksTable;
     channel_commands: ChannelCommandsTable;
     channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;

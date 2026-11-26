@@ -58,6 +58,19 @@ export const orders = {
     step: { sent: 'Đã gửi cửa hàng', confirmed: 'Cửa hàng đã xác nhận', shipped: 'Bàn giao vận chuyển — đã ghi nhận bán', delivered: 'Giao xong' },
     footnote: 'Trạng thái do cửa hàng gửi về; Open CRM không lưu đơn bán, chỉ giữ yêu cầu và tham chiếu.',
   },
+  // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — Contact 360 › Công nợ + Tạo khách công nợ (mockup ⑥ ⑦ đã duyệt)
+  debt: {
+    tab: 'Công nợ', title: 'Công nợ ở Kế Toán', linked: 'đã liên kết', code: (c: string, branch: string | null) => `mã đối tượng ${c}${branch ? ` · ${branch}` : ''}`,
+    asOf: (when: string, ago: string) => `Số dư tại ${when} · đọc ${ago}`, ago: (m: number) => (m < 1 ? 'vừa xong' : m < 60 ? `cách đây ${m} phút` : `cách đây ${Math.floor(m / 60)} giờ`), reread: 'Đọc lại', colAccount: 'Tài khoản', colName: 'Tên', colBalance: 'Số dư', owes: 'Khách đang nợ',
+    zero: 'Khách không có số dư công nợ.', footnote: 'Số liệu thuộc Kế Toán — Open CRM chỉ hiển thị, không ghi và không lưu số dư. Muốn xem chi tiết từng chứng từ, mở Kế Toán.',
+    stale: 'Chưa đọc được', staleNote: 'Đang hiện số lần đọc gần nhất; bấm Đọc lại khi Kế Toán sẵn sàng.', neverRead: 'Chưa đọc được số dư lần nào.',
+    noKetoan: 'Chưa nối Kế Toán', noKetoanNote: 'Đổi Nguồn danh mục sang "Lấy từ Open Kế Toán" để xem công nợ khách.',
+    unlinkedTitle: 'Khách chưa có trong Kế Toán', unlinkedNote: 'Tạo đối tượng công nợ để xem số dư và để đơn hàng ghi nợ đúng khách.', create: 'Tạo khách công nợ',
+    sheetTitle: 'Tạo khách công nợ', sheetSub: (name: string) => `Gửi sang Kế Toán · ${name}`, fCode: 'Mã đối tượng', fVerified: 'SĐT đã xác minh', fName: 'Tên', fPhone: 'Điện thoại', fBranch: 'Chi nhánh',
+    codeNote: 'Không có SĐT đã xác minh ⇒ dùng CAKE-<mã khách>. Khách vãng lai ⇒ KHACH-LE.',
+    explain: 'Kế Toán tạo hoặc cập nhật đối tượng theo mã trên (gửi lại không tạo trùng). Open CRM chỉ lưu liên kết mã ↔ khách; không gửi mã khách nội bộ ra ngoài. Tên, mã số thuế sửa tiếp ở Kế Toán.',
+    cancel: 'Huỷ', submit: 'Tạo ở Kế Toán',
+  },
   link: {
     title: 'Kết nối cửa hàng (Open POS)',
     needKetoan: 'Khi Nguồn danh mục còn là "Shop tự quản", ô này khoá: gửi đơn cần nối Kế Toán trước để mã hàng hai bên trùng nhau. Open CRM vẫn tạo và lưu yêu cầu đặt hàng như thường.',

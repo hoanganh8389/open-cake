@@ -7,7 +7,7 @@ import { ApiError } from '../client.js';
 import { iso, type Store } from './store.js';
 
 type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod ở adapter
-type S = Store & { orders?: OrderRequest[]; posLink?: PosLink };
+type S = Store & { orders?: OrderRequest[]; posLink?: PosLink; partners?: Record<string, string> };
 const STOCK = [4, 1, 0, 12];
 const reason = (r: string, message: string) => new ApiError({ code: 'CONFLICT', message, reason: r });
 const link = (s: S): PosLink => (s.posLink ??= {
@@ -20,6 +20,24 @@ const find = (s: S, id: string) => {
   return o;
 };
 const ulid = (s: S) => `01JDAQ${String(++s.seq).padStart(20, '0')}`;
+
+const partnerCode = (s: S, contactId: string) => {
+  const c = s.contacts.find((x) => x.contactId === contactId);
+  if (!c) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy khách.' });
+  const ph = s.identities.find((x) => x.contactId === contactId && x.channel === 'phone' && x.confidence === 'proven' && !x.validTo);
+  return { code: ph ? ph.externalId : `CAKE-${contactId}`, kind: ph ? 'phone' as const : 'contact' as const, name: c.displayName, phone: ph?.externalId ?? null, verified: !!ph };
+};
+const partnerView = (s: S, contactId: string) => {
+  const p = partnerCode(s, contactId);
+  const ref = s.partners?.[contactId] ?? null;
+  const on = s.catalog.source === 'ketoan';
+  const accounts = [{ accountCode: '131', accountName: 'Phải thu của khách hàng', balance: 2340000 }, { accountCode: '1388', accountName: 'Phải thu khác', balance: 150000 }];
+  return {
+    source: on ? 'ketoan' as const : 'none' as const, linked: on && !!ref, refCode: on ? ref : null,
+    proposed: { code: p.code, kind: p.kind, name: p.name, phone: p.phone, verified: p.verified }, branchCode: on ? link(s).branchCode : null,
+    balances: on && ref ? { asOf: new Date().toISOString().slice(0, 10), readAt: new Date().toISOString(), accounts, total: 2490000 } : null, error: null,
+  };
+};
 
 export const orderHandlers: Record<string, (s: Store, input: Any) => unknown> = {
   'cake.stock.read': (st, i) => {
@@ -74,6 +92,17 @@ export const orderHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     const at = iso(st.now());
     Object.assign(o, { status: 'cancelled', updatedAt: at, events: [...o.events, { type: 'cake.cancelled', at, data: { reason: i.reason } }] });
     return o;
+  },
+  // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — khách công nợ giả lập theo luật máy chủ: chỉ có khi nguồn danh mục = ketoan; mã = SĐT đã xác minh → CAKE-<id>; số dư là SỐ GIẢ LẬP.
+  'cake.partner.get': (st, i) => partnerView(st as S, i.contactId),
+  'cake.partner.create': (st, i) => {
+    const s = st as S;
+    if (s.catalog.source !== 'ketoan') throw reason('CAKE_KETOAN_REQUIRED', 'Cần nối Kế Toán trước.');
+    const code = partnerCode(s, i.contactId).code;
+    (s.partners ??= {})[i.contactId] = code;
+    const links = (s.links[i.contactId] ??= []); // Contact 360 › "Liên kết app anh em" thấy ngay, như contact_links ở máy chủ
+    if (!links.some((l) => l.app === 'ketoan' && l.kind === 'partner')) links.push({ app: 'ketoan', kind: 'partner', refCode: code, refId: null });
+    return partnerView(s, i.contactId);
   },
   'cake.pos_link.get': (st) => ({ ...link(st as S), ketoanLinked: st.catalog.source === 'ketoan' }),
   'cake.pos_link.set': (st, i) => {

@@ -25,6 +25,7 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
   let contactId = '', itemId = '';
   const pos = { mode: 'ok' as 'ok' | 'down', received: [] as { body: Record<string, unknown>; key: string; auth: string; sigOk: boolean }[], cancels: 0, seq: 7000, gets: 0, known: new Set<string>() };
   let ketoanCalls = 0;
+  const ke = { mode: 'ok' as 'ok' | 'down', partners: new Set<string>(), puts: [] as { code: string; body: Record<string, unknown> }[], balanceCalls: 0 };
   let posServer: Server, ketoanServer: Server, posUrl = '', ketoanUrl = '';
   let validateOrder: ((v: unknown) => string[]) | null = null;
 
@@ -59,7 +60,19 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
       pos.received.push({ body, key: String(req.headers['idempotency-key']), auth: String(req.headers.authorization), sigOk });
       return send(202, { ok: true, data: { status: 'pending', posRef: `pos.order_request:${++pos.seq}`, expiresAt: '2026-11-28T10:00:00Z' } });
     });
-    ketoanServer = createServer((req, res) => {
+    ketoanServer = createServer(async (req, res) => {
+      const u = new URL(req.url!, 'http://x');
+      if (u.pathname.startsWith('/api/v1/partners/')) { // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — Kế Toán giả: PUT đối tượng + số dư
+        const reply = (st: number, b: object) => { res.writeHead(st, { 'content-type': 'application/json' }); res.end(JSON.stringify(b)); };
+        if (req.headers['x-api-key'] !== 'kt_thu') return reply(401, { ok: false });
+        if (ke.mode === 'down') return reply(503, { ok: false, error: { message: 'bảo trì' } });
+        const code = decodeURIComponent(u.pathname.split('/')[4]!);
+        if (req.method === 'PUT') { let raw = ''; for await (const c of req) raw += c; ke.puts.push({ code, body: JSON.parse(raw) }); ke.partners.add(code); return reply(200, { ok: true, data: { id: 'KT-' + code, code } }); }
+        ke.balanceCalls++;
+        return ke.partners.has(code)
+          ? reply(200, { ok: true, data: { code, name: 'x', asOf: u.searchParams.get('asOf'), accounts: [{ accountCode: '131', accountName: 'Phải thu của khách hàng', balance: 2340000 }, { accountCode: '1388', accountName: 'Phải thu khác', balance: 150000 }] } })
+          : reply(404, { ok: false, error: { message: 'không có' } });
+      }
       ketoanCalls++;
       const q = new URL(req.url!, 'http://x').searchParams;
       res.writeHead(req.headers['x-api-key'] === 'kt_thu' ? 200 : 401, { 'content-type': 'application/json' });
@@ -173,6 +186,36 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
     await age(missing); pos.mode = 'down';
     expect(await reconcileSentOrders()).toEqual({ checked: 1, resent: 0 });
     pos.mode = 'ok';
+  }, 30_000);
+
+  it('S010-2/3 khách công nợ: chưa liên kết ⇒ đề xuất mã; tạo ⇒ PUT Kế Toán + liên kết; số dư theo tài khoản, đệm 5 phút, Đọc lại, Kế Toán sập ⇒ giữ số cũ + lỗi', async () => {
+    const url = () => `/api/v1/contacts/${contactId}/partner`;
+    const g0 = (await call('GET', url())).json().data;
+    expect(g0).toMatchObject({ source: 'ketoan', linked: false, refCode: null, balances: null, error: null, proposed: { code: '0909123456', kind: 'phone', verified: true } });
+    const made = await call('POST', url(), {});
+    expect(made.statusCode).toBe(200);
+    expect(ke.puts).toHaveLength(1);
+    expect(ke.puts[0]).toMatchObject({ code: '0909123456', body: { kind: 'customer', phone: '0909123456' } });
+    expect(JSON.stringify(ke.puts[0])).not.toContain(contactId); // không gửi contact_id ra ngoài
+    expect(made.json().data).toMatchObject({ linked: true, refCode: '0909123456', error: null, balances: { total: 2490000, accounts: [{ accountCode: '131', balance: 2340000 }, { accountCode: '1388', balance: 150000 }] } });
+    expect((await sql('SELECT ref_code, ref_id, push_status FROM contact_links WHERE contact_id = $1', [contactId])).rows[0]).toMatchObject({ ref_code: '0909123456', ref_id: 'KT-0909123456', push_status: 'accepted' });
+    // gửi lại không tạo trùng (PUT tạo-hoặc-cập-nhật) và vẫn một dòng liên kết
+    expect((await call('POST', url(), {})).statusCode).toBe(200);
+    expect((await sql('SELECT count(*)::int AS n FROM contact_links WHERE contact_id = $1', [contactId])).rows[0]!.n).toBe(1);
+    // đệm 5 phút: đọc lần hai không gọi lại; Đọc lại (refresh=true) thì gọi
+    const calls = ke.balanceCalls;
+    expect((await call('GET', url())).json().data.balances.total).toBe(2490000);
+    expect(ke.balanceCalls).toBe(calls);
+    await call('GET', url() + '?refresh=true');
+    expect(ke.balanceCalls).toBe(calls + 1);
+    // Kế Toán sập: giữ số lần đọc gần nhất + báo lỗi, không ném lỗi
+    ke.mode = 'down';
+    const stale = (await call('GET', url() + '?refresh=true')).json().data;
+    expect(stale.error).toMatch(/Kế Toán/);
+    expect(stale.balances.total).toBe(2490000);
+    // tạo khi Kế Toán sập ⇒ lỗi rõ (409), liên kết cũ giữ nguyên
+    expect((await call('POST', url(), {})).statusCode).toBe(409);
+    ke.mode = 'ok';
   }, 30_000);
 
   it('huỷ: nháp huỷ tại chỗ; đã gửi ⇒ báo cửa hàng huỷ', async () => {

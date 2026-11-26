@@ -3,7 +3,7 @@
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: hook React trên react-query (R-WEB-3): dữ liệu máy chủ chỉ ở cache react-query,
 //   khoá cache = ['cake', action id, input]; ghi xong thì làm mới mọi query cùng năng lực (capability).
 import { QueryClient, QueryClientProvider, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { ActionInput, ActionSpec } from '@open-cake/contracts';
 import { newIdempotencyKey, type ActionClient, type CallResult } from './client.js';
 
@@ -43,6 +43,21 @@ export function useAction<S extends ActionSpec>(spec: S) {
 export function useInvalidateAll(): () => void {
   const qc = useQueryClient();
   return useMemo(() => () => void qc.invalidateQueries({ queryKey: ['cake'] }), [qc]);
+}
+
+/**
+ * [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-3 — "Đọc lại": gọi cùng action với `forced` (vd refresh: true ⇒ bỏ đệm phía máy chủ) rồi đặt kết quả vào
+ * query đang hiện (cùng khoá input gốc) — màn không đổi khoá, không nháy. Lỗi ⇒ giữ dữ liệu cũ, trả về để màn báo.
+ */
+export function useForceRead<S extends ActionSpec>(spec: S, input: ActionInput<S>, forced: Partial<ActionInput<S>>) {
+  const client = useActionClient();
+  const qc = useQueryClient();
+  const [pending, setPending] = useState(false);
+  const run = async () => {
+    setPending(true);
+    try { qc.setQueryData(queryKeyOf(spec, input), await client.call(spec, { ...input, ...forced })); } finally { setPending(false); }
+  };
+  return { run, pending };
 }
 
 // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: danh sách theo con trỏ (meta.nextCursor). `items` = mọi trang nối lại theo thứ tự tải;

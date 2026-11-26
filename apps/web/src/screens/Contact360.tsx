@@ -12,6 +12,7 @@ import { ActionErrorNote, QueryView } from '../app/QueryView.js';
 import { when } from '../app/format.js';
 import { go, useRoute } from '../app/route.js';
 import { ContactOrders } from './orders/ContactOrders.js';
+import { ContactDebt } from './orders/ContactDebt.js'; // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3
 import { needPermission, useCan } from '../app/permissions.js';
 import { t } from '../i18n/index.js';
 
@@ -37,9 +38,10 @@ export function Contact360({ contactId }: { contactId: string }) {
   const c = useQueryAction(contactGet, { contactId });
   const tl = useQueryAction(contactTimeline, { contactId, limit: 200 });
   const sug = useQueryAction(contactSuggestions, { contactId });
-  const orders = useQueryAction(orderRequestList, { contactId }, { enabled: useCan('cake:don-xem') });
+  const canOrders = useCan('cake:don-xem');
+  const orders = useQueryAction(orderRequestList, { contactId }, { enabled: canOrders });
   const { query, setQuery } = useRoute();
-  const tab = query.get('tab') === 'orders' ? 'orders' : 'timeline';
+  const tab = (['orders', 'debt'] as const).find((x) => x === query.get('tab')) ?? 'timeline';
   const merge = useAction(contactMerge);
   const unmerge = useAction(contactUnmerge);
   const canMerge = useCan('cake:contacts-gop'); // R-WEB-7: ghép / tách là quyền rủi ro cao
@@ -96,8 +98,8 @@ export function Contact360({ contactId }: { contactId: string }) {
                 <Card><h3 className="h3">{t.inbox.c360.links}</h3><div className="muted sm mt8">{d.links.length ? d.links.map((l) => `${l.app}: ${l.refCode}`).join(' · ') : t.inbox.c360.noLinks}</div></Card>
               </div>
               <Card>
-                <div className="mb16"><Tabs value={tab} onChange={(id) => setQuery({ tab: id === 'orders' ? 'orders' : null })} items={[{ id: 'timeline', label: t.orders.c360.tabTimeline }, { id: 'orders', label: t.orders.c360.tabOrders(orders.data?.length ?? 0) }]} /></div>
-                {tab === 'orders' ? <ContactOrders orders={orders.data ?? []} /> : <QueryView q={tl} empty={{ title: t.inbox.c360.noTouch }}>
+                <div className="mb16"><Tabs value={tab} onChange={(id) => setQuery({ tab: id === 'orders' || id === 'debt' ? id : null })} items={[{ id: 'timeline', label: t.orders.c360.tabTimeline }, { id: 'orders', label: t.orders.c360.tabOrders(orders.data?.length ?? 0) }, ...(canOrders ? [{ id: 'debt', label: t.orders.debt.tab }] : [])]} /></div>
+                {tab === 'orders' ? <ContactOrders orders={orders.data ?? []} /> : tab === 'debt' ? <ContactDebt contactId={contactId} /> : <QueryView q={tl} empty={{ title: t.inbox.c360.noTouch }}>
                   {(items) => <>{items.map((x) => (
                     <div key={x.touchId} className={cx('row gap16')} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start', opacity: x.isReversal ? 0.7 : 1 }}>
                       <span className="muted sm" style={{ width: 96, flex: 'none' }}>{when(x.at)}</span>

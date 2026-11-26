@@ -50,6 +50,7 @@ export const CAKE_REASONS = {
   CAKE_ITEM_NO_PRICE: { code: 'VALIDATION_ERROR', message: 'Mặt hàng chưa có giá bán của công ty.', hint: 'Đặt giá ở Hàng hoá (hoặc ở Kế Toán) rồi thêm lại.' },
   CAKE_POS_NOT_LINKED: { code: 'CONFLICT', message: 'Chưa kết nối cửa hàng (Open POS).', hint: 'Vào Cài đặt › Kết nối cửa hàng, dán địa chỉ, khoá và bí mật ký.' },
   CAKE_KETOAN_REQUIRED: { code: 'CONFLICT', message: 'Gửi đơn sang cửa hàng cần nối Kế Toán trước.', hint: 'Đổi Nguồn danh mục sang "Lấy từ Open Kế Toán" để mã hàng hai bên trùng nhau.' },
+  CAKE_PARTNER_FAILED: { code: 'CONFLICT', message: 'Kế Toán chưa nhận được khách công nợ.', hint: 'Kiểm tra kết nối Kế Toán (địa chỉ, khoá có quyền ghi danh mục) rồi bấm Tạo lại — gửi lại không tạo trùng.' },
   CAKE_RECORD_TYPE_UNKNOWN: { code: 'VALIDATION_ERROR', message: 'Loại bản ghi chưa đăng ký.', hint: 'Thêm record_type vào registry trước khi ghi.' },
 } as const satisfies Record<string, { code: ErrorCode; message: string; hint: string }>;
 

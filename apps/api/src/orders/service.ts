@@ -238,4 +238,4 @@ export const orderHandlers: Record<string,(ctx: Ctx, i: Record<string, any>) => 
   },
 };
 
-export { addEvent, loadRow };
+export { addEvent, customerOf, loadRow };

@@ -1,4 +1,4 @@
-# PHASE-010-TRUC-CHUNG-TU-MASTER-DATA — checklist
+◐ |◐ |# PHASE-010-TRUC-CHUNG-TU-MASTER-DATA — checklist
 
 <!-- [2026-11-25 01:58 PM Johnny Chu - Chu Hoàng Anh] NO-CHUAN R-STD-DLV-6 — nguồn trạng thái TỪNG việc của phase (bảng việc docs/phases/BANG-VIEC.md sinh từ đây). Mô tả việc + bằng chứng chi tiết vẫn ở README. -->
 <!-- [2026-11-25 06:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app: S010-4 chuyển sang open-pos-backend PHASE-003 (trạng thái ở bizcity-platform); thêm S010-7, S010-8. -->

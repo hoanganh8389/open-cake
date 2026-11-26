@@ -63,3 +63,30 @@ export async function ketoanStock(baseUrl: string, branchCode: string, skus: str
     return { asOf: j.meta?.asOf ?? new Date().toISOString(), rows: j.data ?? [] };
   } catch { return null; } // nuot-loi: Kế Toán không trả lời ⇒ giao diện không hiện tồn (source none), không chặn chat
 }
+
+// [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — khách công nợ ở Kế Toán (cùng khoá CAKE_OKT_API_KEY như đọc tồn; khoá cần quyền catalog:write để tạo đối tượng — nợ như trên).
+export type KetoanBalances = { asOf: string; accounts: { accountCode: string; accountName: string; balance: number }[] };
+/** GET /api/v1/partners/:code/balances. `null` = không tới được Kế Toán; `{status}` khác 200 = Kế Toán trả lỗi (404 ⇒ chưa có đối tượng mã đó). */
+export async function ketoanBalances(baseUrl: string, code: string, asOf: string, branchCode: string | null): Promise<{ status: number; data: KetoanBalances | null } | null> {
+  const key = process.env.CAKE_OKT_API_KEY;
+  if (!key) return null;
+  const url = `${baseUrl.replace(/\/+$/, '')}/api/v1/partners/${encodeURIComponent(code)}/balances?asOf=${asOf}${branchCode ? `&branchCode=${encodeURIComponent(branchCode)}` : ''}`;
+  try {
+    const res = await fetch(url, { headers: { 'x-api-key': key }, signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return { status: res.status, data: null };
+    const j = (await res.json()) as { data?: KetoanBalances };
+    return { status: 200, data: j.data ? { asOf: j.data.asOf, accounts: j.data.accounts ?? [] } : null };
+  } catch { return null; } // nuot-loi: Kế Toán không trả lời ⇒ giao diện giữ số lần đọc gần nhất, không chặn các tab khác
+}
+/** PUT /api/v1/partners/:code — tạo hoặc cập nhật (gửi lại không tạo trùng). */
+export async function ketoanPutPartner(baseUrl: string, code: string, body: { name: string; phone?: string }): Promise<{ status: number; id: string | null; message: string | null } | null> {
+  const key = process.env.CAKE_OKT_API_KEY;
+  if (!key) return null;
+  try {
+    const res = await fetch(`${baseUrl.replace(/\/+$/, '')}/api/v1/partners/${encodeURIComponent(code)}`, {
+      method: 'PUT', headers: { 'x-api-key': key, 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'customer', ...body }), signal: AbortSignal.timeout(8000),
+    });
+    const j = (await res.json().catch(() => null)) as { data?: { id?: unknown }; error?: { message?: string } } | null; // nuot-loi: thân không phải JSON ⇒ chỉ dùng status
+    return { status: res.status, id: j?.data?.id != null ? String(j.data.id) : null, message: j?.error?.message ?? null };
+  } catch { return null; } // nuot-loi: mạng hỏng ⇒ báo lỗi, nhân viên bấm lại
+}
