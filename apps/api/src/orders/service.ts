@@ -147,7 +147,47 @@ export async function retryQueuedOrders(limit = 20): Promise<number> {
   return due.length;
 }
 
-export const orderHandlers: Record<string, (ctx: Ctx, i: Record<string, any>) => Promise<unknown>> = { // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod của spec
+/**
+ * [2026-11-26 11:31 AM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-6 — RC-ORDER-1 (bizcity_order_flow@1 §6): yêu cầu đã gửi > 15 phút mà cửa hàng chưa báo gì
+ * phải CÓ trạng thái ở cửa hàng (GET ?docRefs=); thiếu ⇒ gửi lại CÙNG khoá `docRef@version` (cửa hàng chống lặp ⇒ cùng posRef). Có rồi ⇒ chỉ ghi dấu đã kiểm
+ * (updated_at) để 15 phút sau mới kiểm lại. Không tới được cửa hàng ⇒ để nguyên, lượt sau thử lại. Không tự sửa trạng thái — trạng thái chỉ đến từ sự kiện POS.
+ */
+export async function reconcileSentOrders(limit = 20, olderThanMs = 15 * 60_000): Promise<{ checked: number; resent: number }> {
+  const due = await db.selectFrom('order_requests').select(['tenant_id', 'order_request_id', 'created_by'])
+    .where('send_state', '=', 'sent').where('status', '=', 'pending').where('status_at', 'is', null).where('updated_at', '<=', new Date(Date.now() - olderThanMs))
+    .orderBy('updated_at').limit(limit).execute();
+  let resent = 0;
+  const byTenant = new Map<string, typeof due>();
+  for (const d of due) byTenant.set(d.tenant_id, [...(byTenant.get(d.tenant_id) ?? []), d]);
+  for (const [tenantId, rows] of byTenant) {
+    await withRequestContext({ requestId: `reconcile-${tenantId}`, correlationId: `reconcile-${tenantId}`, tenantId }, () => db.transaction().execute(async (tx) => {
+      const target = await posTarget(tx, tenantId);
+      if (!target) return;
+      const docRefs = rows.map((d) => `cake.order_request:${d.order_request_id}`);
+      let known: Set<string>;
+      try {
+        const res = await posCall(target, 'GET', `${POS_PATH}?docRefs=${encodeURIComponent(docRefs.join(','))}`);
+        if (res.status !== 200 || !Array.isArray(res.json?.data)) return; // không đọc được ⇒ không kết luận "thiếu"
+        known = new Set((res.json!.data as { docRef?: string }[]).map((x) => String(x.docRef)));
+      } catch { return; } // nuot-loi: mạng hỏng ⇒ lượt sau thử lại
+      for (const d of rows) {
+        const r = await loadRow(tx, tenantId, d.order_request_id);
+        if (!r || r.send_state !== 'sent' || r.status !== 'pending' || r.status_at) continue; // đã đổi trong lúc chờ
+        if (known.has(`cake.order_request:${d.order_request_id}`)) {
+          await tx.updateTable('order_requests').set({ updated_at: new Date() }).where('tenant_id', '=', tenantId).where('order_request_id', '=', d.order_request_id).execute();
+          continue;
+        }
+        await addEvent(tx, tenantId, d.order_request_id, `local:reconcile:${d.order_request_id}:${r.version}:${Date.now()}`, 'cake.resent', { reason: 'RC-ORDER-1' });
+        await deliver(tx, tenantId, r, d.created_by);
+        resent++;
+      }
+      await notifyChanged(tx, tenantId, CAPS);
+    }));
+  }
+  return { checked: due.length, resent };
+}
+
+export const orderHandlers: Record<string,(ctx: Ctx, i: Record<string, any>) => Promise<unknown>> = { // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod của spec
   'cake.order_request.list': async ({ tx, tenantId }, i) => {
     let q = tx.selectFrom('order_requests').selectAll().where('tenant_id', '=', tenantId);
     if (i.contactId) q = q.where('contact_id', '=', i.contactId);

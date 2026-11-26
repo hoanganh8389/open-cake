@@ -23,7 +23,7 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
   let token = '';
   let sql: (q: string, p?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
   let contactId = '', itemId = '';
-  const pos = { mode: 'ok' as 'ok' | 'down', received: [] as { body: Record<string, unknown>; key: string; auth: string; sigOk: boolean }[], cancels: 0, seq: 7000 };
+  const pos = { mode: 'ok' as 'ok' | 'down', received: [] as { body: Record<string, unknown>; key: string; auth: string; sigOk: boolean }[], cancels: 0, seq: 7000, gets: 0, known: new Set<string>() };
   let ketoanCalls = 0;
   let posServer: Server, ketoanServer: Server, posUrl = '', ketoanUrl = '';
   let validateOrder: ((v: unknown) => string[]) | null = null;
@@ -50,7 +50,11 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
       const m = /^t=(\d+),v1=([0-9a-f]{64})$/.exec(String(req.headers['bizcity-signature'] ?? ''));
       const sigOk = !!m && createHmac('sha256', SECRET).update(`${m[1]}.${raw}`).digest('hex') === m[2];
       if (req.url!.startsWith('/wp-json/open-pos/v1/order-requests/cancel')) { pos.cancels++; return send(200, { ok: true, data: { status: 'cancelled', posRef: 'pos.order_request:x' } }); }
-      if (req.method === 'GET') return send(sigOk ? 200 : 401, { ok: true, data: [] });
+      if (req.method === 'GET') { // RC-ORDER-1: đọc trạng thái theo docRefs — chỉ trả các docRef cửa hàng "biết"
+        pos.gets++;
+        const refs = (new URL(req.url!, 'http://x').searchParams.get('docRefs') ?? '').split(',').filter((r) => pos.known.has(r));
+        return send(sigOk ? 200 : 401, { ok: true, data: refs.map((docRef) => ({ docRef, version: 1, status: 'pending', posRef: 'pos.order_request:known', updatedAt: '2026-11-26T04:00:00Z' })) });
+      }
       const body = JSON.parse(raw);
       pos.received.push({ body, key: String(req.headers['idempotency-key']), auth: String(req.headers.authorization), sigOk });
       return send(202, { ok: true, data: { status: 'pending', posRef: `pos.order_request:${++pos.seq}`, expiresAt: '2026-11-28T10:00:00Z' } });
@@ -145,6 +149,31 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
     expect(touches).toEqual(['confirmed', 'shipped', 'pending']); // mỗi sự kiện MỚI một dấu chạm, mang bước cửa hàng báo (lặp không ghi; đến muộn vẫn ghi nhưng không đổi trạng thái)
     expect((await call('POST', `/api/v1/order-requests/${o!.orderRequestId}/cancel`, {})).json().error.details.reason).toBe('CAKE_ORDER_LOCKED');
   });
+
+  it('S010-6 RC-ORDER-1: đã gửi > 15 phút — cửa hàng có ⇒ không gửi lại; thiếu ⇒ gửi lại CÙNG khoá; chưa đủ 15 phút ⇒ bỏ qua', async () => {
+    const { reconcileSentOrders } = await import('../src/orders/service.js');
+    const mk = async () => {
+      const o = (await call('POST', '/api/v1/order-requests', { contactId, lines: [{ itemId, qty: 1 }], shipping: 'pickup' })).json().data;
+      await call('POST', `/api/v1/order-requests/${o.orderRequestId}/send`, {});
+      return o.orderRequestId as string;
+    };
+    const age = (id: string) => sql(`UPDATE order_requests SET updated_at = now() - interval '16 minutes' WHERE order_request_id = $1`, [id]);
+    const [present, missing, fresh] = [await mk(), await mk(), await mk()];
+    await age(present); await age(missing); // `fresh` giữ nguyên ⇒ chưa đủ 15 phút
+    pos.known.add(`cake.order_request:${present}`);
+    const before = pos.received.length;
+    expect(await reconcileSentOrders()).toEqual({ checked: 2, resent: 1 });
+    const again = pos.received.slice(before);
+    expect(again).toHaveLength(1);
+    expect(again[0]).toMatchObject({ key: `cake.order_request:${missing}@1`, sigOk: true });
+    expect(again.some((x) => x.key.includes(present) || x.key.includes(fresh))).toBe(false);
+    // `present` đã ghi dấu đã kiểm ⇒ lượt ngay sau không kiểm lại; `missing` vừa gửi lại ⇒ cũng mới
+    expect(await reconcileSentOrders()).toEqual({ checked: 0, resent: 0 });
+    // không đọc được cửa hàng ⇒ không kết luận "thiếu", không gửi lại
+    await age(missing); pos.mode = 'down';
+    expect(await reconcileSentOrders()).toEqual({ checked: 1, resent: 0 });
+    pos.mode = 'ok';
+  }, 30_000);
 
   it('huỷ: nháp huỷ tại chỗ; đã gửi ⇒ báo cửa hàng huỷ', async () => {
     const draft = (await call('POST', '/api/v1/order-requests', { contactId, lines: [{ itemId, qty: 1 }], shipping: 'pickup' })).json().data;

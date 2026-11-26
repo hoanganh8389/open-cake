@@ -23,7 +23,7 @@ import { registerAuthRoutes } from './auth/routes.js';
 import { staffHandlers } from './auth/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
 import { apiKeyHandlers } from './auth/apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API
 import { failure, registerActions } from './runtime.js';
-import { orderHandlers, retryQueuedOrders } from './orders/service.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app
+import { orderHandlers, reconcileSentOrders, retryQueuedOrders } from './orders/service.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app
 import { linkHandlers } from './orders/link.js';
 import { retryChannelCommands, sendHandlers } from './care/send.js'; // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin ra kênh qua Hub
 import { registerPosEvents } from './orders/pos-events.js';
@@ -80,7 +80,9 @@ if (process.argv[1]?.endsWith('server.js')) {
   const retry = setInterval(() => { retryQueuedOrders().catch((e) => app.log.warn({ err: e }, 'gửi lại yêu cầu đặt hàng lỗi')); }, 60_000);
   // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — mỗi 15 giây gửi lại lệnh ra kênh chưa tới Hub (cùng khoá; quá 10 phút ⇒ "chưa rõ đã gửi").
   const cmds = setInterval(() => { retryChannelCommands().catch((e) => app.log.warn({ err: e }, 'gửi lại lệnh ra kênh lỗi')); }, 15_000);
-  const stop = async () => { clearInterval(retry); clearInterval(cmds); await app.close(); await shutdownTracing(); process.exit(0); };
+  // [2026-11-26 11:31 AM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-6 — RC-ORDER-1: mỗi 5 phút đối chiếu yêu cầu đã gửi > 15 phút mà cửa hàng chưa có trạng thái.
+  const recon = setInterval(() => { reconcileSentOrders().catch((e) => app.log.warn({ err: e }, 'đối chiếu yêu cầu đặt hàng lỗi')); }, 300_000);
+  const stop = async () => { clearInterval(retry); clearInterval(cmds); clearInterval(recon); await app.close(); await shutdownTracing(); process.exit(0); };
   process.on('SIGINT', () => void stop());
   process.on('SIGTERM', () => void stop());
   await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8120) });

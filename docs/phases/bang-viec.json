@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-25T18:02:16.893Z",
+  "generated": "2026-11-26T06:23:07.170Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -505,7 +505,7 @@
         },
         {
           "id": "S010-6",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — RC-ORDER-1 + RC-ORDER-3 (LD-CAKE-5)",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 15
