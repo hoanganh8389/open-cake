@@ -1,0 +1,45 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000Z001",
+  "type": "message.received",
+  "occurredAt": "2025-11-24T16:00:00.000Z",
+  "source": "cell:zh-local-1",
+  "docKey": "facebook_personal|100089000000001|100089000000777|mid.$cAAAfb017",
+  "version": 1,
+  "channel": "facebook_personal",
+  "channelAccount": {
+    "externalAccountId": "100089000000001",
+    "kind": "personal"
+  },
+  "thread": {
+    "externalThreadId": "100089000000777",
+    "kind": "dm",
+    "anchor": null
+  },
+  "sender": {
+    "scope": "global",
+    "externalId": "100089000000777",
+    "displayName": null,
+    "avatarRef": null
+  },
+  "direction": "inbound",
+  "content": {
+    "type": "text",
+    "text": "Shop ơi còn size M không?",
+    "attachments": []
+  },
+  "hints": {
+    "phone": null,
+    "email": null,
+    "privateReplyOf": null
+  },
+  "encryption": {
+    "e2ee": false,
+    "decryptedOnCell": false
+  },
+  "delivery": null,
+  "history": {
+    "backfill": false,
+    "cursor": null
+  }
+}
