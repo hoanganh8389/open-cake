@@ -135,4 +135,35 @@ describe.skipIf(!url)('cổng nhận Hub + hộp thư / danh bạ trên Postgres
     expect(pages.reverse().flat()).toEqual(all);
     await expect(c.call(conversationList, { filter: 'all', limit: 1, cursor: 'khong-phai-con-tro' })).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
   });
+
+  // [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — mô hình đọc mockup ⑤ ⑥: ảnh theo kênh, nhóm (tên / ảnh / số thành viên), người gửi từng tin nhóm, trích dẫn, @nhắc, thu hồi
+  it('nhóm: tên / ảnh / số thành viên; tin nhóm có người gửi + ảnh; trích dẫn, @nhắc; thu hồi ⇒ nội dung rỗng + giờ thu hồi; danh bạ có ảnh', { timeout: 30_000 }, async () => {
+    const { conversationList, messageList, contactList, contactGet } = await C();
+    const g = (msg: string, who: string, name: string, extra: Record<string, unknown> = {}) => JSON.stringify({
+      contract: 'bizcity_touch@1', eventId: `01JDAB00000000000000${msg.padStart(6, '0')}`, type: 'message.received', occurredAt: new Date().toISOString(), source: 'cell:kiem-thu',
+      docKey: `zalo_personal|7350219485123001001|g_77|${msg}`, version: 1, channel: 'zalo_personal', channelAccount: { externalAccountId: '7350219485123001001', kind: 'personal' },
+      thread: { externalThreadId: 'g_77', kind: 'group_thread', anchor: null, info: { name: 'Hội yêu váy hoa', avatarRef: 'https://cell/g/77.jpg', memberCount: 248 } },
+      sender: { scope: 'global', externalId: who, displayName: name, avatarRef: `https://cell/a/${who}.jpg` }, direction: 'inbound',
+      content: { type: 'text', text: '@Shop Hoa Mai còn size S không', attachments: [], mentions: [{ externalId: '7350219485123001001', pos: 0, len: 13 }] },
+      hints: {}, encryption: { e2ee: false, decryptedOnCell: false }, delivery: null, history: { backfill: false, cursor: null }, ...extra,
+    });
+    for (const b of [g('gm1', '770001', 'Thảo Vy'), g('gm2', '770002', 'Anh Khoa', { content: { type: 'text', text: 'mình cũng hỏi', attachments: [], quote: { externalMessageId: 'gm1', senderExternalId: '770001', text: '@Shop Hoa Mai còn size S không' } } })]) {
+      expect((await post(b, ok(b))).statusCode).toBe(200);
+    }
+    const conv = (await c.call(conversationList, { filter: 'all', limit: 50 })).data.find((x) => x.externalThreadId === 'g_77')!;
+    expect(conv).toMatchObject({ kind: 'group_thread', title: 'Hội yêu váy hoa', avatarRef: 'https://cell/g/77.jpg', memberCount: 248 });
+    let msgs = (await c.call(messageList, { conversationId: conv.conversationId, limit: 50 })).data;
+    expect(msgs.map((m) => m.sender?.name)).toEqual(['Thảo Vy', 'Anh Khoa']);
+    expect(msgs[0]).toMatchObject({ mentions: [{ pos: 0, len: 13 }], sender: { avatarRef: 'https://cell/a/770001.jpg' }, revokedAt: null });
+    expect(msgs[1]!.quote).toMatchObject({ externalMessageId: 'gm1' });
+    // thu hồi tin của Anh Khoa (v2)
+    const rv = JSON.stringify({ ...JSON.parse(g('gm2', '770002', 'Anh Khoa')), version: 2, content: { type: 'revoked', text: null, attachments: [] } });
+    expect((await post(rv, ok(rv))).statusCode).toBe(200);
+    msgs = (await c.call(messageList, { conversationId: conv.conversationId, limit: 50 })).data;
+    expect(msgs[1]).toMatchObject({ text: '', quote: null, revokedAt: expect.any(String) });
+    // danh bạ + hồ sơ: ảnh theo kênh
+    const vy = (await c.call(contactList, { q: 'Thảo Vy', page: 1, pageSize: 10, sort: 'last' })).data.find((r) => r.contact.displayName === 'Thảo Vy')!;
+    expect(vy.avatarRef).toBe('https://cell/a/770001.jpg');
+    expect((await c.call(contactGet, { contactId: vy.contact.contactId })).data.identities[0]).toMatchObject({ avatarRef: 'https://cell/a/770001.jpg' });
+  });
 });

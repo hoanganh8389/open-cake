@@ -8,7 +8,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { commentReply, conversationTag, messageList, messageSend, orderRequestList, type Conversation, type Message, type OrderRequest } from '@open-cake/contracts';
 import { useAction, useInfiniteQueryAction, useQueryAction } from '@open-cake/action-client';
-import { Btn, ChannelBadge, Face, GroupAvatar, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
+import { ChannelAvatar, Btn, ChannelBadge, Ic, Tag, TAG_LOOK, cx } from '@open-cake/ui-kit';
 import { ActionErrorNote, LoadMore, QueryView } from '../app/QueryView.js';
 import { bytes, hhmm } from '../app/format.js';
 import { go } from '../app/route.js';
@@ -29,23 +29,39 @@ const interleave = (ms: Message[], os: OrderRequest[]): Row[] => {
 const Panel = (p: { className?: string }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M15 4v16" /></svg>;
 
 // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin lỗi / chưa rõ đã gửi ⇒ nút Gửi lại (tin MỚI, khoá mới — nhân viên quyết, máy không tự gửi lại; R-CAKE-SEND-2).
-function Bubble({ m, name, onResend }: { m: Message; name: string; onResend?: (m: Message) => void }) {
+/** [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — @nhắc tô màu theo vị trí ký tự (kênh gửi pos / len). */
+function withMentions(text: string, ms: Message['mentions']) {
+  if (!ms?.length) return text;
+  const out: (string | JSX.Element)[] = [];
+  let i = 0;
+  for (const [k, x] of [...ms].sort((a, b) => a.pos - b.pos).entries()) {
+    if (x.pos < i || x.pos + x.len > text.length) continue;
+    out.push(text.slice(i, x.pos), <span key={k} className="ment">{text.slice(x.pos, x.pos + x.len)}</span>);
+    i = x.pos + x.len;
+  }
+  return [...out, text.slice(i)];
+}
+
+function Bubble({ m, name, group, onResend }: { m: Message; name: string; group?: boolean; onResend?: (m: Message) => void }) {
   const img = m.attachments.find((a) => a.type === 'image');
   const file = m.attachments.find((a) => a.type === 'file');
   return (
     <div className={cx('dmsg', m.direction === 'out' && 'out')}>
-      {m.direction === 'in' && <Face name={name} size={40} />}
-      {img ? (
+      {m.direction === 'in' && <ChannelAvatar src={m.sender?.avatarRef} name={m.sender?.name ?? name} size={40} />}
+      <div>
+      {group && m.direction === 'in' && m.sender && <div className="snd">{m.sender.name}</div>}
+      {m.revokedAt ? <div className="bb revoked">{t.inbox.chat.revoked}<span className="ts">{hhmm(m.at)}</span></div> : img ? (
         <div className="img"><div className="pic" style={{ height: 160, display: 'grid', placeItems: 'center' }}><Ic.image style={{ width: 64, height: 64, opacity: 0.4 }} /></div>
           <div className="cap">{img.name ?? t.inbox.chat.image}</div><span className="tp">{hhmm(m.at)}</span></div>
       ) : (
         <div className="bb">
-          {file ? <div className="file"><span className="pdf">PDF</span><div style={{ flex: 1 }}><b>{file.name}</b><div className="muted" style={{ fontSize: 15 }}>{bytes(file.size)} {t.inbox.chat.tapToDownload}</div></div><Ic.download style={{ width: 22, height: 22 }} /></div> : m.text}
+          {file ? <div className="file"><span className="pdf">PDF</span><div style={{ flex: 1 }}><b>{file.name}</b><div className="muted" style={{ fontSize: 15 }}>{bytes(file.size)} {t.inbox.chat.tapToDownload}</div></div><Ic.download style={{ width: 22, height: 22 }} /></div> : <>{m.quote && <div className="quote"><b>{t.inbox.chat.quoteLabel}</b><div>{m.quote.text}</div></div>}{withMentions(m.text, m.mentions)}</>}
           <span className="ts">{hhmm(m.at)}{m.direction === 'out' && m.delivery && m.delivery !== 'sent' ? ` · ${t.inbox.chat.delivery[m.delivery] ?? m.delivery}` : ''}
             {onResend && m.direction === 'out' && (m.delivery === 'failed' || m.delivery === 'unknown') && <> · <button type="button" className="link" onClick={() => onResend(m)}>{t.inbox.chat.resend}</button></>}</span>
           {m.reaction && <span className="re" style={m.direction === 'out' ? { left: 8 } : { right: 16 }}>{m.reaction}</span>}
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -90,9 +106,10 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
   return (
     <section className="dchat">
       <div className="hd">
-        {conv.kind === 'group_thread' ? <GroupAvatar size={56} /> : <Face name={conv.title} size={56} />}
+        <ChannelAvatar src={conv.avatarRef} name={conv.title} size={56} group={conv.kind === 'group_thread'} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="nm">{conv.title}</div>
+          {conv.kind === 'group_thread' && conv.memberCount != null && <div className="xs subtle">{t.inbox.chat.members(conv.memberCount)}</div>}
           <div className="tags">{conv.tags.map((x) => <Tag key={x} name={x} size="md" />)}{isComment && <span className="badge">{t.inbox.chat.commentOnPost(conv.anchor?.postId)}</span>}</div>
         </div>
         {canOrder && <Btn out sm onClick={() => setSheet(true)}><Ic.store />{t.orders.cart(cart.length)}</Btn>}
@@ -101,7 +118,7 @@ export function InboxChat({ conv, via, info, onToggleInfo }: { conv: Conversatio
       </div>
       <div className="msgs" ref={ref}>
         <QueryView q={{ ...msgs, data: shown }} empty={{ title: t.inbox.chat.emptyTitle, desc: t.inbox.chat.emptyDesc }}>
-          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{interleave(ms, orders.data ?? []).map((r) => (r.m ? <Bubble key={r.m.messageId} m={r.m} name={conv.title} onResend={(x) => send.mutate({ conversationId: conv.conversationId, text: x.text, attachments: x.attachments })} /> : <OrderSysLine key={`${r.o!.orderRequestId}-${r.e!.type}-${r.at}`} o={r.o!} e={r.e!} />))}</>}
+          {(ms) => <><LoadMore q={msgs} label={t.inbox.chat.loadOlder} />{interleave(ms, orders.data ?? []).map((r) => (r.m ? <Bubble key={r.m.messageId} m={r.m} name={conv.title} group={conv.kind === 'group_thread'} onResend={(x) => send.mutate({ conversationId: conv.conversationId, text: x.text, attachments: x.attachments })} /> : <OrderSysLine key={`${r.o!.orderRequestId}-${r.e!.type}-${r.at}`} o={r.o!} e={r.e!} />))}</>}
         </QueryView>
       </div>
       <div className="dlabels">

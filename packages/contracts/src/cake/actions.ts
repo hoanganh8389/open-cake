@@ -95,7 +95,8 @@ export const conversationTag = defineActionSpec({
 });
 
 // ── Khách (Contact 360) ─────────────────────────────────────────────────
-const ContactRowSchema = z.object({ contact: ContactSchema, state: ContactStateSchema, phone: z.string().nullable(), gender: z.string().nullable(), birthday: z.string().nullable(),
+// [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — avatarRef: ảnh đại diện theo kênh (danh tính còn hiệu lực đầu tiên có ảnh)
+const ContactRowSchema = z.object({ contact: ContactSchema, state: ContactStateSchema, avatarRef: z.string().nullable().optional(), phone: z.string().nullable(), gender: z.string().nullable(), birthday: z.string().nullable(),
   realName: z.string().nullable().default(null) }); // [2026-11-25 12:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-8 — tên thật (meta cake.contact.real_name) dưới tên hiển thị, như ảnh chuẩn danh bạ
 export const contactList = defineActionSpec({
   id: 'cake.contact.list', capability: 'cake.contact.read', title: 'Danh bạ', kind: 'query',

@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { channelList, contactGet, conversationList } from '@open-cake/contracts';
 import { useQueryAction, useInfiniteQueryAction } from '@open-cake/action-client';
-import { Btn, ChannelBadge, ChannelDot, Face, GroupAvatar, Ic, Tag, cx } from '@open-cake/ui-kit';
+import { ChannelAvatar, Btn, ChannelBadge, ChannelDot, Face, Ic, Tag, cx } from '@open-cake/ui-kit';
 import { QueryView, LoadMore } from '../app/QueryView.js';
 import { hhmm } from '../app/format.js';
 import { go, useRoute } from '../app/route.js';
@@ -85,7 +85,7 @@ export function Inbox() {
               {(cs) => <>{cs.map((c) => (
                 <div key={c.conversationId} id={`conv-${c.conversationId}`} role="option" aria-selected={cur?.conversationId === c.conversationId} className={cx('ditem', cur?.conversationId === c.conversationId && 'on')} onClick={() => setQuery({ conv: c.conversationId })}>
                   <div style={{ position: 'relative' }}>
-                    {c.kind === 'group_thread' ? <GroupAvatar /> : <Face name={c.title} size={56} />}
+                    <ChannelAvatar src={c.avatarRef} name={c.title} size={56} group={c.kind === 'group_thread'} />
                     <ChannelDot channel={(accounts.data ?? []).find((a) => a.channelAccountId === c.channelAccountId)?.channel} />
                   </div>
                   <div className="b">

@@ -21,12 +21,15 @@ const rows: C[] = [
   [7, 1, 4, 'dm', 'Phạm Gia Bảo', 'File: Bao-gia-si-T10.pdf', '08:20', 0, ['Chờ phản hồi'], 'out'],
   [8, 2, 6, 'dm', 'Võ Thanh Tùng', 'Mẫu này còn size 42 không ạ?', '07:20', 0, [], 'out'],
   [9, 1, 7, 'dm', 'Hoàng Mỹ Linh', 'Cảm ơn shop, váy đẹp lắm ạ', '05:30', 0, ['Đặt hàng'], 'out'],
+  // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — nhóm Zalo (mockup ⑥): tên / số thành viên theo kênh
+  [10, 1, 3, 'group_thread', 'Hội yêu váy hoa', 'Shop gửi nhầm link, mọi người bỏ qua nhé', '10:40', 3, [], 'out'],
 ];
 
 export const conversations: Conversation[] = rows.map(([n, a, c, kind, title, last, time, unread, tags, dir]) => ({
   conversationId: fid('V', n), channelAccountId: fid('A', a), externalThreadId: `t_${n}`, contactId: contacts[c - 1]!.contactId,
   kind, anchor: kind === 'comment_thread' ? { postId: 'p_555', commentId: 'c_777' } : null, title, lastText: last, lastAt: at(time),
   lastDirection: dir, unread, tags, assigneeUserId: n === 1 ? '7' : null, windowUntil: a === 4 ? '2026-11-25T08:00:00+07:00' : null, pinned: n === 1,
+  ...(kind === 'group_thread' ? { avatarRef: null, memberCount: 248 } : {}),
 }));
 
 type Mm = [out: boolean, time: string, text: string, extra?: Partial<Message>];
@@ -45,7 +48,15 @@ const one = (conv: number, n: number, out: boolean, time: string, text: string):
   e2ee: false, delivery: out ? 'sent' : null, reaction: null, sentByUserId: out ? '7' : null,
 });
 
+const who = (c: number) => ({ contactId: contacts[c - 1]!.contactId, name: contacts[c - 1]!.displayName, avatarRef: null });
 export const messagesByConversation: Record<string, Message[]> = {
+  // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — nhóm: người gửi từng tin, @nhắc, trích dẫn, tin đã thu hồi (mockup ⑥)
+  [fid('V', 10)]: [
+    { ...one(10, 101, false, '10:32', '@Shop Hoa Mai còn váy hoa size S không ạ? Màu hồng nha'), sender: who(3), mentions: [{ externalId: 'shop', pos: 0, len: 13 }], reaction: '❤️ 3' },
+    { ...one(10, 102, true, '10:34', 'Dạ còn 2 cái size S màu hồng ạ, chị inbox shop để giữ hàng nhé 🌸'), quote: { externalMessageId: 'm_101', senderExternalId: null, text: '@Shop Hoa Mai còn váy hoa size S không ạ? Màu hồng nha' }, delivery: 'read' },
+    { ...one(10, 103, false, '10:36', ''), sender: who(2), revokedAt: at('10:37') },
+    one(10, 104, true, '10:40', 'Shop gửi nhầm link, mọi người bỏ qua nhé'),
+  ],
   // Ca vàng G1–G4: bình luận dưới bài → shop trả lời riêng → khách nhắn Fanpage (thread mở từ trả lời riêng)
   [fid('V', 6)]: [one(6, 61, false, '07:40', 'Váy hoa này giá sao shop?'), one(6, 62, true, '07:45', 'Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!')],
   [fid('V', 5)]: [one(5, 51, true, '07:45', 'Dạ váy 390.000đ ạ, em nhắn riêng chị nhé!'), one(5, 52, false, '08:00', 'Còn hàng không shop?')],

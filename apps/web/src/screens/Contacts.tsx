@@ -5,7 +5,7 @@
 // [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang i18n/vi/inbox.ts.
 import { contactList } from '@open-cake/contracts';
 import { useQueryAction } from '@open-cake/action-client';
-import { Chip, Face, Ic, Pager, Search, StatusBar, Tabs, Tag, TAG_LOOK } from '@open-cake/ui-kit';
+import { ChannelAvatar, Chip, Face, Ic, Pager, Search, StatusBar, Tabs, Tag, TAG_LOOK } from '@open-cake/ui-kit';
 import { QueryView } from '../app/QueryView.js';
 import { ddmm, ddmmyyyy } from '../app/format.js';
 import { go, useRoute } from '../app/route.js';
@@ -47,7 +47,7 @@ export function Contacts() {
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.contact.contactId} onClick={() => go(`contacts/${r.contact.contactId}`)} style={{ cursor: 'pointer' }}>
-                    <td><Face name={r.contact.displayName} size={48} female={r.gender === t.inbox.contacts.female} /></td>
+                    <td>{r.avatarRef ? <ChannelAvatar src={r.avatarRef} name={r.contact.displayName} size={48} /> : <Face name={r.contact.displayName} size={48} female={r.gender === t.inbox.contacts.female} />}</td>
                     <td>
                       <div style={{ fontSize: 19 }}>{r.contact.displayName}{r.state.unanswered && <span className="onl" title={t.inbox.contacts.unanswered} />}</div>
                       {r.realName && r.realName !== r.contact.displayName && <div className="xs subtle">{r.realName}</div>}

@@ -15,6 +15,7 @@ export const inbox = {
   },
   info: { channels: 'Kênh của khách này', tags: 'Nhãn', open360: 'Mở Contact 360' },
   chat: {
+    revoked: 'Tin nhắn đã được thu hồi', quoteLabel: 'Trả lời', members: (n: number) => `${n} thành viên`, // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2
     image: 'Hình ảnh',
     tapToDownload: 'Nhấn để tải',
     delivery: { accepted: 'đang gửi', unknown: 'chưa rõ đã gửi', failed: 'gửi lỗi', delivered: 'đã nhận', read: 'đã xem' } as Record<string, string>,

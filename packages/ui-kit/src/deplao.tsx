@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // @bizcity-layer web
+import { useState } from 'react';
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-1: thành phần kiểu Deplao từ bản mẫu duyệt (deplao.jsx): avatar minh hoạ, nhãn nền đặc,
 //   huy hiệu kênh — nay theo enum kênh của hợp đồng (zalo_* / facebook_*), không theo id tài khoản bản mẫu. Thêm ChannelBadge chữ (R-CAKE-UI-5).
 // [2026-11-25 12:06 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-11: chữ hiển thị chuyển sang packages/ui-kit/src/vi.ts.
@@ -71,6 +72,13 @@ export function ChannelBadge({ channel }: { channel: string | null | undefined }
 
 const RAIL_BG = ['linear-gradient(135deg,#ec4899,#f43f5e)', 'linear-gradient(135deg,#a855f7,#7c3aed)', 'linear-gradient(135deg,#3b82f6,#1d4ed8)', 'linear-gradient(135deg,#0ea5e9,#0369a1)', 'linear-gradient(135deg,#10b981,#047857)'];
 /** Avatar tài khoản trên rail: vòng màu + chữ đầu (màu theo tên, ổn định). */
+/** [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — ảnh đại diện theo kênh (URL có hạn của máy kết nối); không có / hỏng ⇒ Face (người) hoặc GroupAvatar (nhóm). */
+export function ChannelAvatar({ src, name, size = 56, group }: { src?: string | null; name: string; size?: number; group?: boolean }) {
+  const [bad, setBad] = useState(false);
+  if (src && !bad) return <img src={src} alt={name} width={size} height={size} referrerPolicy="no-referrer" onError={() => setBad(true)} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flex: 'none', display: 'block' }} />;
+  return group ? <GroupAvatar size={size} /> : <Face name={name} size={size} />;
+}
+
 export function AccountAvatar({ label, size = 56 }: { label: string; size?: number }) {
   const w = label.split(/\s+/).filter(Boolean);
   const text = (w.length > 1 ? w[0]![0]! + w[w.length - 1]![0]! : label.slice(0, 2)).toUpperCase();

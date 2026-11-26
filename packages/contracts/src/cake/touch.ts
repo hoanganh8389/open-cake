@@ -4,7 +4,7 @@
 //   Thân KHÔNG được có contactId / tenantId / siteId / bí mật (strict ở gốc).
 import { z } from 'zod';
 import { AccountChannelSchema, ChannelSchema, IdentityKeySchema } from './channel.js';
-import { AnchorSchema, AttachmentSchema, DeliverySchema } from './entities.js';
+import { AnchorSchema, AttachmentSchema, DeliverySchema, MentionSchema, QuoteSchema } from './entities.js';
 
 export const TOUCH_TYPES = [
   'message.received', 'message.sent', 'delivery.updated', 'comment.received', 'comment.replied',
@@ -16,8 +16,7 @@ export const TOUCH_TYPES = [
 /** [2026-11-26 06:28 PM Johnny Chu - Chu Hoàng Anh] KN K2b — thông tin nhóm / hội thoại do kênh giữ (tên, ảnh, số thành viên). Đi kèm thread.updated, và tuỳ chọn kèm tin nhóm. */
 export const ThreadInfoSchema = z.object({ name: z.string().max(300).nullable(), avatarRef: z.string().max(2000).nullable(), memberCount: z.number().int().min(0).nullable() }).strict();
 /** [2026-11-26 06:28 PM Johnny Chu - Chu Hoàng Anh] KN K2b — trích dẫn tin khác + @nhắc (vị trí theo ký tự trong content.text). */
-export const QuoteSchema = z.object({ externalMessageId: z.string(), senderExternalId: z.string().nullable(), text: z.string().max(2000).nullable() }).strict();
-export const MentionSchema = z.object({ externalId: z.string(), pos: z.number().int().min(0), len: z.number().int().min(1) }).strict();
+export { MentionSchema, QuoteSchema };
 
 /** `channel|externalAccountId|externalThreadId|externalMessageId` — Cell tạo, bất biến. */
 export const DOC_KEY_RE = /^[a-z_]+\|[^|]+\|[^|]+\|[^|]+$/;

@@ -70,7 +70,7 @@ export const inboxHandlers: Record<string, Handler> = {
     if (i.tag) q = q.where(sql<boolean>`EXISTS (SELECT 1 FROM contact_state s WHERE s.tenant_id = v.tenant_id AND s.contact_id = v.contact_id AND ${i.tag} = ANY(s.tags))`); // [2026-11-25 10:35 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-10: lọc nhãn trong SQL để trang đủ dòng
     const after = decCursor(i.cursor);
     if (after) q = q.where(sql<boolean>`(v.last_at, v.conversation_id) < (${after[0]}::timestamptz, ${after[1]})`); // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — "của tôi" = người đăng nhập
-    const rows = await q.selectAll('v').select('c.display_name').orderBy('v.last_at', 'desc').orderBy('v.conversation_id', 'desc').limit(i.limit).execute();
+    const rows = await q.selectAll('v').select('c.display_name').select(sql<string | null>`(SELECT ci.avatar_ref FROM contact_identities ci WHERE ci.tenant_id = c.tenant_id AND ci.contact_id = c.contact_id AND ci.valid_to IS NULL AND ci.avatar_ref IS NOT NULL ORDER BY ci.valid_from LIMIT 1)`.as('contact_avatar')).orderBy('v.last_at', 'desc').orderBy('v.conversation_id', 'desc').limit(i.limit).execute();
     const tail = rows.length === i.limit ? rows[rows.length - 1]! : null;
     const ids = rows.map((r) => r.conversation_id);
     const [unread, state, last] = await Promise.all([
@@ -81,7 +81,8 @@ export const inboxHandlers: Record<string, Handler> = {
     return paged(rows
       .map((r) => ({
         conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null,
-        title: r.display_name, lastText: lastText.get(r.conversation_id) ?? '', lastAt: iso(r.last_at!), lastDirection: r.last_direction ?? 'in', unread: unread.get(r.conversation_id) ?? 0,
+        // [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — nhóm: tên + ảnh nhóm theo kênh; 1-1: tên khách + ảnh đại diện
+        title: r.kind === 'group_thread' && r.title ? r.title : r.display_name, avatarRef: r.kind === 'group_thread' ? r.avatar_ref : r.contact_avatar, memberCount: r.member_count, lastText: lastText.get(r.conversation_id) ?? '', lastAt: iso(r.last_at!), lastDirection: r.last_direction ?? 'in', unread: unread.get(r.conversation_id) ?? 0,
         tags: state(r.contact_id).tags, assigneeUserId: r.assignee_user_id, windowUntil: isoN(r.window_until), pinned: false,
       }))
       .filter((c) => i.filter !== 'unread' || c.unread > 0), { nextCursor: tail ? encCursor(tail.last_at!, tail.conversation_id) : null }); // 'chưa đọc' lọc sau ⇒ trang có thể ngắn hơn limit, con trỏ vẫn đúng
@@ -95,7 +96,11 @@ export const inboxHandlers: Record<string, Handler> = {
     if (before) mq = mq.where(sql<boolean>`(at, message_id) < (${before[0]}::timestamptz, ${before[1]})`);
     const rows = await mq.orderBy('at', 'desc').orderBy('message_id', 'desc').limit(i.limit).execute();
     const oldest = rows.length === i.limit ? rows[rows.length - 1]! : null;
-    return paged(rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, sentByUserId: m.sent_by ?? null })), { nextCursor: oldest ? encCursor(oldest.at, oldest.message_id) : null });
+    // [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — người gửi của tin vào = khách của dòng sổ (tin nhóm: mỗi tin một người) + ảnh theo kênh
+    const inTouch = rows.filter((m) => m.direction === 'in').map((m) => m.touch_id);
+    const senders = inTouch.length ? (await sql<{ touch_id: string; contact_id: string; display_name: string; avatar: string | null }>`SELECT l.touch_id::text AS touch_id, c.contact_id, c.display_name, (SELECT ci.avatar_ref FROM contact_identities ci WHERE ci.tenant_id = c.tenant_id AND ci.contact_id = c.contact_id AND ci.valid_to IS NULL AND ci.avatar_ref IS NOT NULL ORDER BY ci.valid_from LIMIT 1) AS avatar FROM touch_ledger l JOIN contacts c ON c.contact_id = l.contact_id WHERE l.tenant_id = ${tenantId} AND l.touch_id IN (${sql.join(inTouch)})`.execute(tx)).rows : [];
+    const senderOf = (touchId: string) => { const s = senders.find((x) => x.touch_id === String(touchId)); return s ? { contactId: s.contact_id, name: s.display_name, avatarRef: s.avatar } : null; };
+    return paged(rows.reverse().map((m) => ({ messageId: m.message_id, conversationId: m.conversation_id, direction: m.direction, text: m.body, attachments: (m.attachments as unknown[]) ?? [], at: iso(m.at), e2ee: m.e2ee, delivery: m.delivery, reaction: null, quote: (m.quote ?? null) as never, mentions: (m.mentions ?? []) as never, revokedAt: isoN(m.revoked_at), sender: m.direction === 'in' ? senderOf(m.touch_id) : null, sentByUserId: m.sent_by ?? null })), { nextCursor: oldest ? encCursor(oldest.at, oldest.message_id) : null });
   },
   'cake.contact.list': async (ctx, i) => {
     let q = ctx.tx.selectFrom('contacts as c').leftJoin('contact_state as s', 's.contact_id', 'c.contact_id').where('c.tenant_id', '=', ctx.tenantId).where('c.status', '=', 'active');
@@ -105,7 +110,7 @@ export const inboxHandlers: Record<string, Handler> = {
     if (i.birthday) q = q.where((e) => e.exists(e.selectFrom('entity_meta as b').select('b.key').whereRef('b.entity_id', '=', 'c.contact_id').where('b.key', '=', META.birthday)
       .where(sql<boolean>`to_char((b.value #>> '{}')::date, ${i.birthday === 'today' ? 'MM-DD' : 'MM'}) = to_char(now(), ${i.birthday === 'today' ? 'MM-DD' : 'MM'})`)));
     const [{ n }] = await q.select((e) => e.fn.countAll<string>().as('n')).execute() as [{ n: string }];
-    const rows = await q.selectAll('c').orderBy(i.sort === 'name' ? sql`c.display_name` : sql`s.last_in_at DESC NULLS LAST`).limit(i.pageSize).offset((i.page - 1) * i.pageSize).execute();
+    const rows = await q.selectAll('c').select(sql<string | null>`(SELECT ci.avatar_ref FROM contact_identities ci WHERE ci.tenant_id = c.tenant_id AND ci.contact_id = c.contact_id AND ci.valid_to IS NULL AND ci.avatar_ref IS NOT NULL ORDER BY ci.valid_from LIMIT 1)`.as('avatar')).orderBy(i.sort === 'name' ? sql`c.display_name` : sql`s.last_in_at DESC NULLS LAST`).limit(i.pageSize).offset((i.page - 1) * i.pageSize).execute();
     const ids = rows.map((r) => r.contact_id);
     const [state, phones, meta] = await Promise.all([
       statesOf(ctx, ids),
@@ -113,7 +118,7 @@ export const inboxHandlers: Record<string, Handler> = {
       ids.length ? ctx.tx.selectFrom('entity_meta').select(['entity_id', 'key', 'value']).where('tenant_id', '=', ctx.tenantId).where('entity_type', '=', 'contact').where('entity_id', 'in', ids).execute() : [],
     ]);
     const m = (id: string, k: string) => (meta.find((x) => x.entity_id === id && x.key === k)?.value as string | undefined) ?? null;
-    return paged(rows.map((r) => ({ contact: toContact(r), state: state(r.contact_id), phone: phones.find((p) => p.contact_id === r.contact_id)?.external_id ?? null, gender: m(r.contact_id, META.gender), birthday: m(r.contact_id, META.birthday), realName: m(r.contact_id, META.realName) })),
+    return paged(rows.map((r) => ({ contact: toContact(r), state: state(r.contact_id), avatarRef: r.avatar, phone: phones.find((p) => p.contact_id === r.contact_id)?.external_id ?? null, gender: m(r.contact_id, META.gender), birthday: m(r.contact_id, META.birthday), realName: m(r.contact_id, META.realName) })),
       { page: i.page, pageSize: i.pageSize, total: Number(n) });
   },
   'cake.contact.get': async (ctx, i) => {
@@ -127,7 +132,7 @@ export const inboxHandlers: Record<string, Handler> = {
     ]);
     return {
       contact: toContact(c), state: state(c.contact_id), links: links.rows.map((l) => ({ app: l.app, kind: l.kind, refCode: l.ref_code, refId: l.ref_id })), meta: Object.fromEntries(meta.map((x) => [x.key, x.value])),
-      identities: ids.map((d) => ({ identityId: d.identity_id, contactId: d.contact_id, channel: d.channel, scope: d.scope, externalId: d.external_id, displayName: d.display_name, confidence: d.confidence, proof: d.proof ?? null, validFrom: iso(d.valid_from), validTo: isoN(d.valid_to) })),
+      identities: ids.map((d) => ({ identityId: d.identity_id, contactId: d.contact_id, channel: d.channel, scope: d.scope, externalId: d.external_id, displayName: d.display_name, confidence: d.confidence, proof: d.proof ?? null, validFrom: iso(d.valid_from), validTo: isoN(d.valid_to), avatarRef: d.avatar_ref ?? null })),
     };
   },
   // Gợi ý (KHÔNG ghép): khách khác cùng tên hiển thị hoặc cùng "tên thật" (lớp mềm) — như bộ giả lập; ghép thật cần bằng chứng (cake.contact.merge).

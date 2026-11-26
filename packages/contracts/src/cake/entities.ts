@@ -28,6 +28,7 @@ export const IdentitySchema = z.intersection(IdentityKeySchema, z.object({
   proof: ProofSchema.nullable(),
   validFrom: iso,
   validTo: iso.nullable(),
+  avatarRef: z.string().nullable().optional(),
 }));
 export type Identity = z.infer<typeof IdentitySchema>;
 
@@ -63,6 +64,9 @@ export const ConversationSchema = z.object({
   assigneeUserId: z.string().nullable(),
   windowUntil: iso.nullable(), // Page: hết 24 h thì chặn gửi
   pinned: z.boolean(),
+  // [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — ảnh (khách: ảnh đại diện theo kênh; nhóm: ảnh nhóm) + số thành viên nhóm. Tuỳ chọn.
+  avatarRef: z.string().nullable().optional(),
+  memberCount: z.number().int().min(0).nullable().optional(),
 });
 export type Conversation = z.infer<typeof ConversationSchema>;
 
@@ -76,6 +80,10 @@ export const AttachmentSchema = z.object({
 
 export const DeliverySchema = z.enum(['accepted', 'sent', 'delivered', 'read', 'failed', 'unknown']);
 
+/** [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — trích dẫn + @nhắc (vị trí theo ký tự trong text). Dùng chung cho bizcity_touch@1 0.2 và tin trên giao diện. */
+export const QuoteSchema = z.object({ externalMessageId: z.string(), senderExternalId: z.string().nullable(), text: z.string().max(2000).nullable() }).strict();
+export const MentionSchema = z.object({ externalId: z.string(), pos: z.number().int().min(0), len: z.number().int().min(1) }).strict();
+
 export const MessageSchema = z.object({
   messageId: MessageIdSchema,
   conversationId: ConversationIdSchema,
@@ -87,6 +95,11 @@ export const MessageSchema = z.object({
   delivery: DeliverySchema.nullable(), // null với tin vào
   reaction: z.string().nullable(),
   sentByUserId: z.string().nullable(),
+  // [2026-11-26 08:33 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — chỉ thêm (tuỳ chọn): trích dẫn, @nhắc, giờ thu hồi, người gửi (tin vào trong nhóm: tên + ảnh theo kênh)
+  quote: QuoteSchema.nullable().optional(),
+  mentions: z.array(MentionSchema).optional(),
+  revokedAt: iso.nullable().optional(),
+  sender: z.object({ contactId: ContactIdSchema, name: z.string(), avatarRef: z.string().nullable() }).nullable().optional(),
 });
 export type Message = z.infer<typeof MessageSchema>;
 
