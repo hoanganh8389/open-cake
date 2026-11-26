@@ -6,6 +6,7 @@
 //   quá 10 phút ⇒ given_up, tin "chưa rõ đã gửi" — KHÔNG tự gửi bằng khoá mới (R-CAKE-SEND-2), nhân viên xem rồi bấm gửi lại.
 //   cake.channel.test ⇒ lệnh account.test gọi thẳng Hub (không xếp hàng); Hub nhận ⇒ channel_accounts.tested_at. Cake không gọi Cell trực tiếp (R-CAKE-CELL-1).
 //   Hub: CAKE_HUB_URL + khoá site CAKE_HUB_SITE_KEY (biz-…) + chữ ký thân bằng CAKE_HUB_SECRET (cùng bí mật với cổng nhận). Thiếu ⇒ NOT_READY, không giả là đã gửi.
+import { sql } from 'kysely';
 import { db, type Db } from '@bizcity/platform/db/client';
 import { withRequestContext } from '@bizcity/platform/core/request-context';
 import { requestSend, type KernelDeps } from '@open-cake/care-kernel';
@@ -19,6 +20,20 @@ import { assertConversationVisible } from './scope.js';
 
 const GIVE_UP_MS = 10 * 60_000;
 export const CAPS = ['cake.conversation.manage', 'cake.message.send'];
+
+/**
+ * [2026-11-26 11:08 PM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-6 — "Đã thử hai chiều" CHỈ khi có bằng chứng thật trên tài khoản kênh này (không hiện sẵn):
+ *   chiều ra = một tin do LỆNH Cake gửi (có dòng channel_commands) mà Cell đã báo delivery.updated sent / delivered / read — tin chủ gõ trên điện thoại không tính (không đi đường lệnh);
+ *   chiều vào = có ít nhất một tin khách vào qua cổng nhận. Cả hai ⇒ đường Cake ⇄ kênh thông cả hai hướng; thiếu một ⇒ false (nhắn thử một tin rồi nhờ khách / số thứ hai nhắn lại).
+ */
+export async function twoWayEvidence(tx: Db, tenantId: string, channelAccountId: string): Promise<boolean> {
+  const { rows: [r] } = await sql<{ out_ok: boolean | null; in_ok: boolean | null }>`
+    SELECT bool_or(m.direction = 'out' AND m.delivery IN ('sent', 'delivered', 'read') AND EXISTS (SELECT 1 FROM channel_commands k WHERE k.tenant_id = m.tenant_id AND k.message_id = m.message_id)) AS out_ok,
+           bool_or(m.direction = 'in') AS in_ok
+      FROM messages m JOIN conversations c ON c.conversation_id = m.conversation_id
+     WHERE m.tenant_id = ${tenantId} AND c.channel_account_id = ${channelAccountId}`.execute(tx);
+  return r?.out_ok === true && r?.in_ok === true;
+}
 
 /** [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — giữ tên cũ cho chỗ gọi: kiểm đơn vị đã có đích lệnh (Hub hoặc máy kết nối) — thiếu ⇒ NOT_READY. */
 export const hub = (tx: Db, tenantId: string) => channelTarget(tx, tenantId);
@@ -123,6 +138,6 @@ export const sendHandlers: Record<string, Handler> = {
     const testedAt = new Date();
     await tx.updateTable('channel_accounts').set({ tested_at: testedAt }).where('tenant_id', '=', tenantId).where('channel_account_id', '=', acc.channel_account_id).execute();
     await notifyChanged(tx, tenantId, ['cake.channel.manage']);
-    return { testedAt: testedAt.toISOString(), twoWay: false }; // hai chiều chỉ khi tin thử quay về qua cổng nhận — Cell chưa phát (S006-4)
+    return { testedAt: testedAt.toISOString(), twoWay: await twoWayEvidence(tx, tenantId, acc.channel_account_id) };
   },
 };

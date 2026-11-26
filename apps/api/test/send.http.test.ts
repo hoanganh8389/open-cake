@@ -142,11 +142,40 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
     hub.mode = 'ok'; hub.got = [];
     const r = await call('POST', `/api/v1/channels/${conv.accountId}/test`, {});
     expect(r.statusCode).toBe(200);
-    expect(r.json().data).toMatchObject({ testedAt: expect.any(String), twoWay: false });
+    // [2026-11-26 11:08 PM Johnny Chu - Chu Hoàng Anh] S006-6 — bằng chứng thật: ở test đầu tin của lệnh Cake đã được Cell báo delivered, và tài khoản có tin khách vào ⇒ hai chiều
+    expect(r.json().data).toMatchObject({ testedAt: expect.any(String), twoWay: true });
     expect(parseCmd(hub.got[0]!.body)).toMatchObject({ operation: 'account.test', content: { type: 'none' } });
     expect((await sql('SELECT tested_at FROM channel_accounts WHERE channel_account_id = $1', [conv.accountId])).rows[0]!.tested_at).not.toBeNull();
     hub.mode = 'down';
     expect((await call('POST', `/api/v1/channels/${conv.accountId}/test`, {})).json().error.details.reason).toBe('CAKE_CHANNEL_NOT_CONNECTED');
+  });
+
+  it('hai chiều CHỈ khi đủ bằng chứng: chỉ có chiều vào ⇒ false; tin chủ gõ trên điện thoại (không qua lệnh Cake) không tính', async () => {
+    hub.mode = 'ok';
+    // một tài khoản Zalo thứ hai, sạch: chưa có tin nào
+    const other = '01JDA00000000000000000TW01';
+    await sql(`INSERT INTO channel_accounts (channel_account_id, tenant_id, channel, kind, external_account_id, label, status, cell_ref) SELECT $1, tenant_id, channel, kind, '7350000000000000002', 'Zalo số hai', 'connected', 'cell:dev-gia-lap-2' FROM channel_accounts WHERE channel_account_id = $2`, [other, conv.accountId]);
+    const t = async () => {
+      const j = (await call('POST', `/api/v1/channels/${other}/test`, {})).json();
+      if (!j.data) throw new Error(JSON.stringify(j.error));
+      return j.data.twoWay;
+    };
+    const feed = async (n: string, type: string, direction: 'inbound' | 'outbound', who: string, text: string) => {
+      const body = JSON.stringify({
+        contract: 'bizcity_touch@1', eventId: '01JDAB0000000000000000T00' + n, type, occurredAt: new Date().toISOString(), source: 'cell:kiem-thu',
+        docKey: 'zalo_personal|7350000000000000002|t_x|m_' + n, version: 1, channel: 'zalo_personal', channelAccount: { externalAccountId: '7350000000000000002', kind: 'personal' },
+        thread: { externalThreadId: 't_x', kind: 'dm', anchor: null }, sender: { scope: 'global', externalId: who, displayName: who === 't_x' ? 'Khách' : 'Shop', avatarRef: null }, direction,
+        content: { type: 'text', text, attachments: [] }, hints: {}, encryption: { e2ee: false, decryptedOnCell: false },
+        delivery: direction === 'outbound' ? { status: 'sent', externalMessageId: 'm_' + n } : null, history: { backfill: false, cursor: null },
+      });
+      const ing = await app.inject({ method: 'POST', url: '/ingress/v1/touch', payload: body, headers: { 'content-type': 'application/json', authorization: `Bearer ${HUB.key}`, 'x-bizcity-contract': 'bizcity_touch@1', 'x-bizcity-signature': sign(HUB.secret, body) } });
+      expect(ing.statusCode, ing.body).toBe(200);
+    };
+    expect(await t()).toBe(false); // chưa có tin nào
+    await feed('1', 'message.received', 'inbound', 't_x', 'chào shop');
+    expect(await t()).toBe(false); // chỉ có chiều vào
+    await feed('2', 'message.sent', 'outbound', '7350000000000000002', 'chủ gõ trên điện thoại');
+    expect(await t()).toBe(false); // chiều ra không đi đường lệnh Cake ⇒ không phải bằng chứng
   });
 
   // [2026-11-26 08:44 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 — lệnh 0.2: thu hồi / thả cảm xúc / đồng bộ danh bạ / tìm theo SĐT qua hàng chờ; thu hồi xác nhận bằng touch quay về

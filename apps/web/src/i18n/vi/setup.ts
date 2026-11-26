@@ -88,6 +88,7 @@ export const setup = {
     viewSteps: 'Xem 4 bước', addMore: 'Thêm số Zalo', openInbox: 'Mở hộp thư',
     test: 'Nhắn thử', retest: 'Nhắn thử lại', twoWay: 'Đã thử hai chiều', oneWay: 'Chưa có bằng chứng hai chiều',
     at: (at: string) => `lúc ${at}`,
+    how: 'Để có bằng chứng hai chiều: mở hộp thư, nhắn một tin cho khách (Open CRM đã gửi và Zalo / Facebook báo đã nhận), rồi chờ một khách nhắn lại. Bấm "Nhắn thử lại" để cập nhật.',
     note: '"Đã thử hai chiều" chỉ hiện khi máy chủ có bằng chứng cả tin đi lẫn tin về — không hiện sẵn.',
   },
 } as const;

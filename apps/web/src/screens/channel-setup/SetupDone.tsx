@@ -36,6 +36,7 @@ export function SetupDone({ fb, acc, who, self, hubReady, test, onSteps, onMore 
           {r && <span className="xs subtle">{L.at(when(r.testedAt))}</span>}<span className="grow" />
           <Btn ghost sm disabled={test.isPending} onClick={() => test.mutate({ channelAccountId: acc.channelAccountId })}><Ic.send />{L.retest}</Btn></div>
         <ActionErrorNote error={test.error} />
+        {r && !r.twoWay && <div className="sm muted mt16">{L.how}</div>}
         <div className="xs subtle mt16">{L.note}</div>
       </div>
       {self && <HubOffer variant="done" hubReady={hubReady} onGo={() => toHub.mutate({ mode: 'hub', rotate: false }, { onSuccess: () => go('settings') })} />}
