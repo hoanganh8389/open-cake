@@ -252,3 +252,20 @@ button.c:disabled { cursor: not-allowed; }
 .legend { display: flex; gap: 16px; align-items: center; font-size: 12px; color: var(--muted-foreground); margin-right: 16px; }
 .legend > span { display: inline-flex; gap: 6px; align-items: center; }
 .link { color: var(--primary); } .link:disabled { color: var(--subtle-foreground); }
+/* [2026-11-26 10:13 PM Johnny Chu - Chu Hoàng Anh] KN K7 — bộ 4 bước (theo FourStepSetup của channel-gateway, mockup kết nối ②③④): số tròn, nhãn, huy hiệu, mô tả, thân khi đang làm; lợi ích Hub. */
+.stp { padding: 0; overflow: hidden; }
+.st { display: grid; grid-template-columns: 44px 1fr auto; gap: 4px 16px; padding: 20px 24px; border-top: 1px solid var(--border); align-items: start; }
+.st:first-child { border-top: 0; }
+.st .n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--muted); color: var(--muted-foreground); } .st .n svg { width: 18px; height: 18px; }
+.st.now .n { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 0 0 5px var(--primary-soft); }
+.st.done .n { background: var(--success-soft); color: var(--success); }
+.st.lock { opacity: .62; }
+.st .t { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.st .d { grid-column: 2; color: var(--muted-foreground); font-size: var(--fs-sm); }
+.st .bd { grid-column: 2 / 4; margin-top: 12px; }
+.prog { height: 8px; width: 220px; border-radius: 99px; background: var(--muted); overflow: hidden; } .prog i { display: block; height: 100%; background: var(--success); }
+.qrbox { width: 188px; height: 188px; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: grid; place-items: center; flex: none; } .qrbox img { width: 100%; height: 100%; image-rendering: pixelated; } .qrbox svg { width: 120px; height: 120px; color: var(--muted-foreground); }
+.ben { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; font-size: var(--fs-sm); }
+.ben li { display: flex; gap: 10px; align-items: flex-start; } .ben li svg { color: var(--primary); width: 18px; height: 18px; margin-top: 1px; flex: none; }
+.hub { background: linear-gradient(180deg, var(--primary-soft), var(--card) 70%); border-color: var(--primary-soft); }
+.secret { font-family: var(--font-mono, monospace); font-size: 12px; word-break: break-all; background: var(--muted); padding: 6px 10px; border-radius: 6px; }

@@ -84,9 +84,9 @@ export const channelLinkHandlers: Record<string, Handler> = {
   },
   'cake.channel.connect_start': async ({ tx, tenantId }: Ctx, i) => {
     if (i.channel !== 'zalo_personal') throw failure('CONFLICT', 'Bản này kết nối Zalo cá nhân; Facebook cá nhân trên máy kết nối: đợt sau.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
-    const a = await connectorCall<{ account: { id: string } }>(tx, tenantId, 'POST', '/accounts', { label: i.label });
-    const q = await connectorCall<QrView>(tx, tenantId, 'POST', `/accounts/${a.account.id}/qr`, {});
-    return { flowId: a.account.id, nextStep: 'qr' as const, qrRef: q.qrDataUri ?? null };
+    const id = i.flowId ?? (await connectorCall<{ account: { id: string } }>(tx, tenantId, 'POST', '/accounts', { label: i.label })).account.id;
+    const q = await connectorCall<QrView>(tx, tenantId, 'POST', `/accounts/${encodeURIComponent(id)}/qr`, {});
+    return { flowId: id, nextStep: 'qr' as const, qrRef: q.qrDataUri ?? null };
   },
   'cake.channel.connect_status': async ({ tx, tenantId }: Ctx, i) => qrOut(i.flowId, await connectorCall<QrView>(tx, tenantId, 'GET', `/accounts/${encodeURIComponent(i.flowId)}/qr`)),
   'cake.channel.connect_finish': async ({ tx, tenantId, userId }: Ctx, i) => {

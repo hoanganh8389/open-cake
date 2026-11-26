@@ -24,7 +24,8 @@ export const channelList = defineActionSpec({
 });
 export const channelConnectStart = defineActionSpec({
   id: 'cake.channel.connect_start', capability: 'cake.channel.manage', title: 'Bắt đầu kết nối kênh', kind: 'command',
-  input: z.object({ channel: AccountChannelSchema, label: z.string().min(1).max(100) }),
+  // [2026-11-26 10:13 PM Johnny Chu - Chu Hoàng Anh] KN K7 — flowId (tuỳ chọn): "Tạo mã mới" cho ĐÚNG số đang quét, không thêm số mới trên máy kết nối.
+  input: z.object({ channel: AccountChannelSchema, label: z.string().min(1).max(100), flowId: z.string().min(1).max(64).optional() }),
   output: z.object({ flowId: z.string(), nextStep: z.enum(['qr', 'oauth', 'approve_on_device', 'choose_page', 'choose_group']), qrRef: z.string().nullable() }),
   permission: 'cake:channels-lap', risk: 'high', idempotent: true, reasons: ['CAKE_CHANNEL_NOT_CONNECTED'],
   expose: { rest: 'POST /api/v1/channels/connect', ui: true },

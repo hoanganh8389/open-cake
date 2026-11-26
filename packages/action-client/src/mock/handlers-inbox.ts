@@ -8,6 +8,8 @@ import { byTimeDesc, iso, nextId, paged, type Store } from './store.js';
 
 /** Nhân viên mẫu (GIẢ LẬP) cho màn giao tài khoản kênh. */
 const STAFF = [{ userId: '1', name: 'Chủ shop', role: 'owner' }, { userId: '2', name: 'Lan (chăm sóc khách)', role: 'agent' }, { userId: '3', name: 'Minh (bán hàng)', role: 'agent' }];
+// [2026-11-26 10:13 PM Johnny Chu - Chu Hoàng Anh] KN K7 — đã mở màn Nhân viên (s.staff) thì giao theo đúng danh sách đó, không lệch hai nguồn.
+const people = (s: Store) => s.staff?.map(({ userId, name, role }) => ({ userId, name, role })) ?? STAFF;
 
 type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any -- input đã qua zod ở adapter
 const NEXT_STEP = { zalo_personal: 'qr', zalo_oa: 'oauth', facebook_page: 'choose_page', facebook_personal: 'approve_on_device', facebook_group: 'choose_group' } as const;
@@ -53,15 +55,15 @@ const link = (s: Store): Link => ((s as Store & { channelLink?: Link }).channelL
 export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = {
   'cake.channel.list': (s) => s.accounts,
   // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — thành viên tài khoản kênh trên nhân viên mẫu GIẢ LẬP.
-  'cake.channel.members': (s, i) => (s.members[i.channelAccountId] ?? []).map((id) => STAFF.find((x) => x.userId === id)!),
+  'cake.channel.members': (s, i) => (s.members[i.channelAccountId] ?? []).map((id) => people(s).find((x) => x.userId === id)!),
   'cake.channel.members_set': (s, i) => {
-    const bad = i.userIds.filter((id: string) => !STAFF.some((x) => x.userId === id));
+    const bad = i.userIds.filter((id: string) => !people(s).some((x) => x.userId === id));
     if (bad.length) throw new ApiError({ code: 'VALIDATION_ERROR', message: `Không có nhân viên ${bad.join(', ')}.`, field: 'userIds' });
     s.members[i.channelAccountId] = [...new Set<string>(i.userIds)];
-    return s.members[i.channelAccountId]!.map((id) => STAFF.find((x) => x.userId === id)!);
+    return s.members[i.channelAccountId]!.map((id) => people(s).find((x) => x.userId === id)!);
   },
   'cake.channel.connect_start': (s, i) => {
-    const flowId = `flow-${++s.seq}`;
+    const flowId = i.flowId && FLOWS.has(i.flowId) ? i.flowId : `flow-${++s.seq}`;
     FLOWS.set(flowId, { label: i.label, polls: 0 });
     return { flowId, nextStep: NEXT_STEP[i.channel as keyof typeof NEXT_STEP], qrRef: i.channel === 'zalo_personal' ? 'demo://qr' : null };
   },

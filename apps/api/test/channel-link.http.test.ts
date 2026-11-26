@@ -115,6 +115,9 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
     expect((await call('GET', '/api/v1/channels/connect/acc-q1')).json().data).toMatchObject({ status: 'waiting_scan', qrRef: 'data:image/png;base64,QR', error: null });
     expect((await call('GET', '/api/v1/channels/connect/nope')).json().error.code).toBe('NOT_FOUND');
     expect((await call('POST', '/api/v1/channels/connect/acc-q1/finish', {})).json().error.code).toBe('CONFLICT');
+    got.length = 0; // "Tạo mã mới" gửi flowId ⇒ chỉ xin lại QR của đúng số, không thêm số mới
+    expect((await call('POST', '/api/v1/channels/connect', { channel: 'zalo_personal', label: 'Zalo bán hàng 2', flowId: 'acc-q1' })).json().data.flowId).toBe('acc-q1');
+    expect(got.map((x) => x.path)).toEqual(['/accounts/acc-q1/qr']);
     scanned = true;
     expect((await call('GET', '/api/v1/channels/connect/acc-q1')).json().data.status).toBe('success');
     const f = (await call('POST', '/api/v1/channels/connect/acc-q1/finish', {})).json().data;
