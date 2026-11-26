@@ -16,6 +16,8 @@ Doanh nghiệp nối Zalo / Facebook vào Open CRM theo **một trong hai cách*
 | ② 4 bước — Tự cài mặc định: ① ② Đạt sẵn, ③ quét QR, ④ khoá | [mockup-kn-bon-buoc-tu-cai](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/evidence/build-shots/mockup-kn-bon-buoc-tu-cai.png) |
 | ③ Đã sẵn sàng: nhắn thử hai chiều có bằng chứng + gợi ý Hub (không chặn) | [mockup-kn-bon-buoc-xong](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/evidence/build-shots/mockup-kn-bon-buoc-xong.png) |
 | ④ 4 bước — BizCity Hub: khoá 1API, Zalo Hub, ④ Agent Guru + tự trả lời + quyền lợi | [mockup-kn-bon-buoc-hub](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/evidence/build-shots/mockup-kn-bon-buoc-hub.png) |
+| ⑤ Danh bạ đồng bộ từ kênh (§3b): bạn bè + nhóm, tên + ảnh, "chưa xác minh" / "đã xác minh", tìm theo SĐT, FB thiếu năng lực thì ẩn nút <!-- [2026-11-26 06:20 PM Johnny Chu - Chu Hoàng Anh] KN-4 --> | [mockup-kn-danh-ba-dong-bo](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/evidence/build-shots/mockup-kn-danh-ba-dong-bo.png) |
+| ⑥ Hộp thư nhóm (§3b): tên, ảnh, thành viên + vai, tên + ảnh người gửi, trích dẫn, @nhắc, reaction, thu hồi; quản lý nhóm để đợt sau | [mockup-kn-hop-thu-nhom](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/evidence/build-shots/mockup-kn-hop-thu-nhom.png) |
 
 Nguồn: [mockup/index.html](../phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/mockup/index.html) · chụp lại: `node docs/phases/PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/mockup/chup.mjs`
 

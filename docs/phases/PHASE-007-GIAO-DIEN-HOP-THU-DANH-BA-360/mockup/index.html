@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- [2026-11-26 04:54 PM Johnny Chu - Chu Hoàng Anh] KN-1 · PHASE-007 S007-6 — mockup chờ chủ duyệt: hai luồng kết nối (Tự cài mặc định · BizCity Hub), 4 bước theo R-SETUP-4 (bizcity-twin-ai core/channel-gateway PHASE-0.83).
-     ① Cài đặt › Kết nối kênh · ② 4 bước Tự cài (①② Đạt sẵn, ③ QR) · ③ Đã sẵn sàng + nhắn thử hai chiều + gợi ý Hub · ④ 4 bước BizCity Hub (④ Agent Guru + quyền lợi). Tài liệu: docs/architecture/25-KET-NOI-KENH.md -->
+     ① Cài đặt › Kết nối kênh · ② 4 bước Tự cài (①② Đạt sẵn, ③ QR) · ③ Đã sẵn sàng + nhắn thử hai chiều + gợi ý Hub · ④ 4 bước BizCity Hub (④ Agent Guru + quyền lợi) · ⑤ Danh bạ đồng bộ từ kênh · ⑥ Hộp thư nhóm (KN-4 §3b). Tài liệu: docs/architecture/25-KET-NOI-KENH.md -->
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -40,6 +40,21 @@
   .win { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .bub { padding: 10px 14px; border-radius: 14px; font-size: var(--fs-sm); max-width: 80%; } .bub.out { background: var(--primary); color: #fff; margin-left: auto; } .bub.in { background: var(--muted); }
   code { font-size: 13px; }
+  /* ⑤ ⑥ — ảnh đại diện từ kênh, ảnh nhóm ghép 4, trích dẫn, @nhắc, tin thu hồi, menu tin */
+  .av { width: 36px; height: 36px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px; flex: none; }
+  .av.lg { width: 52px; height: 52px; font-size: 16px; } .av.xl { width: 84px; height: 84px; }
+  .av.grp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; overflow: hidden; gap: 2px; background: #fff; } .av.grp i { display: block; }
+  .quote { border-left: 3px solid var(--primary); background: rgba(37,99,235,.06); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; color: var(--muted-foreground); }
+  .quote b { color: var(--foreground); font-weight: 600; }
+  .ment { color: var(--primary); font-weight: 600; background: var(--primary-soft); border-radius: 4px; padding: 0 3px; }
+  .dmsg .bb.revoked { font-style: italic; color: var(--subtle-foreground); background: transparent; border-style: dashed; }
+  .menu { position: absolute; right: 0; top: -46px; display: flex; gap: 2px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 4px; font-size: 14px; }
+  .menu span { padding: 6px 10px; border-radius: 6px; } .menu span:hover { background: var(--muted); } .menu .danger { color: var(--destructive); }
+  .dchat .msgs { padding-top: 56px; }
+  .dmsg .re { width: auto; padding: 0 8px; white-space: nowrap; }
+  .body { grid-template-columns: 72px 1fr !important; }
+  #hop-thu-nhom .dinbox { margin: 0 !important; height: 100%; }
+  .av.grp { place-items: stretch; } .av.grp i { width: 100%; height: 100%; }
 </style>
 </head>
 <body>
@@ -56,6 +71,7 @@
   <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
   <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></symbol>
 </svg>
 
@@ -202,6 +218,74 @@
           </div></div>
       </div>
     </main>
+  </div>
+</section>
+
+<!-- ⑤ DANH BẠ ĐỒNG BỘ TỪ KÊNH (§3b, KN-CAP-4/5) — directory.sync sau bước ③: bạn bè + nhóm, tên + ảnh; danh tính kênh "chưa xác minh", SĐT tìm được (contact.find) mới "đã xác minh" -->
+<section class="frame app" id="danh-ba-dong-bo">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page">
+      <div class="row"><div class="h2">Danh bạ</div><span class="grow"></span><button class="btn out"><svg class="ico"><use href="#i-search"/></svg>Tìm theo số điện thoại</button><button class="btn out"><svg class="ico"><use href="#i-refresh"/></svg>Đồng bộ từ kênh</button></div>
+      <div class="note sm mt16 row" style="gap:10px"><svg class="ico" style="color:var(--success)"><use href="#i-check"/></svg><span>Đã lấy từ <b>Zalo · Shop Hoa Mai</b>: <b>312</b> bạn bè, <b>18</b> nhóm — tên và ảnh đại diện. Lúc 16:59 · dữ liệu cũ nên không bắn thông báo, không tự trả lời.</span></div>
+      <div class="row mt16"><div class="tabs"><span class="tab on">Người (312)</span><span class="tab">Nhóm (18)</span></div><span class="grow"></span>
+        <span class="xs subtle">Facebook · Hoa Mai Outlet: <b>danh bạ chưa hỗ trợ</b> trên tài khoản này — nút đồng bộ ẩn (KN-CAP-2)</span></div>
+      <div class="card mt16" style="overflow:hidden">
+        <table class="tbl">
+          <thead><tr><th style="width:44%">Khách</th><th>Kênh</th><th>Điện thoại</th><th>Lần chạm cuối</th></tr></thead>
+          <tbody>
+            <tr><td><div class="row"><span class="av" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div><b style="font-weight:500">Lan Hương</b><div class="xs subtle">ảnh &amp; tên từ Zalo</div></div></div></td><td><span class="badge out">Zalo cá nhân</span></td><td>0909 123 456 <span class="badge ok">đã xác minh</span></td><td class="sm">hôm nay 16:58</td></tr>
+            <tr><td><div class="row"><span class="av" style="background:linear-gradient(135deg,#fde68a,#f97316)">TV</span><div><b style="font-weight:500">Thảo Vy</b><div class="xs subtle">ảnh &amp; tên từ Zalo</div></div></div></td><td><span class="badge out">Zalo cá nhân</span></td><td><i class="muted">chưa có</i> <a href="#" class="xs">tìm theo SĐT</a></td><td class="sm">24/11</td></tr>
+            <tr><td><div class="row"><span class="av" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div><b style="font-weight:500"><i>Anh Khoa</i></b> <span class="badge warn">chưa xác minh</span><div class="xs subtle">tên Zalo đổi hôm qua: "Khoa Nguyễn" ⇒ "Anh Khoa"</div></div></div></td><td><span class="badge out">Zalo cá nhân</span></td><td><i class="muted">chưa có</i></td><td class="sm">—</td></tr>
+            <tr><td><div class="row"><span class="av" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div><b style="font-weight:500">Minh Trang</b><div class="xs subtle">tên do nhân viên sửa — kênh không ghi đè</div></div></div></td><td><span class="badge out">Zalo cá nhân</span><span class="badge out">Facebook cá nhân</span></td><td>0912 345 671 <span class="badge ok">đã xác minh</span></td><td class="sm">22/11</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="xs subtle mt16">Không ghép khách theo tên (R-CAKE-ID-2). Ảnh tải về kho của Open CRM khi cần giữ lâu, không dùng cookie kênh (KN-CAP-3).</div>
+    </main>
+  </div>
+</section>
+
+<!-- ⑥ HỘP THƯ NHÓM (§3b) — thread.updated: tên, ảnh, thành viên, vai; tin có tên + ảnh người gửi, trích dẫn, @nhắc, reaction, thu hồi -->
+<section class="frame app" id="hop-thu-nhom">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <div class="dinbox info" style="grid-template-columns:360px 1fr 320px">
+      <aside class="dlist"><div class="items">
+        <div class="ditem on"><span class="av lg grp"><i style="background:#f9a8d4"></i><i style="background:#a7f3d0"></i><i style="background:#fde68a"></i><i style="background:#c7d2fe"></i></span><div class="b"><div class="r1"><span class="nm">Hội yêu váy hoa</span><span class="tm">17:04</span></div><div class="r2"><span class="pv">Thảo Vy: @Shop Hoa Mai còn size S…</span><span class="un">3</span></div><div class="tags"><span class="badge out">Nhóm Zalo · 248</span></div></div></div>
+        <div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#f9a8d4,#a855f7)">LH</span><div class="b"><div class="r1"><span class="nm">Lan Hương</span><span class="tm">16:58</span></div><div class="r2"><span class="pv">ok nhận được rồi</span></div></div></div>
+        <div class="ditem"><span class="av lg" style="background:linear-gradient(135deg,#c7d2fe,#6366f1)">MT</span><div class="b"><div class="r1"><span class="nm">Minh Trang</span><span class="tm">16:40</span></div><div class="r2"><span class="pv">Đã gửi ảnh</span></div><div class="tags"><span class="badge out">Facebook cá nhân</span></div></div></div>
+      </div></aside>
+      <section class="dchat">
+        <div class="hd"><span class="av lg grp"><i style="background:#f9a8d4"></i><i style="background:#a7f3d0"></i><i style="background:#fde68a"></i><i style="background:#c7d2fe"></i></span>
+          <div style="flex:1"><div class="nm">Hội yêu váy hoa</div><div class="xs subtle">Nhóm Zalo · 248 thành viên · Shop Hoa Mai là phó nhóm</div></div></div>
+        <div class="msgs">
+          <div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#fde68a,#f97316)">TV</span><div><div class="xs subtle" style="margin:0 0 4px 4px">Thảo Vy</div>
+            <div class="bb"><span class="ment">@Shop Hoa Mai</span> còn váy hoa size S không ạ? Màu hồng nha<span class="ts">17:02</span><span class="re" style="left:12px">❤️ 3</span></div></div></div>
+          <div class="dmsg out"><div class="bb"><div class="quote"><b>Thảo Vy</b><div>@Shop Hoa Mai còn váy hoa size S không ạ? Màu hồng nha</div></div>Dạ còn 2 cái size S màu hồng ạ, chị inbox shop để giữ hàng nhé 🌸<span class="ts">17:03 · Đã xem</span></div></div>
+          <div class="dmsg"><span class="av" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><div><div class="xs subtle" style="margin:0 0 4px 4px"><i>Anh Khoa</i> · chưa xác minh</div>
+            <div class="bb revoked">Tin nhắn đã được thu hồi<span class="ts">17:03</span></div></div></div>
+          <div class="dmsg out" style="position:relative"><div class="bb">Shop gửi nhầm link, mọi người bỏ qua nhé<span class="ts">17:04 · Đã gửi</span></div>
+            <div class="menu"><span>Trả lời</span><span>Thả cảm xúc</span><span class="danger">Thu hồi</span></div></div>
+        </div>
+        <div class="dinput" style="gap:8px"><div class="quote sm" style="flex:none;max-width:260px"><b>Trả lời Thảo Vy</b><div>còn váy hoa size S…</div></div><textarea class="input" style="flex:1;min-height:44px;resize:none;border:0;font-size:16px">@Thảo Vy shop giữ hàng cho chị rồi ạ</textarea><button class="btn pri sm"><svg class="ico"><use href="#i-send"/></svg>Gửi</button></div>
+      </section>
+      <aside class="dinfo">
+        <div style="text-align:center"><span class="av xl grp" style="margin:0 auto"><i style="background:#f9a8d4"></i><i style="background:#a7f3d0"></i><i style="background:#fde68a"></i><i style="background:#c7d2fe"></i></span><div class="h3 mt8">Hội yêu váy hoa</div><div class="xs subtle">tên &amp; ảnh từ Zalo · cập nhật 16:59</div></div>
+        <h4>Thành viên (248)</h4>
+        <div class="col" style="gap:10px">
+          <div class="row"><span class="av" style="background:linear-gradient(135deg,#fecaca,#ef4444)">NH</span><span class="grow sm">Ngọc Hà</span><span class="badge pri">Trưởng nhóm</span></div>
+          <div class="row"><span class="av" style="background:linear-gradient(135deg,#bfdbfe,#2563eb)">SM</span><span class="grow sm">Shop Hoa Mai</span><span class="badge out">Phó nhóm</span></div>
+          <div class="row"><span class="av" style="background:linear-gradient(135deg,#fde68a,#f97316)">TV</span><span class="grow sm">Thảo Vy</span><a href="#" class="xs">Contact 360</a></div>
+          <div class="row"><span class="av" style="background:linear-gradient(135deg,#a7f3d0,#0ea5e9)">AK</span><span class="grow sm"><i>Anh Khoa</i></span><a href="#" class="xs">Contact 360</a></div>
+          <div class="xs subtle">… 244 người khác</div>
+        </div>
+        <h4>Quản lý nhóm</h4>
+        <div class="xs subtle">Thêm / bớt thành viên, đổi tên, đổi ảnh, phó nhóm — <b>đợt sau</b> (lệnh <code>group.*</code>).</div>
+      </aside>
+    </div>
   </div>
 </section>
 
