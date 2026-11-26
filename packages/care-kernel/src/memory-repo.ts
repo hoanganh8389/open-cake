@@ -57,6 +57,10 @@ export class MemoryRepo implements CareRepo {
     if (this.live(i.channel, i.scope, i.externalId)) throw new Error(`trùng danh tính hiệu lực ${i.channel}/${i.scope}/${i.externalId} (UNIQUE … WHERE valid_to IS NULL)`);
     this.d.identities.push(i);
   }
+  async updateIdentityProfile(id: string, p: { displayName?: string | null; avatarRef?: string | null }) {
+    const i = this.d.identities.find((x) => x.identityId === id);
+    if (i) { if (p.displayName !== undefined) i.displayName = p.displayName; if (p.avatarRef !== undefined) i.avatarRef = p.avatarRef; }
+  }
   async closeIdentity(id: string, at: string) { const i = this.d.identities.find((x) => x.identityId === id); if (i) i.validTo = at; }
   async reopenIdentity(id: string) { const i = this.d.identities.find((x) => x.identityId === id); if (i) i.validTo = null; }
   async deleteIdentityRow(id: string) { this.d.identities = this.d.identities.filter((x) => x.identityId !== id); }

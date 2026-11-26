@@ -14,6 +14,7 @@ defineKernelSuite('MemoryRepo', async () => {
       versions: async () => repo.data.versions.length,
       contactIds: async () => repo.data.contacts.map((c) => c.contactId),
       mutateLedger: async (r) => { (repo.data.ledger.find((x) => x.touchId === r.touchId) as { qty: number }).qty = 5; }, // dòng đóng băng ⇒ ném lỗi
+      markStaffName: async (id, name) => { const c = repo.data.contacts.find((x) => x.contactId === id)!; c.displayName = name; c.nameSource = 'staff'; }, // KN K2b
     },
   };
 });

@@ -57,7 +57,7 @@ BizCity Hub: Cell ──► Hub (khoá site, ký) ──► Open CRM POST /ingre
 
 <!-- [2026-11-26 05:40 PM Johnny Chu - Chu Hoàng Anh] KN-2 — chủ 2026-11-26: "zalo-hub đã ready cho fbchat v2; nối vào open-cake + self host zca, fbchat là ok". -->
 
-<!-- [2026-11-26 06:05 PM Johnny Chu - Chu Hoàng Anh] KN-3 — chủ: "tự cài chỉ cần đơn giản có zca, fbchat để kết nối zalo, fb; không cần tính năng trợ lý, agent". -->
+<!-- [2026-11-26 06:01 PM Johnny Chu - Chu Hoàng Anh] KN-3 — chủ: "tự cài chỉ cần đơn giản có zca, fbchat để kết nối zalo, fb; không cần tính năng trợ lý, agent". -->
 **Cùng mã nguồn zalo-hub, hai bản đóng gói** (chốt D-KN-2): BizCity Hub chạy **Cell đầy đủ** (kênh + trợ lý / agent / MCP); Tự cài chạy **máy kết nối gọn `zalo-hub-connector`** — chỉ zca (Zalo) + fbchat-v2 (Facebook), **không có** trợ lý, agent, LLM, MCP, harness, bảng điều khiển. Phần kênh dùng chung đã có sẵn ở zalo-hub:
 
 | Đã có ở zalo-hub `main` (2026-11-26) | Bằng chứng |

@@ -15,6 +15,8 @@ export interface Probe {
   contactIds(): Promise<string[]>;
   /** Thử sửa trực tiếp một dòng sổ — phải bị chặn (đóng băng / trigger CSDL). */
   mutateLedger(row: LedgerRow): Promise<void>;
+  /** [2026-11-26 06:30 PM Johnny Chu - Chu Hoàng Anh] KN K2b — giả lập nhân viên sửa tên khách (name_source = staff). */
+  markStaffName(contactId: string, name: string): Promise<void>;
 }
 export type Harness = { deps: KernelDeps; probe: Probe };
 
@@ -188,6 +190,62 @@ export function defineKernelSuite(label: string, make: () => Promise<Harness>, o
       const before = (await probe.ledger()).length;
       expect(await submit({ ...dlv(), docKey: 'zalo_personal|7350219485123001001|u_8812|m_la', hints: {} })).toMatchObject({ status: 'accepted', touchId: null });
       expect((await probe.ledger()).length).toBe(before);
+    });
+  });
+
+  // [2026-11-26 06:30 PM Johnny Chu - Chu Hoàng Anh] KN K2b — năng lực kênh đủ (bizcity_touch@1 0.2): tên / ảnh, danh bạ, nhóm, trích dẫn, @nhắc, thu hồi — không thêm dòng sổ
+  describe(`${label} · hồ sơ, nhóm, thu hồi (0.2)`, () => {
+    const zMsg = () => fx('touch.zalo-message.json');
+    const prof = (o: Record<string, unknown> = {}) => ({ ...zMsg(), eventId: '01JDAB0000000000000000P001', type: 'profile.updated', docKey: 'zalo_personal|7350219485123001001|u_8812|profile', content: { type: 'none', text: null, attachments: [] }, ...o });
+    it('tin có tên + ảnh ⇒ danh tính có ảnh; profile.updated đổi tên ⇒ tên khách theo kênh; không thêm dòng sổ', async () => {
+      const a = await submit({ ...zMsg(), sender: { scope: 'global', externalId: 'u_8812', displayName: 'Lan Hương', avatarRef: 'https://cell/a/1.jpg' } });
+      const idn = (await deps.repo.identitiesOf(a.contactId!))[0]!;
+      expect(idn.avatarRef).toBe('https://cell/a/1.jpg');
+      const before = (await probe.ledger()).length;
+      expect(await submit(prof({ sender: { scope: 'global', externalId: 'u_8812', displayName: 'Lan Hương Mai', avatarRef: 'https://cell/a/2.jpg' } }))).toMatchObject({ status: 'accepted', touchId: null, contactId: a.contactId });
+      expect((await deps.repo.identitiesOf(a.contactId!))[0]).toMatchObject({ displayName: 'Lan Hương Mai', avatarRef: 'https://cell/a/2.jpg' });
+      expect((await deps.repo.getContact(a.contactId!))?.displayName).toBe('Lan Hương Mai');
+      expect((await probe.ledger()).length).toBe(before);
+    });
+    it('nhân viên đã sửa tên (nameSource staff) ⇒ kênh đổi tên không ghi đè tên khách, chỉ đổi tên danh tính', async () => {
+      const a = await submit(zMsg());
+      await probe.markStaffName(a.contactId!, 'Chị Lan (khách sỉ)');
+      await submit(prof({ sender: { scope: 'global', externalId: 'u_8812', displayName: 'Tên Zalo mới', avatarRef: null } }));
+      expect((await deps.repo.getContact(a.contactId!))?.displayName).toBe('Chị Lan (khách sỉ)');
+      expect((await deps.repo.identitiesOf(a.contactId!))[0]?.displayName).toBe('Tên Zalo mới');
+    });
+    it('đồng bộ danh bạ (backfill) ⇒ tạo khách asserted cho người chưa nhắn; người lạ đổi hồ sơ không backfill ⇒ bỏ qua', async () => {
+      const r = await submit(prof({ sender: { scope: 'global', externalId: 'u_9999', displayName: 'Thảo Vy', avatarRef: 'https://cell/a/tv.jpg' }, docKey: 'zalo_personal|7350219485123001001|u_9999|profile', history: { backfill: true, cursor: null } }));
+      expect(r.contactId).toBeTruthy();
+      expect((await deps.repo.identitiesOf(r.contactId!))[0]).toMatchObject({ confidence: 'asserted', displayName: 'Thảo Vy', avatarRef: 'https://cell/a/tv.jpg' });
+      expect((await probe.ledger()).filter((x) => x.contactId === r.contactId)).toHaveLength(0);
+      const stranger = await submit(prof({ eventId: '01JDAB0000000000000000P002', sender: { scope: 'global', externalId: 'u_7777', displayName: 'Ai đó', avatarRef: null }, docKey: 'zalo_personal|7350219485123001001|u_7777|profile' }));
+      expect(stranger).toMatchObject({ status: 'accepted', contactId: null });
+    });
+    it('nhóm: tin nhóm mang thread.info ⇒ hội thoại có tên / ảnh / số thành viên; thread.updated đổi ⇒ cập nhật; nhóm chưa có hội thoại ⇒ bỏ qua', async () => {
+      const g = { ...zMsg(), docKey: 'zalo_personal|7350219485123001001|g_55|m_g1', thread: { externalThreadId: 'g_55', kind: 'group_thread', anchor: null, info: { name: 'Hội yêu váy hoa', avatarRef: 'https://cell/g/55.jpg', memberCount: 248 } } };
+      await submit(g);
+      const acc = (await deps.repo.findAccount('7350219485123001001', 'personal'))!.channelAccountId; // Postgres lệch id theo đơn vị
+      expect(await deps.repo.findConversation(acc, 'g_55')).toMatchObject({ title: 'Hội yêu váy hoa', avatarRef: 'https://cell/g/55.jpg', memberCount: 248 });
+      const before = (await probe.ledger()).length;
+      const upd = { ...g, eventId: '01JDAB0000000000000000P003', type: 'thread.updated', docKey: 'zalo_personal|7350219485123001001|g_55|info-2', sender: null, content: { type: 'none', text: null, attachments: [] }, thread: { ...g.thread, info: { name: 'Hội yêu váy hoa 🌸', avatarRef: null, memberCount: 250 } } };
+      await submit(upd);
+      expect(await deps.repo.findConversation(acc, 'g_55')).toMatchObject({ title: 'Hội yêu váy hoa 🌸', memberCount: 250 });
+      expect((await probe.ledger()).length).toBe(before);
+      const none = { ...upd, eventId: '01JDAB0000000000000000P004', docKey: 'zalo_personal|7350219485123001001|g_99|info', thread: { externalThreadId: 'g_99', kind: 'group_thread', anchor: null, info: { name: 'Nhóm chưa nhắn', avatarRef: null, memberCount: 3 } } };
+      expect(await submit(none)).toMatchObject({ status: 'accepted', contactId: null });
+    });
+    it('trích dẫn + @nhắc lưu theo tin; thu hồi (v2 revoked) ⇒ xoá nội dung, ghi giờ thu hồi, sổ giữ nguyên (không đảo)', async () => {
+      const m = { ...zMsg(), content: { type: 'text', text: '@Shop còn size S không', attachments: [], quote: { externalMessageId: 'm_8000', senderExternalId: '7350219485123001001', text: 'Váy mới về' }, mentions: [{ externalId: '7350219485123001001', pos: 0, len: 5 }] } };
+      const a = await submit(m);
+      const conv = (await deps.repo.conversationsOf(a.contactId!))[0]!;
+      const ext = m.docKey.split('|')[3];
+      expect(await deps.repo.findMessage(conv.conversationId, ext)).toMatchObject({ quote: { externalMessageId: 'm_8000' }, mentions: [{ pos: 0, len: 5 }], revokedAt: null });
+      const before = await probe.ledger();
+      await submit({ ...m, version: 2, occurredAt: '2026-11-26T08:05:00.000Z', content: { type: 'revoked', text: null, attachments: [] } });
+      expect(await deps.repo.findMessage(conv.conversationId, ext)).toMatchObject({ text: '', quote: null, mentions: [], revokedAt: expect.stringMatching(/^2026-11-26T08:05/) });
+      expect((await probe.ledger()).length).toBe(before.length);
+      expect((await probe.ledger()).filter((x) => x.isReversal)).toHaveLength(0);
     });
   });
 }

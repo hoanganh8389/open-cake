@@ -15,13 +15,13 @@ const isoN = (d: Date | string | null) => (d === null ? null : iso(d));
 const js = (v: unknown) => JSON.stringify(v);
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- hàng thô từ CSDL, đổi sang hàng kernel ở các hàm to* dưới */
-const toContact = (r: any): ContactRow => ({ contactId: r.contact_id, kind: r.kind, displayName: r.display_name, status: r.status, mergedInto: r.merged_into, createdAt: iso(r.created_at) });
-const toIdentity = (r: any): IdentityRow => ({ identityId: r.identity_id, contactId: r.contact_id, channel: r.channel, scope: r.scope, externalId: r.external_id, displayName: r.display_name, confidence: r.confidence, proof: r.proof ?? null, validFrom: iso(r.valid_from), validTo: isoN(r.valid_to) });
+const toContact = (r: any): ContactRow => ({ contactId: r.contact_id, kind: r.kind, displayName: r.display_name, status: r.status, mergedInto: r.merged_into, createdAt: iso(r.created_at), nameSource: r.name_source ?? 'channel' });
+const toIdentity = (r: any): IdentityRow => ({ identityId: r.identity_id, contactId: r.contact_id, channel: r.channel, scope: r.scope, externalId: r.external_id, displayName: r.display_name, confidence: r.confidence, proof: r.proof ?? null, validFrom: iso(r.valid_from), validTo: isoN(r.valid_to), avatarRef: r.avatar_ref ?? null });
 const toAccount = (r: any): AccountRow => ({ channelAccountId: r.channel_account_id, channel: r.channel, kind: r.kind, externalAccountId: r.external_account_id, label: r.label, status: r.status });
-const toConv = (r: any): ConversationRow => ({ conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null, lastAt: isoN(r.last_at), lastDirection: r.last_direction, windowUntil: isoN(r.window_until), assigneeUserId: r.assignee_user_id });
+const toConv = (r: any): ConversationRow => ({ conversationId: r.conversation_id, channelAccountId: r.channel_account_id, externalThreadId: r.external_thread_id, contactId: r.contact_id, kind: r.kind, anchor: r.anchor ?? null, lastAt: isoN(r.last_at), lastDirection: r.last_direction, windowUntil: isoN(r.window_until), assigneeUserId: r.assignee_user_id, title: r.title ?? null, avatarRef: r.avatar_ref ?? null, memberCount: r.member_count ?? null });
 const toEvent = (r: any): EventRow => ({ eventId: r.event_id, source: r.source, docKey: r.doc_key, version: r.version, type: r.type, payload: r.payload, receivedAt: iso(r.received_at), actor: r.actor });
 export const toLedger = (r: any): LedgerRow => ({ touchId: Number(r.touch_id), eventId: r.event_id, contactId: r.contact_id, conversationId: r.conversation_id, channelAccountId: r.channel_account_id, channel: r.channel, kind: r.kind, direction: r.direction, qty: r.qty, isReversal: r.is_reversal, reversesId: r.reverses_id === null ? null : Number(r.reverses_id), dims: r.dims ?? {}, at: iso(r.at) });
-const toMessage = (r: any): MessageRow => ({ messageId: r.message_id, touchId: Number(r.touch_id), conversationId: r.conversation_id, externalMessageId: r.external_message_id, direction: r.direction, text: r.body, e2ee: r.e2ee, delivery: r.delivery, at: iso(r.at), sentBy: r.sent_by ?? null });
+const toMessage = (r: any): MessageRow => ({ messageId: r.message_id, touchId: Number(r.touch_id), conversationId: r.conversation_id, externalMessageId: r.external_message_id, direction: r.direction, text: r.body, e2ee: r.e2ee, delivery: r.delivery, at: iso(r.at), sentBy: r.sent_by ?? null, quote: r.quote ?? null, mentions: r.mentions ?? [], revokedAt: isoN(r.revoked_at) });
 const toState = (r: any): StateRow => ({ contactId: r.contact_id, tags: r.tags, lastInAt: isoN(r.last_in_at), lastOutAt: isoN(r.last_out_at), unanswered: r.unanswered, channels: r.channels ?? {}, rev: r.rev });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -86,7 +86,11 @@ export class PgCareRepo implements CareRepo {
   }
   async insertIdentity(i: IdentityRow) {
     await this.c.insertInto('contact_identities').values({ identity_id: i.identityId, tenant_id: this.tenantId, contact_id: i.contactId, channel: i.channel, scope: i.scope, external_id: i.externalId,
-      display_name: i.displayName, confidence: i.confidence, proof: i.proof ? js(i.proof) : null, valid_from: i.validFrom, valid_to: i.validTo }).execute();
+      display_name: i.displayName, confidence: i.confidence, proof: i.proof ? js(i.proof) : null, valid_from: i.validFrom, valid_to: i.validTo, avatar_ref: i.avatarRef ?? null }).execute();
+  }
+  async updateIdentityProfile(id: string, p: { displayName?: string | null; avatarRef?: string | null }) {
+    const set = Object.fromEntries(Object.entries({ display_name: p.displayName, avatar_ref: p.avatarRef }).filter(([, v]) => v !== undefined));
+    if (Object.keys(set).length) await this.t(this.c.updateTable('contact_identities').set(set)).where('identity_id', '=', id).execute();
   }
   async closeIdentity(id: string, at: string) { await this.t(this.c.updateTable('contact_identities').set({ valid_to: at })).where('identity_id', '=', id).execute(); }
   async reopenIdentity(id: string) { await this.t(this.c.updateTable('contact_identities').set({ valid_to: null })).where('identity_id', '=', id).execute(); }
@@ -113,12 +117,15 @@ export class PgCareRepo implements CareRepo {
   async conversationsOf(contactId: string) { return (await this.t(this.c.selectFrom('conversations').selectAll()).where('contact_id', '=', contactId).orderBy('conversation_id').execute()).map(toConv); }
   async upsertConversation(x: ConversationRow) {
     const v = { conversation_id: x.conversationId, tenant_id: this.tenantId, channel_account_id: x.channelAccountId, external_thread_id: x.externalThreadId, contact_id: x.contactId,
-      kind: x.kind, anchor: x.anchor ? js(x.anchor) : null, last_at: x.lastAt, last_direction: x.lastDirection, window_until: x.windowUntil, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}) };
-    await this.c.insertInto('conversations').values(v).onConflict((o) => o.column('conversation_id').doUpdateSet({ contact_id: v.contact_id, last_at: v.last_at, last_direction: v.last_direction, window_until: v.window_until, anchor: v.anchor, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}) })).execute();
+      kind: x.kind, anchor: x.anchor ? js(x.anchor) : null, last_at: x.lastAt, last_direction: x.lastDirection, window_until: x.windowUntil, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}),
+      ...(x.title !== undefined ? { title: x.title } : {}), ...(x.avatarRef !== undefined ? { avatar_ref: x.avatarRef } : {}), ...(x.memberCount !== undefined ? { member_count: x.memberCount } : {}) };
+    await this.c.insertInto('conversations').values(v).onConflict((o) => o.column('conversation_id').doUpdateSet({ contact_id: v.contact_id, last_at: v.last_at, last_direction: v.last_direction, window_until: v.window_until, anchor: v.anchor, ...(x.assigneeUserId !== undefined ? { assignee_user_id: x.assigneeUserId } : {}),
+      ...(x.title !== undefined ? { title: x.title } : {}), ...(x.avatarRef !== undefined ? { avatar_ref: x.avatarRef } : {}), ...(x.memberCount !== undefined ? { member_count: x.memberCount } : {}) })).execute();
   }
   async upsertMessage(m: MessageRow) {
-    const v = { message_id: m.messageId, tenant_id: this.tenantId, touch_id: String(m.touchId), conversation_id: m.conversationId, external_message_id: m.externalMessageId, direction: m.direction, body: m.text, delivery: m.delivery, e2ee: m.e2ee, at: m.at, sent_by: m.sentBy ?? null };
-    await this.c.insertInto('messages').values(v).onConflict((o) => o.columns(['tenant_id', 'conversation_id', 'external_message_id']).doUpdateSet({ touch_id: v.touch_id, body: v.body, delivery: v.delivery, e2ee: v.e2ee })).execute();
+    const v = { message_id: m.messageId, tenant_id: this.tenantId, touch_id: String(m.touchId), conversation_id: m.conversationId, external_message_id: m.externalMessageId, direction: m.direction, body: m.text, delivery: m.delivery, e2ee: m.e2ee, at: m.at, sent_by: m.sentBy ?? null,
+      quote: m.quote ? js(m.quote) : null, mentions: js(m.mentions ?? []), revoked_at: m.revokedAt ?? null };
+    await this.c.insertInto('messages').values(v).onConflict((o) => o.columns(['tenant_id', 'conversation_id', 'external_message_id']).doUpdateSet({ touch_id: v.touch_id, body: v.body, delivery: v.delivery, e2ee: v.e2ee, quote: v.quote, mentions: v.mentions, revoked_at: v.revoked_at })).execute();
   }
   // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — báo giao: đổi trạng thái + thay khoá lệnh bằng mã tin thật của kênh.
   async setDelivery(id: string, delivery: string, ext?: string) {

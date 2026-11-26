@@ -9,7 +9,15 @@ import { AnchorSchema, AttachmentSchema, DeliverySchema } from './entities.js';
 export const TOUCH_TYPES = [
   'message.received', 'message.sent', 'delivery.updated', 'comment.received', 'comment.replied',
   'reaction.added', 'account.status', 'history.sync.completed',
+  // [2026-11-26 06:28 PM Johnny Chu - Chu Hoàng Anh] KN K2b — 0.2 (chỉ thêm): hồ sơ người đổi tên / ảnh (cả khi đồng bộ danh bạ), nhóm đổi tên / ảnh / số thành viên. Không phải lượt chạm.
+  'profile.updated', 'thread.updated',
 ] as const;
+
+/** [2026-11-26 06:28 PM Johnny Chu - Chu Hoàng Anh] KN K2b — thông tin nhóm / hội thoại do kênh giữ (tên, ảnh, số thành viên). Đi kèm thread.updated, và tuỳ chọn kèm tin nhóm. */
+export const ThreadInfoSchema = z.object({ name: z.string().max(300).nullable(), avatarRef: z.string().max(2000).nullable(), memberCount: z.number().int().min(0).nullable() }).strict();
+/** [2026-11-26 06:28 PM Johnny Chu - Chu Hoàng Anh] KN K2b — trích dẫn tin khác + @nhắc (vị trí theo ký tự trong content.text). */
+export const QuoteSchema = z.object({ externalMessageId: z.string(), senderExternalId: z.string().nullable(), text: z.string().max(2000).nullable() }).strict();
+export const MentionSchema = z.object({ externalId: z.string(), pos: z.number().int().min(0), len: z.number().int().min(1) }).strict();
 
 /** `channel|externalAccountId|externalThreadId|externalMessageId` — Cell tạo, bất biến. */
 export const DOC_KEY_RE = /^[a-z_]+\|[^|]+\|[^|]+\|[^|]+$/;
@@ -28,6 +36,7 @@ export const TouchSchema = z.object({
     externalThreadId: z.string(),
     kind: z.enum(['dm', 'comment_thread', 'group_thread']),
     anchor: AnchorSchema.nullable(),
+    info: ThreadInfoSchema.optional(),
   }).strict(),
   sender: z.intersection(
     IdentityKeySchema.innerType().omit({ channel: true }),
@@ -35,9 +44,11 @@ export const TouchSchema = z.object({
   ).nullable(), // account.status không có người gửi
   direction: z.enum(['inbound', 'outbound']),
   content: z.object({
-    type: z.enum(['text', 'image', 'file', 'sticker', 'reaction', 'none']),
+    type: z.enum(['text', 'image', 'file', 'sticker', 'reaction', 'none', 'revoked']),
     text: z.string().max(20000).nullable(),
     attachments: z.array(AttachmentSchema.extend({ ttlSeconds: z.number().int().positive().optional() })),
+    quote: QuoteSchema.nullable().optional(),
+    mentions: z.array(MentionSchema).max(100).optional(),
   }).strict(),
   hints: z.object({
     phone: z.string().nullable().optional(),
@@ -60,7 +71,9 @@ export const TouchSchema = z.object({
   }
   if (t.type === 'delivery.updated' && !t.delivery) ctx.addIssue({ code: 'custom', path: ['delivery'], message: 'delivery.updated cần delivery' });
   if (!t.docKey.startsWith(`${t.channel}|`)) ctx.addIssue({ code: 'custom', path: ['docKey'], message: 'docKey phải bắt đầu bằng kênh' });
-  if (t.type !== 'account.status' && !t.sender) ctx.addIssue({ code: 'custom', path: ['sender'], message: 'thiếu người gửi' });
+  if (t.type !== 'account.status' && t.type !== 'thread.updated' && !t.sender) ctx.addIssue({ code: 'custom', path: ['sender'], message: 'thiếu người gửi' });
+  if (t.type === 'thread.updated' && !t.thread.info) ctx.addIssue({ code: 'custom', path: ['thread', 'info'], message: 'thread.updated cần thread.info' });
+  if (t.content.type === 'revoked' && t.version < 2) ctx.addIssue({ code: 'custom', path: ['version'], message: 'thu hồi là phiên bản sau của tin (version ≥ 2)' });
 });
 export type Touch = z.infer<typeof TouchSchema>;
 

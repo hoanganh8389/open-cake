@@ -7,16 +7,18 @@
 //   bản bộ nhớ và bản PG cùng chạy một bộ test kịch bản (test/scenarios.ts).
 import type { Channel, Confidence, Proof } from '@open-cake/contracts';
 
-export type ContactRow = { contactId: string; kind: 'person' | 'org'; displayName: string; status: 'active' | 'merged' | 'archived'; mergedInto: string | null; createdAt: string };
-export type IdentityRow = { identityId: string; contactId: string; channel: Channel; scope: string; externalId: string; displayName: string | null; confidence: Confidence; proof: Proof | null; validFrom: string; validTo: string | null };
+export type ContactRow = { contactId: string; kind: 'person' | 'org'; displayName: string; status: 'active' | 'merged' | 'archived'; mergedInto: string | null; createdAt: string; nameSource?: 'channel' | 'staff' };
+export type IdentityRow = { identityId: string; contactId: string; channel: Channel; scope: string; externalId: string; displayName: string | null; confidence: Confidence; proof: Proof | null; validFrom: string; validTo: string | null; avatarRef?: string | null };
 export type AccountRow = { channelAccountId: string; channel: string; kind: 'personal' | 'page' | 'group' | 'oa'; externalAccountId: string; label: string; status: string };
-export type ConversationRow = { conversationId: string; channelAccountId: string; externalThreadId: string; contactId: string; kind: 'dm' | 'comment_thread' | 'group_thread'; anchor: { postId: string; commentId?: string; parentId?: string } | null; lastAt: string | null; lastDirection: 'in' | 'out' | null; windowUntil: string | null; assigneeUserId?: string | null };
+// [2026-11-26 06:30 PM Johnny Chu - Chu Hoàng Anh] KN K2b — title / avatarRef / memberCount: thông tin nhóm do kênh giữ (thread.updated).
+export type ConversationRow = { title?: string | null; avatarRef?: string | null; memberCount?: number | null; conversationId: string; channelAccountId: string; externalThreadId: string; contactId: string; kind: 'dm' | 'comment_thread' | 'group_thread'; anchor: { postId: string; commentId?: string; parentId?: string } | null; lastAt: string | null; lastDirection: 'in' | 'out' | null; windowUntil: string | null; assigneeUserId?: string | null };
 export type EventRow = { eventId: string; source: string; docKey: string; version: number; type: string; payload: unknown; receivedAt: string; actor: string };
 export type LedgerRow = {
   touchId: number; eventId: string; contactId: string; conversationId: string | null; channelAccountId: string | null; channel: Channel | null;
   kind: string; direction: 'in' | 'out' | 'none'; qty: 1 | -1; isReversal: boolean; reversesId: number | null; dims: Record<string, unknown>; at: string;
 };
-export type MessageRow = { messageId: string; touchId: number; conversationId: string; externalMessageId: string; direction: 'in' | 'out'; text: string; e2ee: boolean; delivery: string | null; at: string; sentBy?: string | null };
+export type MessageRow = { messageId: string; touchId: number; conversationId: string; externalMessageId: string; direction: 'in' | 'out'; text: string; e2ee: boolean; delivery: string | null; at: string; sentBy?: string | null;
+  quote?: { externalMessageId: string; senderExternalId: string | null; text: string | null } | null; mentions?: { externalId: string; pos: number; len: number }[]; revokedAt?: string | null };
 export type StateRow = { contactId: string; tags: string[]; lastInAt: string | null; lastOutAt: string | null; unanswered: boolean; channels: Record<string, number>; rev: number };
 
 /** Cổng kho. Hàm ghi chỉ THÊM, trừ các chỗ được luật cho phép sửa (đóng identity bằng validTo, cập nhật dẫn xuất, trạng thái giao tin). */
@@ -36,6 +38,8 @@ export interface CareRepo {
   getContact(contactId: string): Promise<ContactRow | undefined>;
   insertContact(c: ContactRow): Promise<void>;
   updateContact(contactId: string, patch: Partial<Pick<ContactRow, 'status' | 'mergedInto' | 'displayName'>>): Promise<void>;
+  /** [2026-11-26 06:30 PM Johnny Chu - Chu Hoàng Anh] KN K2b — profile.updated: đổi tên / ảnh của danh tính kênh (không đóng / mở dòng). */
+  updateIdentityProfile(identityId: string, patch: { displayName?: string | null; avatarRef?: string | null }): Promise<void>;
   /** các khách đã ghép vào contactId (status = merged, merged_into = contactId). */
   mergedFrom(contactId: string): Promise<string[]>;
   findIdentity(channel: Channel, scope: string, externalId: string): Promise<IdentityRow | undefined>; // chỉ dòng còn hiệu lực

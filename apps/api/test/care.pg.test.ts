@@ -31,6 +31,7 @@ describe.skipIf(!url)('PgCareRepo', () => {
         versions: async () => Number((await db.selectFrom('touch_event_versions').select((e) => e.fn.countAll<string>().as('n')).where('tenant_id', '=', tenantId).executeTakeFirstOrThrow()).n),
         contactIds: async () => (await db.selectFrom('contacts').select('contact_id').where('tenant_id', '=', tenantId).execute()).map((r) => r.contact_id),
         mutateLedger: async (r) => { await sql`UPDATE touch_ledger SET qty = 5 WHERE touch_id = ${r.touchId}`.execute(db); }, // trigger cake_append_only chặn
+        markStaffName: async (id, name) => { await sql`UPDATE contacts SET display_name = ${name}, name_source = 'staff' WHERE contact_id = ${id}`.execute(db); }, // KN K2b
       },
     };
   }, { replays: 50, timeoutMs: 60_000 }); // CSDL trong Docker trên Windows: mỗi lần phát lại là một giao dịch nhiều câu
