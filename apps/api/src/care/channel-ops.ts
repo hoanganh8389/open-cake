@@ -16,7 +16,7 @@ const unix = () => Math.floor(Date.now() / 1000);
 /** Xếp một lệnh vào hàng chờ + gửi ngay. Cùng khoá đã có ⇒ trả trạng thái cũ, không gửi lần hai (Hub / máy kết nối chống trùng theo khoá). */
 async function queueCommand(ctx: Ctx, acc: Acc, operation: ChannelCommand['operation'], key: string, target: Partial<ChannelCommand['target']>, options: Partial<ChannelCommand['options']>) {
   const { tx, tenantId } = ctx;
-  hub(); // chưa nối Hub ⇒ NOT_READY ngay
+  await hub(tx as Db, tenantId); // chưa có đích lệnh (Hub / máy kết nối) ⇒ NOT_READY ngay
   const old = await tx.selectFrom('channel_commands').select(['state']).where('tenant_id', '=', tenantId).where('command_key', '=', key).executeTakeFirst();
   if (old) return { commandKey: key, state: old.state as 'accepted' };
   const body = ChannelCommandSchema.parse({

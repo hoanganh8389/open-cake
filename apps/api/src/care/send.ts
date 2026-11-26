@@ -14,24 +14,20 @@ import { cakeError, failure, newUlid, type Ctx, type Handler } from '../runtime.
 import { signBody } from '../orders/clients.js';
 import { notifyChanged } from '../stream.js';
 import { PgCareRepo } from './pg-care-repo.js';
+import { channelTarget, type ChannelTarget } from './channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — đích lệnh theo đơn vị (Hub | máy kết nối Tự cài)
 import { assertConversationVisible } from './scope.js';
 
-export const HUB_COMMANDS_PATH = '/channel/v1/commands';
 const GIVE_UP_MS = 10 * 60_000;
 export const CAPS = ['cake.conversation.manage', 'cake.message.send'];
 
-export function hub() {
-  const url = process.env.CAKE_HUB_URL ?? '', key = process.env.CAKE_HUB_SITE_KEY ?? '', secret = process.env.CAKE_HUB_SECRET ?? '';
-  if (!url || key.length < 16 || secret.length < 32) throw failure('NOT_READY', 'Máy chủ chưa nối Hub kênh (CAKE_HUB_URL, CAKE_HUB_SITE_KEY, CAKE_HUB_SECRET).');
-  return { url: url.replace(/\/+$/, ''), key, secret };
-}
+/** [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — giữ tên cũ cho chỗ gọi: kiểm đơn vị đã có đích lệnh (Hub hoặc máy kết nối) — thiếu ⇒ NOT_READY. */
+export const hub = (tx: Db, tenantId: string) => channelTarget(tx, tenantId);
 
-/** Một lần gọi Hub. null = không tới được (mạng / hết giờ). */
-async function callHub(cmd: ChannelCommand): Promise<{ status: number; error: string | null } | null> {
-  const h = hub();
+/** Một lần gọi đích lệnh (Hub hoặc máy kết nối — cùng khuôn ký). null = không tới được (mạng / hết giờ). */
+export async function callHub(h: ChannelTarget, cmd: ChannelCommand): Promise<{ status: number; error: string | null } | null> {
   const raw = JSON.stringify(cmd);
   try {
-    const res = await fetch(h.url + HUB_COMMANDS_PATH, {
+    const res = await fetch(h.url, {
       method: 'POST', body: raw, signal: AbortSignal.timeout(8000),
       headers: { 'content-type': 'application/json', authorization: `Bearer ${h.key}`, 'idempotency-key': cmd.idempotencyKey, 'x-bizcity-contract': 'bizcity_channel_command@1', 'x-bizcity-signature': signBody(h.secret, raw) },
     });
@@ -45,7 +41,7 @@ export type CmdRow = { tenant_id: string; command_key: string; message_id: strin
 
 /** Gửi một lệnh trong hàng chờ và ghi kết quả. */
 export async function dispatch(tx: Db, r: CmdRow): Promise<'accepted' | 'rejected' | 'queued' | 'given_up'> {
-  const res = await callHub(r.body as ChannelCommand);
+  const res = await callHub(await channelTarget(tx, r.tenant_id), r.body as ChannelCommand);
   const now = new Date();
   const where = <Q extends { where: (...a: any[]) => Q }>(q: Q) => q.where('tenant_id', '=', r.tenant_id).where('command_key', '=', r.command_key); // eslint-disable-line @typescript-eslint/no-explicit-any
   const msg = (delivery: string) => r.message_id ? tx.updateTable('messages').set({ delivery }).where('tenant_id', '=', r.tenant_id).where('message_id', '=', r.message_id).where('delivery', '=', 'accepted').execute() : null;
@@ -98,7 +94,7 @@ export const sendHandlers: Record<string, Handler> = {
     const acc = await accountOf(tx, tenantId, conv.channel_account_id);
     if (conv.kind === 'comment_thread') throw failure('VALIDATION_ERROR', 'Hội thoại bình luận trả lời bằng "Trả lời bình luận".');
     if (acc.channel === 'facebook_page' && conv.window_until && new Date(conv.window_until).getTime() < Date.now()) throw cakeError('CAKE_WINDOW_CLOSED');
-    hub(); // chưa nối Hub ⇒ báo ngay, không ghi tin "đang gửi" mãi
+    await hub(tx, tenantId); // chưa có đích lệnh ⇒ báo ngay, không ghi tin "đang gửi" mãi
     const r = await requestSend(deps(ctx), { conversationId: i.conversationId, text: i.text, actor: ctx.actor, userId: ctx.userId });
     const attachments = i.attachments as ChannelCommand['content']['attachments'];
     const body = ChannelCommandSchema.parse({
@@ -122,7 +118,7 @@ export const sendHandlers: Record<string, Handler> = {
       channelAccount: { cellRef: acc.cell_ref, externalAccountId: acc.external_account_id }, target: { externalThreadId: null, anchor: null },
       content: { type: 'none', text: null, attachments: [] }, options: { messageTag: null, quoteExternalMessageId: null }, requestedBy: { kind: 'user', id: userId ?? actor },
     });
-    const res = await callHub(cmd);
+    const res = await callHub(await hub(tx, tenantId), cmd);
     if (res?.status !== 202) throw cakeError('CAKE_CHANNEL_NOT_CONNECTED', res ? `Hub không nhận lệnh gửi thử (${res.error}).` : 'Không tới được Hub kênh.');
     const testedAt = new Date();
     await tx.updateTable('channel_accounts').set({ tested_at: testedAt }).where('tenant_id', '=', tenantId).where('channel_account_id', '=', acc.channel_account_id).execute();

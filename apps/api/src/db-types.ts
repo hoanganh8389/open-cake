@@ -70,12 +70,19 @@ export interface ContactLinksTable {
   push_error: string | null; linked_at: Ts;
 }
 
+// [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — khớp 0108 channel_links
+export interface ChannelLinksTable {
+  tenant_id: string; mode: ColumnType<string, string | undefined, string>; connector_url: string | null; key_sealed: string | null; key_prefix: string | null; secret_sealed: string | null;
+  last_ok_at: TsNull; last_error: string | null; updated_by: string; updated_at: Ts;
+}
+
 declare module '@bizcity/platform/db/types' {
   interface AppDatabase {
     order_requests: OrderRequestsTable;
     order_request_events: OrderRequestEventsTable;
     pos_links: PosLinksTable;
     contact_links: ContactLinksTable;
+    channel_links: ChannelLinksTable;
     channel_commands: ChannelCommandsTable;
     channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;

@@ -13,6 +13,7 @@ import { cakeError, failure, fromKernel, newUlid } from '../runtime.js';
 import { PgCareRepo } from './pg-care-repo.js';
 import { notifyChanged } from '../stream.js';
 import { cakeMetrics } from '../observability.js';
+import { connectorAuth } from './channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — máy kết nối Tự cài
 
 export const INGRESS_MAX_BYTES = 256 * 1024;
 export const INGRESS_SKEW_S = 300;
@@ -43,11 +44,23 @@ export function registerIngress(app: FastifyInstance, opts: { key?: string; secr
       try { done(null, JSON.parse(String(body))); } catch { done(failure('VALIDATION_ERROR', 'Thân không phải JSON.'), undefined); }
     });
     r.post('/ingress/v1/touch', async (req) => {
-      if (key.length < 16 || secret.length < 32) throw failure('NOT_READY', 'Cổng nhận Hub chưa cấu hình khoá (CAKE_HUB_KEY ≥ 16, CAKE_HUB_SECRET ≥ 32 ký tự).');
-      verify(req.headers, (req as unknown as { rawBody: string }).rawBody, key, secret, Math.floor((opts.now?.() ?? Date.now()) / 1000));
+      const nowS = Math.floor((opts.now?.() ?? Date.now()) / 1000);
+      const raw = (req as unknown as { rawBody: string }).rawBody;
+      // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — khoá `ckn.<đơn vị>.…` ⇒ máy kết nối Tự cài của ĐÚNG đơn vị đó (khoá + bí mật lưu mã hoá ở channel_links);
+      //   còn lại ⇒ Hub như cũ. Cùng khuôn ký, cùng lệch giờ.
+      const bearer = String(req.headers.authorization ?? '').replace(/^Bearer /, '');
+      const conn = bearer.startsWith('ckn.') ? await connectorAuth(db, bearer) : null;
+      if (bearer.startsWith('ckn.') && !conn) throw cakeError('CAKE_SIGNATURE_INVALID', 'Khoá máy kết nối không đúng hoặc đã đổi.'); // không rơi sang đường Hub
+      if (conn) verify(req.headers, raw, bearer, conn.secret, nowS);
+      else {
+        if (key.length < 16 || secret.length < 32) throw failure('NOT_READY', 'Cổng nhận Hub chưa cấu hình khoá (CAKE_HUB_KEY ≥ 16, CAKE_HUB_SECRET ≥ 32 ký tự).');
+        verify(req.headers, raw, key, secret, nowS);
+      }
       // [2026-11-24 09:07 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 — đơn vị suy từ TÀI KHOẢN KÊNH của sự kiện (Hub đã tra site; trong site, một tài khoản kênh thuộc đúng một đơn vị).
       const acc = (req.body as { channelAccount?: { externalAccountId?: string; kind?: string } })?.channelAccount;
-      const owners = acc?.externalAccountId ? await db.selectFrom('channel_accounts').select('tenant_id').distinct().where('external_account_id', '=', acc.externalAccountId).where('kind', '=', String(acc.kind)).execute() : [];
+      let oq = db.selectFrom('channel_accounts').select('tenant_id').distinct().where('external_account_id', '=', acc?.externalAccountId ?? '').where('kind', '=', String(acc?.kind));
+      if (conn) oq = oq.where('tenant_id', '=', conn.tenantId); // máy kết nối chỉ nói thay tài khoản kênh của đơn vị mình
+      const owners = acc?.externalAccountId ? await oq.execute() : [];
       if (owners.length !== 1) throw cakeError('CAKE_CHANNEL_NOT_CONNECTED', owners.length ? 'Tài khoản kênh thuộc nhiều đơn vị — kiểm cấu hình.' : undefined);
       const tenantId = owners[0]!.tenant_id;
       try {

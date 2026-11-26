@@ -40,6 +40,9 @@ function appendOut(s: Store, conversationId: string, text: string, attachments: 
   return m;
 }
 
+type Link = { mode: 'hub' | 'self'; connectorUrl: string | null; keyPrefix: string | null; hasSecret: boolean; hubReady: boolean; lastOkAt: string | null; lastError: string | null; issued: null };
+const link = (s: Store): Link => ((s as Store & { channelLink?: Link }).channelLink ??= { mode: 'self', connectorUrl: 'http://cake-connector:3901', keyPrefix: 'ckn.1.gia-lap…', hasSecret: true, hubReady: false, lastOkAt: null, lastError: null, issued: null });
+
 export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = {
   'cake.channel.list': (s) => s.accounts,
   // [2026-11-24 09:48 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-5 — thành viên tài khoản kênh trên nhân viên mẫu GIẢ LẬP.
@@ -92,6 +95,15 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     m.reaction = i.reaction;
     return { commandKey: `cake:0:react:${++s.seq}`, state: 'accepted' };
   },
+  // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — cách kết nối kênh; giả lập mặc định Tự cài (25-KET-NOI-KENH §4: Tự cài chạy sẵn sau khi cài)
+  'cake.channel_link.get': (s) => link(s),
+  'cake.channel_link.set': (s, i) => {
+    const l = link(s);
+    const issue = i.mode === 'self' && (i.rotate || !l.hasSecret);
+    Object.assign(l, { mode: i.mode, connectorUrl: i.mode === 'self' ? i.connectorUrl : l.connectorUrl, ...(issue ? { keyPrefix: 'ckn.1.gia-lap…', hasSecret: true } : {}) });
+    return { ...l, issued: issue ? { key: `ckn.1.gia-lap-${++s.seq}-0123456789abcdef`, secret: 'bi-mat-gia-lap-0123456789-0123456789-ab' } : null };
+  },
+  'cake.channel_link.test': (s) => Object.assign(link(s), { lastOkAt: iso(s.now()), lastError: null }),
   'cake.directory.sync': (s) => ({ commandKey: `cake:0:directory_sync:${++s.seq}`, state: 'accepted' }),
   'cake.contact.find': (s) => ({ commandKey: `cake:0:contact_find:${++s.seq}`, state: 'accepted' }),
   'cake.message.draft': (s, i) => ({ draftId: `draft-${++s.seq}`, text: i.text }),

@@ -14,7 +14,8 @@ export * from './cake/contact-contract.js';
 export * from './cake/actions.js';
 export * from './cake/orders.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010
 export * from './cake/partner.js';
-export * from './cake/channel-ops.js'; // [2026-11-26 08:43 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3
+export * from './cake/channel-ops.js';
+export * from './cake/channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 // [2026-11-26 08:43 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3
 export * from './cake/staff.js'; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — nhân viên + vai & quyền
 export * from './cake/apikeys.js'; // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3 — khoá API
 export * from './flex/registry.js';
