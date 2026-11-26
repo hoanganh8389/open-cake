@@ -17,6 +17,8 @@
 | ③ Dấu đơn trong chat: đã gửi → cửa hàng xác nhận → đã giao vận chuyển (dòng hệ thống, không gửi khách) | S010-5 | [mockup-don-trong-chat](evidence/build-shots/mockup-don-trong-chat.png) |
 | ④ Contact 360 › Đơn: các bước, chờ xác nhận (huỷ được), bị từ chối có lý do | S010-5 | [mockup-don-360](evidence/build-shots/mockup-don-360.png) |
 | ⑤ Cài đặt › Kết nối cửa hàng: địa chỉ, khoá `opb_…`, bí mật ký, cửa hàng xuất, địa chỉ nhận trạng thái; khoá khi chưa nối Kế Toán | S010-8 | [mockup-ket-noi](evidence/build-shots/mockup-ket-noi.png) |
+| ⑥ Contact 360 › **Công nợ**: số dư theo tài khoản từ Kế Toán (mã đối tượng, giờ đọc, **Đọc lại**), không lưu số dư; Kế Toán không trả lời ⇒ giữ số lần đọc gần nhất | S010-3 | [mockup-cong-no](evidence/build-shots/mockup-cong-no.png) |
+| ⑦ **Tạo khách công nợ**: mã theo R-CAKE-MASTER-5 (SĐT đã xác minh → `CAKE-<contact_id>` → `KHACH-LE`), tên, SĐT, chi nhánh; gửi lại không tạo trùng | S010-2 | [mockup-tao-khach-cong-no](evidence/build-shots/mockup-tao-khach-cong-no.png) |
 
 ## Tiến độ
 

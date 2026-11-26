@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const out = join(here, '..', 'evidence', 'build-shots');
 const CHROME = process.env.CHROME_PATH ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const FRAMES = ['gui-gia-ton', 'tao-don', 'don-trong-chat', 'don-360', 'ket-noi'];
+const FRAMES = ['gui-gia-ton', 'tao-don', 'don-trong-chat', 'don-360', 'ket-noi', 'cong-no', 'tao-khach-cong-no'];
 
 const browser = await chromium.launch({ executablePath: CHROME, headless: true });
 try {

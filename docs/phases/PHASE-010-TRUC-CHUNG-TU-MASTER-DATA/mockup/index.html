@@ -188,5 +188,58 @@
     </main>
   </div>
 </section>
+
+<!-- ⑥ CONTACT 360 › CÔNG NỢ (S010-3) — đọc số dư từ Kế Toán theo mã đối tượng; Open CRM không lưu số dư, chỉ đệm ≤ 5 phút -->
+<section class="frame app" id="cong-no">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-contact"/></svg></span></nav>
+    <main class="page" style="max-width:1040px">
+      <div class="row" style="gap:16px;align-items:center"><div style="width:64px;height:64px;border-radius:50%;background:var(--primary-soft);display:grid;place-items:center;font-weight:700;color:var(--primary)">LH</div><div><div class="h2">Lan Hương</div><div class="sm muted">0909 123 456 · Fanpage Hoa Mai · Zalo</div></div></div>
+      <div class="tabs mt24"><span class="tab">Dòng thời gian</span><span class="tab">Đơn (3)</span><span class="tab on">Công nợ</span><span class="tab">Ghi chú</span></div>
+      <div class="card pad mt24">
+        <div class="row" style="gap:12px;align-items:center"><b>Công nợ ở Kế Toán</b><span class="badge ok"><svg class="ico" style="width:14px;height:14px"><use href="#i-check"/></svg>đã liên kết</span><span class="xs subtle">mã đối tượng <code>0909123456</code> · CN01</span><span class="grow"></span><span class="xs subtle">Số dư tại 26/11 10:42 · đọc cách đây 3 phút</span><button class="btn out">Đọc lại</button></div>
+        <table class="tbl mt16">
+          <thead><tr><th>Tài khoản</th><th>Tên</th><th class="r">Số dư</th></tr></thead>
+          <tbody>
+            <tr><td>131</td><td>Phải thu của khách hàng</td><td class="r"><b>2.340.000đ</b></td></tr>
+            <tr><td>1388</td><td>Phải thu khác</td><td class="r">150.000đ</td></tr>
+          </tbody>
+        </table>
+        <div class="row mt16" style="justify-content:flex-end;gap:24px"><span class="muted">Khách đang nợ</span><b style="font-size:20px">2.490.000đ</b></div>
+      </div>
+      <div class="xs subtle mt16">Số liệu thuộc Kế Toán — Open CRM chỉ hiển thị, không ghi và không lưu số dư. Muốn xem chi tiết từng chứng từ, mở Kế Toán.</div>
+      <div class="card pad mt16" style="opacity:.9"><div class="sm muted">Khi Kế Toán chưa trả lời được</div><div class="row mt8" style="gap:12px;align-items:center"><span class="badge warn">Chưa đọc được</span><span class="sm">Hiện số lần đọc gần nhất (10:42) và nút <b>Đọc lại</b>; không chặn các tab khác.</span></div></div>
+    </main>
+  </div>
+</section>
+
+<!-- ⑦ TẠO KHÁCH CÔNG NỢ (S010-2) — khách chưa có trong Kế Toán; mã theo R-CAKE-MASTER-5: SĐT đã xác minh → CAKE-<contact_id> -->
+<section class="frame app" id="tao-khach-cong-no">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-contact"/></svg></span></nav>
+    <main class="page" style="max-width:1040px">
+      <div class="row" style="gap:16px;align-items:center"><div style="width:64px;height:64px;border-radius:50%;background:var(--primary-soft);display:grid;place-items:center;font-weight:700;color:var(--primary)">LH</div><div><div class="h2">Lan Hương</div><div class="sm muted">0909 123 456 · Fanpage Hoa Mai · Zalo</div></div></div>
+      <div class="tabs mt24"><span class="tab">Dòng thời gian</span><span class="tab">Đơn (3)</span><span class="tab on">Công nợ</span><span class="tab">Ghi chú</span></div>
+      <div class="card pad mt24" style="text-align:center;padding:40px"><div class="h3">Khách chưa có trong Kế Toán</div><div class="sm muted mt8">Tạo đối tượng công nợ để xem số dư và để đơn hàng ghi nợ đúng khách.</div><button class="btn pri mt16"><svg class="ico"><use href="#i-plus"/></svg>Tạo khách công nợ</button></div>
+    </main>
+  </div>
+  <div class="sheet-bg" style="position:absolute;top:56px">
+    <div class="sheet" style="width:min(640px,94vw)">
+      <div class="hd"><div style="flex:1"><div class="h3">Tạo khách công nợ</div><div class="sm muted mt8">Gửi sang Kế Toán · Lan Hương</div></div><button class="btn ghost icon"><svg class="ico"><use href="#i-x"/></svg></button></div>
+      <div class="bd col gap16">
+        <dl class="kv2">
+          <dt>Mã đối tượng</dt><dd><b>0909123456</b> <span class="badge ok"><svg class="ico" style="width:14px;height:14px"><use href="#i-check"/></svg>SĐT đã xác minh</span><div class="xs subtle mt8">Không có SĐT đã xác minh ⇒ dùng <code>CAKE-01JDA…</code>. Khách vãng lai ⇒ <code>KHACH-LE</code>.</div></dd>
+          <dt>Tên</dt><dd><input class="input sm" style="width:100%" value="Lan Hương"></dd>
+          <dt>Điện thoại</dt><dd><b>0909 123 456</b></dd>
+          <dt>Chi nhánh</dt><dd><b>CN01</b> — theo Kết nối Kế Toán</dd>
+        </dl>
+        <div class="note">Kế Toán <b>tạo hoặc cập nhật</b> đối tượng theo mã trên (gửi lại không tạo trùng). Open CRM chỉ lưu liên kết mã ↔ khách; <b>không gửi mã khách nội bộ</b> ra ngoài. Tên, mã số thuế sửa tiếp ở Kế Toán.</div>
+      </div>
+      <div class="ft"><button class="btn out">Huỷ</button><button class="btn pri"><svg class="ico"><use href="#i-send"/></svg>Tạo ở Kế Toán</button></div>
+    </div>
+  </div>
+</section>
 </body>
 </html>
