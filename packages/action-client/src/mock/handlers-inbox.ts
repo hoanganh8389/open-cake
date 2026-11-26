@@ -2,6 +2,7 @@
 // @bizcity-layer web
 // [2026-11-24 03:52 PM Johnny Chu - Chu Hoàng Anh] PHASE-003 — S003-2: handler giả lập cho kênh + hộp thư — làm đúng luật hợp đồng để giao diện gặp đúng lỗi
 //   sẽ gặp ở máy chủ thật (CAKE_CHANNEL_NOT_CONNECTED, CAKE_WINDOW_CLOSED); không thay được máy chủ, chỉ thay được dữ liệu.
+import * as demo from '@open-cake/contracts/demo';
 import { ApiError } from '../client.js';
 import { byTimeDesc, iso, nextId, paged, type Store } from './store.js';
 
@@ -15,6 +16,12 @@ const conv = (s: Store, id: string) => {
   const c = s.conversations.find((x) => x.conversationId === id);
   if (!c) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy hội thoại.', hint: 'Hội thoại có thể đã bị ghép sang khách khác.' });
   return c;
+};
+const FLOWS = new Map<string, { label: string; polls: number }>();
+const flow = (id: string) => {
+  const f = FLOWS.get(id);
+  if (!f) throw new ApiError({ code: 'NOT_FOUND', message: 'Không có phiên quét QR này — bấm Bắt đầu lại.' });
+  return f;
 };
 const accountOf = (s: Store, channelAccountId: string) => s.accounts.find((a) => a.channelAccountId === channelAccountId)!;
 
@@ -53,7 +60,25 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     s.members[i.channelAccountId] = [...new Set<string>(i.userIds)];
     return s.members[i.channelAccountId]!.map((id) => STAFF.find((x) => x.userId === id)!);
   },
-  'cake.channel.connect_start': (s, i) => ({ flowId: `flow-${++s.seq}`, nextStep: NEXT_STEP[i.channel as keyof typeof NEXT_STEP], qrRef: i.channel === 'zalo_personal' ? 'demo://qr' : null }),
+  'cake.channel.connect_start': (s, i) => {
+    const flowId = `flow-${++s.seq}`;
+    FLOWS.set(flowId, { label: i.label, polls: 0 });
+    return { flowId, nextStep: NEXT_STEP[i.channel as keyof typeof NEXT_STEP], qrRef: i.channel === 'zalo_personal' ? 'demo://qr' : null };
+  },
+  // [2026-11-26 10:09 PM Johnny Chu - Chu Hoàng Anh] KN K7 — QR giả lập: mỗi lần hỏi tiến một nấc chờ quét → đã quét → xong; hoàn tất ⇒ thêm số vào danh sách.
+  'cake.channel.connect_status': (_s, i) => {
+    const f = flow(i.flowId);
+    const status = (['waiting_scan', 'scanned', 'success'] as const)[Math.min(f.polls++, 2)];
+    return { flowId: i.flowId, status, qrRef: status === 'waiting_scan' ? 'demo://qr' : null, error: null };
+  },
+  'cake.channel.connect_finish': (s, i) => {
+    const f = flow(i.flowId);
+    if (f.polls < 3) throw ApiError.reason('CAKE_CHANNEL_NOT_CONNECTED');
+    const externalAccountId = `zl_${i.flowId}`;
+    let a = s.accounts.find((x) => x.externalAccountId === externalAccountId);
+    if (!a) { a = { channelAccountId: demo.fid('A', ++s.seq), channel: 'zalo_personal', kind: 'personal', externalAccountId, label: f.label, ownerUserId: '7', status: 'connected', testedAt: null, unread: 0 }; s.accounts.push(a); }
+    return { channelAccountId: a.channelAccountId, externalAccountId, label: a.label, status: 'connected' };
+  },
   'cake.channel.test': (s, i) => {
     const a = s.accounts.find((x) => x.channelAccountId === i.channelAccountId);
     if (!a) throw new ApiError({ code: 'NOT_FOUND', message: 'Không tìm thấy tài khoản kênh.' });

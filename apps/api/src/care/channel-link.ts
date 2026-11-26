@@ -6,8 +6,9 @@
 import { randomBytes } from 'node:crypto';
 import type { Db } from '@bizcity/platform/db/client';
 import type { ChannelLink } from '@open-cake/contracts';
-import { failure, type Ctx, type Handler } from '../runtime.js';
-import { open, seal } from '../orders/clients.js';
+import { failure, newUlid, type Ctx, type Handler } from '../runtime.js';
+import { open, seal, signBody } from '../orders/clients.js';
+import { notifyChanged } from '../stream.js';
 
 export const CONNECTOR_COMMANDS_PATH = '/channel/v1/commands';
 export const HUB_COMMANDS_PATH = '/channel/v1/commands';
@@ -36,6 +37,25 @@ export async function connectorAuth(tx: Db, bearer: string): Promise<{ tenantId:
   return { tenantId: m[1]!, secret: open(l.secret_sealed!) };
 }
 
+// [2026-11-26 10:06 PM Johnny Chu - Chu Hoàng Anh] KN K7 — gọi API tài khoản của máy kết nối (Bearer khoá nối; POST ký thân như lệnh). Chỉ ở chế độ Tự cài.
+async function connectorCall<T>(tx: Db, tenantId: string, method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+  const t = await channelTarget(tx, tenantId);
+  if (t.kind !== 'self') throw failure('CONFLICT', 'Kết nối số qua Hub chưa có ở Open CRM — đơn vị đang dùng BizCity Hub; quét QR ở trang của Hub.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+  const raw = body === undefined ? undefined : JSON.stringify(body);
+  let res: Response;
+  try {
+    res = await fetch(t.url.replace(/\/channel\/v1\/commands$/, '') + path, {
+      method, body: raw, signal: AbortSignal.timeout(10_000),
+      headers: { authorization: `Bearer ${t.key}`, ...(raw !== undefined ? { 'content-type': 'application/json', 'x-bizcity-signature': signBody(t.secret, raw) } : {}) },
+    });
+  } catch { throw failure('NOT_READY', 'Không tới được máy kết nối — kiểm Cài đặt › Kết nối kênh.'); }
+  const j = (await res.json().catch(() => null)) as T & { error?: { code?: string; message?: string } } | null;
+  if (!res.ok) throw failure(res.status === 404 ? 'NOT_FOUND' : 'CONFLICT', j?.error?.message ?? `Máy kết nối trả ${res.status}`, { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+  return j as T;
+}
+type QrView = { status: string; qrDataUri?: string; error?: string };
+const qrOut = (flowId: string, q: QrView) => ({ flowId, status: (q.status ?? 'idle') as never, qrRef: q.qrDataUri ?? null, error: q.error ?? null });
+
 async function view(tx: Db, tenantId: string, issued: ChannelLink['issued'] = null): Promise<ChannelLink> {
   const l = await tx.selectFrom('channel_links').selectAll().where('tenant_id', '=', tenantId).executeTakeFirst();
   const iso = (d: Date | null | undefined) => (d ? new Date(d).toISOString() : null);
@@ -61,6 +81,25 @@ export const channelLinkHandlers: Record<string, Handler> = {
     if (prev) await tx.updateTable('channel_links').set(v as never).where('tenant_id', '=', tenantId).execute();
     else await tx.insertInto('channel_links').values({ ...v, tenant_id: tenantId } as never).execute();
     return view(tx, tenantId, issued);
+  },
+  'cake.channel.connect_start': async ({ tx, tenantId }: Ctx, i) => {
+    if (i.channel !== 'zalo_personal') throw failure('CONFLICT', 'Bản này kết nối Zalo cá nhân; Facebook cá nhân trên máy kết nối: đợt sau.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+    const a = await connectorCall<{ account: { id: string } }>(tx, tenantId, 'POST', '/accounts', { label: i.label });
+    const q = await connectorCall<QrView>(tx, tenantId, 'POST', `/accounts/${a.account.id}/qr`, {});
+    return { flowId: a.account.id, nextStep: 'qr' as const, qrRef: q.qrDataUri ?? null };
+  },
+  'cake.channel.connect_status': async ({ tx, tenantId }: Ctx, i) => qrOut(i.flowId, await connectorCall<QrView>(tx, tenantId, 'GET', `/accounts/${encodeURIComponent(i.flowId)}/qr`)),
+  'cake.channel.connect_finish': async ({ tx, tenantId, userId }: Ctx, i) => {
+    const list = await connectorCall<{ accounts: { id: string; label: string; zaloUid: string | null; running: boolean }[] }>(tx, tenantId, 'GET', '/accounts');
+    const a = list.accounts.find((x) => x.id === i.flowId);
+    if (!a?.zaloUid || !a.running) throw failure('CONFLICT', 'Số chưa đăng nhập xong — quét QR rồi thử lại.', { reason: 'CAKE_CHANNEL_NOT_CONNECTED' });
+    const now = new Date();
+    const prev = await tx.selectFrom('channel_accounts').select(['channel_account_id']).where('tenant_id', '=', tenantId).where('channel', '=', 'zalo_personal').where('external_account_id', '=', a.zaloUid).executeTakeFirst();
+    const id = prev?.channel_account_id ?? newUlid();
+    if (prev) await tx.updateTable('channel_accounts').set({ cell_ref: a.id, status: 'connected', connected_at: now, label: a.label }).where('tenant_id', '=', tenantId).where('channel_account_id', '=', id).execute();
+    else await tx.insertInto('channel_accounts').values({ channel_account_id: id, tenant_id: tenantId, channel: 'zalo_personal', kind: 'personal', external_account_id: a.zaloUid, label: a.label, owner_user_id: userId ?? null, cell_ref: a.id, status: 'connected', connected_at: now } as never).execute();
+    await notifyChanged(tx, tenantId, ['cake.channel.manage']);
+    return { channelAccountId: id, externalAccountId: a.zaloUid, label: a.label, status: 'connected' as const };
   },
   'cake.channel_link.test': async ({ tx, tenantId }: Ctx) => {
     const t = await channelTarget(tx, tenantId);

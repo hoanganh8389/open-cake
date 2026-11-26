@@ -20,7 +20,7 @@ describe('recordDataSchema (R-REUSE-5: máy chủ và form dùng chung)', () => 
 
 describe('danh mục app', () => {
   it("action cake + lớp mềm + danh mục, không trùng id / route", () => {
-    expect(ALL_ACTIONS.length).toBe(62); // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — + 8 action nhân viên / vai
-    expect(Object.keys(appCatalog)).toHaveLength(62);
+    expect(ALL_ACTIONS.length).toBe(64); // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7 — + 8 action nhân viên / vai
+    expect(Object.keys(appCatalog)).toHaveLength(64);
   });
 });

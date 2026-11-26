@@ -41,3 +41,27 @@ export const channelLinkTest = defineActionSpec({
 });
 
 export const CHANNEL_LINK_ACTIONS = [channelLinkGet, channelLinkSet, channelLinkTest] as const;
+
+// [2026-11-26 10:06 PM Johnny Chu - Chu Hoàng Anh] KN K7 — bước ③ của 4 bước (Tự cài): cake.channel.connect_start (đã có) tạo số trên máy kết nối + bắt đầu QR ⇒
+//   connect_status (chỉ đọc, giao diện hỏi lại) ⇒ quét xong ⇒ connect_finish ghi channel_accounts (uid Zalo, cell_ref = id số trên máy kết nối, người phụ trách = người đang đăng nhập).
+export const ConnectStatusSchema = z.object({
+  flowId: z.string(),
+  status: z.enum(['idle', 'starting', 'waiting_scan', 'scanned', 'success', 'declined', 'expired', 'error']),
+  /** ảnh QR (data URI) — chỉ có khi đang chờ quét. */
+  qrRef: z.string().nullable(),
+  error: z.string().nullable(),
+});
+export type ConnectStatus = z.infer<typeof ConnectStatusSchema>;
+export const channelConnectStatus = defineActionSpec({
+  id: 'cake.channel.connect_status', capability: 'cake.channel.manage', title: 'Trạng thái quét QR', kind: 'query',
+  input: z.object({ flowId: z.string().min(1).max(64) }), output: ConnectStatusSchema, permission: 'cake:channels-lap', risk: 'read',
+  expose: { rest: 'GET /api/v1/channels/connect/:flowId', ui: true },
+});
+export const channelConnectFinish = defineActionSpec({
+  id: 'cake.channel.connect_finish', capability: 'cake.channel.manage', title: 'Hoàn tất kết nối số', kind: 'command',
+  input: z.object({ flowId: z.string().min(1).max(64) }),
+  output: z.object({ channelAccountId: z.string(), externalAccountId: z.string(), label: z.string(), status: z.enum(['connected', 'connecting']) }),
+  permission: 'cake:channels-lap', risk: 'medium', idempotent: true, reasons: ['CAKE_CHANNEL_NOT_CONNECTED'],
+  expose: { rest: 'POST /api/v1/channels/connect/:flowId/finish', ui: true },
+});
+export const CHANNEL_CONNECT_ACTIONS = [channelConnectStatus, channelConnectFinish] as const;

@@ -20,6 +20,7 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
   let issued = { key: '', secret: '' };
   const got: { path: string; auth: string; body: string; sig: string }[] = [];
   let conv = { id: '', thread: '', account: '' };
+  let scanned = false;
 
   const call = (method: 'GET' | 'POST', u: string, payload?: object) =>
     app.inject({ method, url: u, payload, headers: { authorization: `Bearer ${token}`, ...(method === 'POST' ? { 'idempotency-key': `k-${Math.random().toString(36).slice(2, 12)}` } : {}) } });
@@ -45,6 +46,12 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
     connServer = createServer(async (req, res) => {
       let raw = ''; for await (const c of req) raw += c;
       got.push({ path: req.url!, auth: String(req.headers.authorization), body: raw, sig: String(req.headers['x-bizcity-signature'] ?? '') });
+      // [2026-11-26 10:09 PM Johnny Chu - Chu Hoàng Anh] KN K7 — API tài khoản của máy kết nối: thêm số, QR (chờ quét → quét xong khi test bật `scanned`), danh sách.
+      const json = (code: number, b: object) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(b)); };
+      if (req.method === 'POST' && req.url === '/accounts') return json(200, { ok: true, account: { id: 'acc-q1', label: JSON.parse(raw).label } });
+      if (req.url === '/accounts/acc-q1/qr') return json(200, { ok: true, ...(scanned ? { status: 'success' } : { status: 'waiting_scan', qrDataUri: 'data:image/png;base64,QR' }) });
+      if (req.url === '/accounts/nope/qr') return json(404, { ok: false, error: { code: 'account_not_found', message: 'Không có số này' } });
+      if (req.method === 'GET' && req.url === '/accounts') return json(200, { ok: true, accounts: [{ id: 'acc-q1', label: 'Zalo bán hàng 2', platform: 'zalo', status: scanned ? 'active' : 'pending', zaloUid: scanned ? 'zl_k7_999' : null, running: scanned }] });
       res.writeHead(req.url === '/health' ? 200 : 202, { 'content-type': 'application/json' }); res.end(JSON.stringify({ ok: true, accepted: true }));
     });
     connUrl = await listen(connServer);
@@ -97,5 +104,34 @@ describe.skipIf(!url)('cách kết nối kênh: Tự cài (máy kết nối) ⇄
     expect(rot.key).not.toBe(issued.key);
     expect((await ingress(touch('3'), issued.key, issued.secret)).statusCode).toBe(401);
     expect((await ingress(touch('4'), rot.key, rot.secret)).statusCode).toBe(200);
+  });
+
+  it('bước ③ Tự cài: bắt đầu ⇒ số trên máy kết nối + QR (POST có chữ ký); chưa quét ⇒ hoàn tất CONFLICT; quét xong ⇒ ghi channel_accounts, lặp lại không nhân đôi', async () => {
+    got.length = 0;
+    const s = (await call('POST', '/api/v1/channels/connect', { channel: 'zalo_personal', label: 'Zalo bán hàng 2' })).json().data;
+    expect(s).toEqual({ flowId: 'acc-q1', nextStep: 'qr', qrRef: 'data:image/png;base64,QR' });
+    const add = got.find((x) => x.path === '/accounts')!;
+    expect(add.sig).toMatch(/^t=\d+,v1=[0-9a-f]{64}$/);
+    expect((await call('GET', '/api/v1/channels/connect/acc-q1')).json().data).toMatchObject({ status: 'waiting_scan', qrRef: 'data:image/png;base64,QR', error: null });
+    expect((await call('GET', '/api/v1/channels/connect/nope')).json().error.code).toBe('NOT_FOUND');
+    expect((await call('POST', '/api/v1/channels/connect/acc-q1/finish', {})).json().error.code).toBe('CONFLICT');
+    scanned = true;
+    expect((await call('GET', '/api/v1/channels/connect/acc-q1')).json().data.status).toBe('success');
+    const f = (await call('POST', '/api/v1/channels/connect/acc-q1/finish', {})).json().data;
+    expect(f).toMatchObject({ externalAccountId: 'zl_k7_999', label: 'Zalo bán hàng 2', status: 'connected' });
+    expect((await call('POST', '/api/v1/channels/connect/acc-q1/finish', {})).json().data.channelAccountId).toBe(f.channelAccountId);
+    const rows = (await sql(`SELECT cell_ref, status, owner_user_id FROM channel_accounts WHERE external_account_id = 'zl_k7_999'`)).rows;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ cell_ref: 'acc-q1', status: 'connected' });
+    expect(rows[0]!.owner_user_id).not.toBeNull();
+    expect((await call('GET', '/api/v1/channels')).json().data.some((a: { externalAccountId: string }) => a.externalAccountId === 'zl_k7_999')).toBe(true);
+  });
+
+  it('đơn vị dùng Hub ⇒ bước ③ báo rõ chưa có (không gọi máy kết nối)', async () => {
+    await call('POST', '/api/v1/channel-link', { mode: 'hub' });
+    got.length = 0;
+    const r = (await call('POST', '/api/v1/channels/connect', { channel: 'zalo_personal', label: 'x' })).json();
+    expect(r.error.code).toMatch(/CONFLICT|NOT_READY/);
+    expect(got).toHaveLength(0);
   });
 });
