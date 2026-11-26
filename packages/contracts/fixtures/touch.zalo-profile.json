@@ -1,0 +1,43 @@
+{
+  "contract": "bizcity_touch@1",
+  "eventId": "01JDAB0000000000000000K001",
+  "occurredAt": "2025-11-26T08:00:00.000Z",
+  "source": "cell:zh-local-1",
+  "docKey": "zalo_personal|7350219485123001001|800001|profile",
+  "version": 1764144000,
+  "channel": "zalo_personal",
+  "channelAccount": {
+    "externalAccountId": "7350219485123001001",
+    "kind": "personal"
+  },
+  "encryption": {
+    "e2ee": false,
+    "decryptedOnCell": false
+  },
+  "history": {
+    "backfill": true,
+    "cursor": null
+  },
+  "type": "profile.updated",
+  "thread": {
+    "externalThreadId": "800001",
+    "kind": "dm",
+    "anchor": null
+  },
+  "sender": {
+    "scope": "global",
+    "externalId": "800001",
+    "displayName": "Thảo Vy",
+    "avatarRef": "https://cell/a/800001.jpg"
+  },
+  "direction": "inbound",
+  "content": {
+    "type": "none",
+    "text": null,
+    "attachments": []
+  },
+  "hints": {
+    "phone": "0909123456"
+  },
+  "delivery": null
+}
