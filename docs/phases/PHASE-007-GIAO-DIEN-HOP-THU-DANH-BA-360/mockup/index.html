@@ -1,0 +1,220 @@
+<!doctype html>
+<!-- [2026-11-26 04:54 PM Johnny Chu - Chu Hoàng Anh] KN-1 · PHASE-007 S007-6 — mockup chờ chủ duyệt: hai luồng kết nối (Tự cài mặc định · BizCity Hub), 4 bước theo R-SETUP-4 (bizcity-twin-ai core/channel-gateway PHASE-0.83).
+     ① Cài đặt › Kết nối kênh · ② 4 bước Tự cài (①② Đạt sẵn, ③ QR) · ③ Đã sẵn sàng + nhắn thử hai chiều + gợi ý Hub · ④ 4 bước BizCity Hub (④ Agent Guru + quyền lợi). Tài liệu: docs/architecture/25-KET-NOI-KENH.md -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kết nối kênh — mockup</title>
+<link rel="stylesheet" href="../../../../packages/ui-kit/src/tokens.css">
+<link rel="stylesheet" href="../../../../packages/ui-kit/src/chat.css">
+<style>
+  .frame { display: none; } .frame:target { display: grid; }
+  .ico { width: 18px; height: 18px; flex: none; }
+  .rail2 { width: 72px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 16px; }
+  .rail2 .nb { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; color: var(--muted-foreground); }
+  .rail2 .nb.on { background: var(--primary); color: #fff; }
+  .body { display: grid; grid-template-columns: 72px 1fr; min-height: 0; overflow: auto; }
+  .page { max-width: 1120px; }
+  /* bộ 4 bước — theo FourStepSetup của channel-gateway: số tròn, nhãn, huy hiệu trạng thái, mô tả, phần thân khi đang làm */
+  .stp { padding: 0; overflow: hidden; }
+  .st { display: grid; grid-template-columns: 44px 1fr auto; gap: 4px 16px; padding: 20px 24px; border-top: 1px solid var(--border); align-items: start; }
+  .st:first-child { border-top: 0; }
+  .st .n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--muted); color: var(--muted-foreground); }
+  .st.now .n { background: var(--primary); color: #fff; box-shadow: 0 0 0 5px var(--primary-soft); }
+  .st.done .n { background: var(--success-soft); color: var(--success); }
+  .st.lock { opacity: .62; }
+  .st .t { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .st .d { grid-column: 2; color: var(--muted-foreground); font-size: var(--fs-sm); }
+  .st .bd { grid-column: 2 / 4; margin-top: 12px; }
+  .prog { height: 8px; width: 220px; border-radius: 99px; background: var(--muted); overflow: hidden; } .prog i { display: block; height: 100%; background: var(--success); }
+  .qr { width: 168px; height: 168px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: 12px; display: grid; grid-template-columns: repeat(21, 1fr); }
+  .qr i { display: block; } .qr i.b { background: #111; }
+  .mode { display: grid; grid-template-columns: 22px 1fr; gap: 6px 12px; padding: 18px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--card); }
+  .mode.on { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+  .mode .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--input); margin-top: 3px; } .mode.on .dot { border: 6px solid var(--primary); }
+  .ben { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; font-size: var(--fs-sm); }
+  .ben li { display: flex; gap: 10px; align-items: flex-start; } .ben li .ico { color: var(--primary); width: 18px; height: 18px; margin-top: 1px; }
+  .hub { background: linear-gradient(180deg, var(--primary-soft), var(--card) 70%); border-color: var(--primary-soft); }
+  .kv { display: grid; grid-template-columns: 180px 1fr; gap: 12px 16px; font-size: var(--fs-sm); align-items: center; } .kv dt { color: var(--muted-foreground); } .kv dd { margin: 0; }
+  .tbl td, .tbl th { vertical-align: middle; }
+  .win { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bub { padding: 10px 14px; border-radius: 14px; font-size: var(--fs-sm); max-width: 80%; } .bub.out { background: var(--primary); color: #fff; margin-left: auto; } .bub.in { background: var(--muted); }
+  code { font-size: 13px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-contact" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.8-2 2-3 3.5-3s2.7 1 3.5 3M15 9h4M15 13h4"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 0 0-14.7-4M4 4v4h4M4 13a8 8 0 0 0 14.7 4M20 20v-4h-4"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></symbol>
+</svg>
+
+<!-- ① CÀI ĐẶT › KẾT NỐI KÊNH — cách kết nối (Tự cài đang dùng · BizCity Hub), máy kết nối, khoá, quyền lợi Hub -->
+<section class="frame app" id="cai-dat-ket-noi">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page">
+      <div class="h2">Kết nối kênh</div><div class="sm muted mt8">Cách Open CRM nhận và gửi tin Zalo / Facebook. Đổi cách không mất lịch sử khách và hội thoại.</div>
+      <div class="grid mt24" style="grid-template-columns:1fr 1fr;gap:16px">
+        <div class="mode on"><span class="dot"></span><div><div class="row" style="gap:10px"><svg class="ico"><use href="#i-server"/></svg><b>Tự cài</b><span class="badge ok">Đang dùng</span><span class="badge out">Miễn phí</span></div>
+          <div class="sm muted mt8">Máy kết nối chạy ngay trên máy chủ của bạn. Phiên đăng nhập Zalo / Facebook nằm trên máy của bạn.</div></div></div>
+        <div class="mode"><span class="dot"></span><div><div class="row" style="gap:10px"><svg class="ico"><use href="#i-cloud"/></svg><b>BizCity Hub</b><span class="xs subtle">zalo.bizcity.vn · khoá 1API</span></div>
+          <div class="sm muted mt8">BizCity giữ máy kết nối cho bạn, kèm <b>trợ lý AI trả lời</b>, MCP và quản lý số từ xa.</div></div></div>
+      </div>
+
+      <div class="card pad mt24">
+        <div class="row"><b>Máy kết nối</b><span class="xs subtle">kiểm lúc 16:52</span><span class="grow"></span><button class="btn out sm"><svg class="ico"><use href="#i-refresh"/></svg>Kiểm tra tất cả</button></div>
+        <table class="tbl mt16">
+          <thead><tr><th>Kênh</th><th>Thư viện</th><th>Trạng thái</th><th>Số / tài khoản</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b style="font-weight:500">Zalo cá nhân</b></td><td><code>zca-js</code></td><td><span class="badge ok"><span class="dot"></span>Đang chạy</span></td><td>3 số</td><td class="r"><button class="btn ghost sm">Tắt</button></td></tr>
+            <tr><td><b style="font-weight:500">Facebook cá nhân</b></td><td><code>fbchat-v2</code></td><td><span class="badge out">Tắt</span></td><td>—</td><td class="r"><button class="btn out sm">Bật</button></td></tr>
+            <tr><td><b style="font-weight:500">Nhóm / kênh khác</b></td><td><code>grim</code> …</td><td><span class="badge out">Tắt</span></td><td>—</td><td class="r"><button class="btn out sm">Bật</button></td></tr>
+          </tbody>
+        </table>
+        <dl class="kv mt24">
+          <dt>Khoá nối nội bộ</dt><dd><code>cnk_••••••••••••7f2a</code> <span class="badge ok">Đạt</span> <span class="xs subtle">sinh khi cài, cả hai phía đã có</span> <button class="btn ghost sm">Đổi khoá</button></dd>
+          <dt>Địa chỉ máy kết nối</dt><dd><code>http://cake-connector-zalo:8130</code> <span class="xs subtle">(trong cùng docker compose)</span></dd>
+        </dl>
+      </div>
+
+      <div class="card pad mt16 hub">
+        <div class="row"><svg class="ico" style="color:var(--primary)"><use href="#i-spark"/></svg><b>Dùng BizCity Hub để có thêm trợ lý</b><span class="grow"></span><button class="btn ghost sm">Để sau</button><button class="btn pri sm">Chuyển sang BizCity Hub</button></div>
+        <ul class="ben">
+          <li><svg class="ico"><use href="#i-check"/></svg><span><b>Trợ lý AI trả lời khách 24/7</b> theo Agent Guru của bạn — nhân viên vẫn thấy mọi tin trong hộp thư</span></li>
+          <li><svg class="ico"><use href="#i-check"/></svg><span><b>MCP</b>: trợ lý tra đơn, tồn, công nợ và soạn sẵn câu trả lời — nhân viên bấm duyệt mới gửi</span></li>
+          <li><svg class="ico"><use href="#i-check"/></svg><span><b>Quản lý số từ xa</b>: quét lại QR, cảnh báo khi số rớt phiên, xem ở bất cứ đâu</span></li>
+          <li><svg class="ico"><use href="#i-check"/></svg><span><b>Không phải tự cập nhật</b> khi Zalo / Facebook đổi — BizCity lo</span></li>
+        </ul>
+        <div class="xs subtle mt16">Cần khoá 1API (lấy ở trang tài khoản BizCity). Gói và giá xem tại bizcity.vn. Tự cài vẫn đủ mọi tính năng CRM.</div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ② 4 BƯỚC — TỰ CÀI, MẶC ĐỊNH: ① ② Đạt sẵn sau khi cài (máy chủ kiểm thật), ③ đang quét QR, ④ khoá -->
+<section class="frame app" id="bon-buoc-tu-cai">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page">
+      <div class="row"><div><div class="h2">Thiết lập Zalo trong 4 bước</div><div class="sm muted mt8">Làm lần lượt từ trên xuống. Mỗi bước tự kiểm tra và báo <b>Đạt</b> hay <b>Chưa đạt</b> ngay.</div></div>
+        <span class="grow"></span><span class="badge out"><svg class="ico" style="width:14px;height:14px"><use href="#i-server"/></svg>Tự cài</span><div class="prog"><i style="width:50%"></i></div><b class="sm">2/4 bước xong</b><button class="btn ghost icon sm" title="Kiểm tra lại"><svg class="ico"><use href="#i-refresh"/></svg></button></div>
+      <div class="card stp mt24">
+        <div class="st done"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><div class="t">Bước 1 · Kết nối tài khoản <span class="badge ok">Đạt</span></div><span></span>
+          <div class="d">Khoá nối nội bộ đã có sẵn từ lúc cài — không cần dán gì.</div></div>
+        <div class="st done"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><div class="t">Bước 2 · Kết nối máy chủ Zalo <span class="badge ok">Đạt</span></div><span class="xs subtle"><a href="#">Dùng dịch vụ khác…</a></span>
+          <div class="d">Máy kết nối Zalo đang chạy trên máy chủ của bạn (<code>zca-js</code>) · kiểm lúc 16:52.</div></div>
+        <div class="st now"><span class="n">3</span><div class="t">Bước 3 · Đăng nhập số Zalo <span class="badge pri">Chờ quét mã</span></div><span></span>
+          <div class="d">Nhập số điện thoại, rồi quét mã QR bằng ứng dụng Zalo trên điện thoại của số đó.</div>
+          <div class="bd row" style="align-items:flex-start;gap:28px">
+            <div class="col" style="gap:12px;min-width:320px">
+              <label class="sm"><b>Số điện thoại Zalo</b></label>
+              <input class="input" value="0909 123 456">
+              <div class="sm muted">Mở Zalo trên điện thoại ⇒ <b>Quét mã QR</b> ⇒ quét mã bên cạnh ⇒ <b>Đăng nhập</b>.</div>
+              <div class="row"><button class="btn out sm"><svg class="ico"><use href="#i-refresh"/></svg>Tạo mã mới</button><span class="xs subtle">mã hết hạn sau 1:42</span></div>
+            </div>
+            <div class="qr" id="qr1"></div>
+          </div></div>
+        <div class="st lock"><span class="n"><svg class="ico"><use href="#i-lock"/></svg></span><div class="t">Bước 4 · Người trực &amp; trợ lý <span class="badge out">Chờ bước trước</span></div><span></span>
+          <div class="d">Chọn nhân viên trực hộp thư cho số này, rồi nhắn thử một tin.</div></div>
+      </div>
+      <div class="xs subtle mt16">Trục: Kênh Zalo → Hộp thư Open CRM → Danh bạ / Contact 360 → Đơn &amp; công nợ.</div>
+    </main>
+  </div>
+</section>
+
+<!-- ③ ĐÃ SẴN SÀNG — thắng nhỏ: nhắn thử hai chiều có bằng chứng; gợi ý BizCity Hub kèm quyền lợi (không chặn) -->
+<section class="frame app" id="bon-buoc-xong">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page">
+      <div class="card pad">
+        <div class="row"><span class="n" style="width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--success-soft);color:var(--success)"><svg class="ico"><use href="#i-check"/></svg></span>
+          <div><div class="h3">Zalo đã sẵn sàng</div><div class="sm muted">Shop Hoa Mai · 0909 123 456 · người trực: Chị Lan · <span class="badge out">Tự cài</span></div></div>
+          <span class="grow"></span><button class="btn out">Xem 4 bước</button><button class="btn out">+ Thêm số Zalo</button><button class="btn pri"><svg class="ico"><use href="#i-chat"/></svg>Mở hộp thư</button></div>
+        <div class="prog mt16" style="width:100%"><i style="width:100%"></i></div>
+      </div>
+
+      <div class="card pad mt16">
+        <div class="row"><b>Nhắn thử</b><span class="badge ok"><svg class="ico" style="width:14px;height:14px"><use href="#i-check"/></svg>Đã thử hai chiều</span><span class="xs subtle">16:58 · 4 giây</span><span class="grow"></span><button class="btn ghost sm"><svg class="ico"><use href="#i-send"/></svg>Nhắn thử lại</button></div>
+        <div class="win mt16">
+          <div class="card pad" style="background:var(--muted)"><div class="xs subtle">Gửi đi từ Open CRM ⇒ Zalo</div><div class="col mt8" style="gap:8px"><div class="bub out">Tin nhắn thử từ Open CRM ✓</div><div class="xs subtle" style="text-align:right">Đã gửi · Zalo nhận lúc 16:58:02</div></div></div>
+          <div class="card pad" style="background:var(--muted)"><div class="xs subtle">Nhận về từ Zalo ⇒ hộp thư</div><div class="col mt8" style="gap:8px"><div class="bub in">ok nhận được rồi</div><div class="xs subtle">Vào hộp thư lúc 16:58:04 · Contact 360 đã ghi một lượt chạm</div></div></div>
+        </div>
+        <div class="xs subtle mt16">"Đã thử hai chiều" chỉ hiện khi máy chủ có bằng chứng cả tin đi lẫn tin về — không hiện sẵn.</div>
+      </div>
+
+      <div class="card pad mt16 hub">
+        <div class="row"><svg class="ico" style="color:var(--primary)"><use href="#i-spark"/></svg><b>Muốn có thêm trợ lý trả lời khách?</b><span class="grow"></span><button class="btn ghost sm">Để sau</button><button class="btn pri sm">Xem BizCity Hub</button></div>
+        <ul class="ben">
+          <li><svg class="ico"><use href="#i-check"/></svg><span>Dùng <b>BizCity Hub</b> thì số này có <b>trợ lý AI trả lời 24/7</b> và soạn nháp đơn / báo giá qua <b>MCP</b> — nhân viên duyệt mới gửi.</span></li>
+          <li><svg class="ico"><use href="#i-check"/></svg><span>Lịch sử và khách giữ nguyên; chỉ cần dán khoá 1API rồi quét QR lại.</span></li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ④ 4 BƯỚC — BIZCITY HUB: ① Khoá 1API, ② Zalo Hub, ③ số đã đăng nhập, ④ đang chọn Agent Guru + quyền lợi -->
+<section class="frame app" id="bon-buoc-hub">
+  <header class="titlebar"><span class="brand">Open CRM</span><span class="ver">open-cake 0.1 · Shop Hoa Mai</span><span class="badge warn">Bản mẫu</span><span class="grow"></span></header>
+  <div class="body">
+    <nav class="rail2"><span class="nb"><svg class="ico"><use href="#i-grid"/></svg></span><span class="nb"><svg class="ico"><use href="#i-chat"/></svg></span><span class="nb"><svg class="ico"><use href="#i-contact"/></svg></span><span class="nb on"><svg class="ico"><use href="#i-link"/></svg></span><span class="nb"><svg class="ico"><use href="#i-cog"/></svg></span></nav>
+    <main class="page">
+      <div class="row"><div><div class="h2">Thiết lập Zalo trong 4 bước</div><div class="sm muted mt8">Làm lần lượt từ trên xuống. Mỗi bước tự kiểm tra và báo <b>Đạt</b> hay <b>Chưa đạt</b> ngay.</div></div>
+        <span class="grow"></span><span class="badge pri"><svg class="ico" style="width:14px;height:14px"><use href="#i-cloud"/></svg>BizCity Hub</span><div class="prog"><i style="width:75%"></i></div><b class="sm">3/4 bước xong</b><button class="btn ghost icon sm" title="Kiểm tra lại"><svg class="ico"><use href="#i-refresh"/></svg></button></div>
+      <div class="card stp mt24">
+        <div class="st done"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><div class="t">Bước 1 · Kết nối tài khoản BizCity <span class="badge ok">Đạt</span></div><span></span>
+          <div class="d">Khoá 1API <code>biz-4e8b…f0c0</code> · gói Doanh nghiệp còn 212 ngày. <a href="#">Đổi khoá</a></div></div>
+        <div class="st done"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><div class="t">Bước 2 · Kết nối máy chủ Zalo <span class="badge ok">Đạt</span></div><span class="xs subtle"><a href="#">Dùng dịch vụ khác…</a></span>
+          <div class="d">Zalo Hub của BizCity — không cần cài gì thêm.</div></div>
+        <div class="st done"><span class="n"><svg class="ico"><use href="#i-check"/></svg></span><div class="t">Bước 3 · Đăng nhập số Zalo <span class="badge ok">Đạt</span></div><span></span>
+          <div class="d">0909 123 456 · Shop Hoa Mai · người phụ trách: Chị Lan.</div></div>
+        <div class="st now"><span class="n">4</span><div class="t">Bước 4 · Người trực &amp; trợ lý <span class="badge pri">Đang chọn</span></div><span></span>
+          <div class="d">Agent Guru là "bộ não" trả lời khách. Mặc định dùng <b>Agent Guru mặc định</b> của bạn.</div>
+          <div class="bd grid" style="grid-template-columns:1.2fr 1fr;gap:20px">
+            <div class="col" style="gap:12px">
+              <dl class="kv">
+                <dt>Người trực hộp thư</dt><dd><select class="input sm" style="width:100%"><option>Chị Lan</option></select></dd>
+                <dt>Agent Guru trả lời</dt><dd><select class="input sm" style="width:100%"><option>Tư vấn Shop Hoa Mai (mặc định)</option></select> <a href="#" class="xs">Sửa nhanh</a></dd>
+                <dt>Tự trả lời</dt><dd><label class="row" style="gap:8px"><input type="checkbox" checked> Bật — trợ lý trả lời khi chưa có nhân viên nhận tin</label></dd>
+              </dl>
+              <div class="row"><button class="btn pri"><svg class="ico"><use href="#i-check"/></svg>Hoàn tất &amp; nhắn thử</button></div>
+            </div>
+            <div class="card pad hub"><div class="row"><svg class="ico" style="color:var(--primary)"><use href="#i-spark"/></svg><b>Quyền lợi đang có với BizCity Hub</b></div>
+              <ul class="ben">
+                <li><svg class="ico"><use href="#i-check"/></svg><span>Trợ lý AI trả lời 24/7 theo Agent Guru</span></li>
+                <li><svg class="ico"><use href="#i-check"/></svg><span>MCP: trợ lý tra đơn, tồn, công nợ; soạn nháp để duyệt</span></li>
+                <li><svg class="ico"><use href="#i-check"/></svg><span>Quản lý số từ xa, cảnh báo rớt phiên</span></li>
+              </ul></div>
+          </div></div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+  // mã QR minh hoạ (không quét được) — chỉ để hình dung khung
+  for (const el of document.querySelectorAll('.qr')) {
+    let s = 7, h = '';
+    const fin = (r, c) => [[0, 0], [0, 14], [14, 0]].some(([a, b]) => r >= a && r < a + 7 && c >= b && c < b + 7);
+    const ring = (r, c) => { const [a, b] = [[0, 0], [0, 14], [14, 0]].find(([a, b]) => r >= a && r < a + 7 && c >= b && c < b + 7); const y = r - a, x = c - b; return y === 0 || y === 6 || x === 0 || x === 6 || (y >= 2 && y <= 4 && x >= 2 && x <= 4); };
+    for (let r = 0; r < 21; r++) for (let c = 0; c < 21; c++) { s = (s * 1103515245 + 12345) % 2147483648; h += `<i class="${fin(r, c) ? (ring(r, c) ? 'b' : '') : (s % 3 === 0 ? 'b' : '')}"></i>`; }
+    el.innerHTML = h;
+  }
+</script>
+</body>
+</html>

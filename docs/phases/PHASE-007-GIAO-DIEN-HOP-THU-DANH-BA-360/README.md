@@ -15,7 +15,7 @@
 | S007-3 | Hộp thư 3 cột: danh sách theo tài khoản kênh, tin (con trỏ), thẻ, gửi chữ / ảnh / tệp, gán người | [inbox](../../ui/mockup-shots/inbox.png) |
 | S007-4 | Danh bạ: bảng, lọc nhãn / giới tính / sinh nhật, chọn nhiều, gắn nhãn, xuất (quyền cao) | [contacts](../../ui/mockup-shots/contacts.png) |
 | S007-5 | **Contact 360**: dòng thời gian mọi kênh, danh tính + độ tin, Ghép / Tách | (mới) |
-| S007-6 | **Kênh** + sheet Kết nối kênh 4 bước (Zalo trước) | (mới) |
+| S007-6 | **Kênh** + sheet Kết nối kênh 4 bước (Zalo trước) | (mới) · <!-- [2026-11-26 04:54 PM Johnny Chu - Chu Hoàng Anh] KN-1 --> hai luồng Tự cài / BizCity Hub: [25-KET-NOI-KENH](../../architecture/25-KET-NOI-KENH.md), mockup kết nối ①–④ ở `mockup/` **chờ duyệt** |
 | S007-7 | Tổng quan tài khoản | [dashboard](../../ui/mockup-shots/dashboard.png) |
 | S007-8 | Playwright chụp `evidence/build-shots/` và so với ảnh chuẩn | — |
 
