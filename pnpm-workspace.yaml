@@ -1,0 +1,6 @@
+# Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
+# [2026-11-27 10:15 AM Johnny Chu - Chu Hoàng Anh] PHASE-019 S019-1 — pnpm workspace (NC-002 Q-OC-6): gói nội bộ nối bằng workspace:*; pnpm chặn import gói không khai báo
+#   ⇒ giữ ranh giới "module không chạm nội bộ lõi" khi tách open-core (S019-2).
+packages:
+  - "packages/*"
+  - "apps/*"

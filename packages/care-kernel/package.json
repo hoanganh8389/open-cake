@@ -17,7 +17,7 @@
     }
   },
   "dependencies": {
-    "@open-cake/contracts": "0.1.0"
+    "@open-cake/contracts": "workspace:*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json"

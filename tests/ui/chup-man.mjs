@@ -2,7 +2,7 @@
 // [2026-11-25 12:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-8 — chụp TỰ ĐỘNG 4 màn có ảnh chuẩn (docs/ui/mockup-shots: inbox, contacts, dashboard, states) trên Chrome thật,
 //   đếm "phần tử chính" rút từ chính ảnh chuẩn. Phần tử thuộc phase sau ghi `later` — báo ra nhưng không tính tỉ lệ. Màn < 90 % ⇒ trượt (điều kiện "Xong khi" của PHASE-007).
 //   Không so điểm ảnh: ảnh chuẩn là bản vẽ (dữ liệu, cỡ khung khác), so phần tử mới có nghĩa.
-// Chạy: npm run web:build && (cd apps/web && npx vite preview --port 4184) ; node tests/ui/chup-man.mjs http://localhost:4184 <thư-mục-ảnh>
+// Chạy: pnpm run web:build && (cd apps/web && pnpm exec vite preview --port 4184) ; node tests/ui/chup-man.mjs http://localhost:4184 <thư-mục-ảnh>
 import { chromium } from 'playwright-core';
 
 const base = process.argv[2] ?? 'http://localhost:4184';

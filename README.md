@@ -13,10 +13,11 @@
 <!-- [2026-11-24 08:16 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 — có API + Postgres; danh mục chạy máy chủ thật, màn khác còn giả lập. -->
 
 ```bash
-npm install
-npm test            # hợp đồng + bộ giả lập; thêm TEST_DATABASE_URL=postgres://…/cake_test (tên CSDL PHẢI có chữ test — R-STD-SEC-5) để chạy cả test tích hợp API trên Postgres
-npm run typecheck
-npm run web:dev     # http://localhost:5173/#/inbox — ?mock=empty|error|denied|slow xem 4 trạng thái
+corepack enable pnpm   # một lần trên máy (pnpm 9, theo packageManager)
+pnpm install
+pnpm test           # hợp đồng + bộ giả lập; thêm TEST_DATABASE_URL=postgres://…/cake_test (tên CSDL PHẢI có chữ test — R-STD-SEC-5) để chạy cả test tích hợp API trên Postgres
+pnpm run typecheck
+pnpm run web:dev     # http://localhost:5173/#/inbox — ?mock=empty|error|denied|slow xem 4 trạng thái
 ```
 
 Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Contact 360 ca vàng Facebook) · `#/catalog` · `#/channels` · `#/dashboard` · `#/settings`.
