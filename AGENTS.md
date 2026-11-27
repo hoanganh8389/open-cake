@@ -14,6 +14,15 @@
 - Cần sửa lõi ⇒ PR vào open-core (trước C2: bizcity-platform), cake nhận qua bản phát hành; **không** vá `node_modules/@bizcity/*`, không chép mã lõi vào repo.
 - Đổi chuẩn ⇒ PR ở open-platform trước; cake ghi mức đạt bằng `node ../bizcity-platform/tools/standard-check.mjs --repo .`.
 
+<!-- [2026-11-28 12:24 AM Johnny Chu - Chu Hoàng Anh] NC-004 — trụ cột xuyên doanh nghiệp, open-core bảo đảm (canon R-CANON-18) -->
+**Trụ cột xuyên doanh nghiệp (canon R-CANON-18, [NC-004](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/research/NC-004-TRU-COT-XUYEN-DOANH-NGHIEP.md)) — không app nào định nghĩa lại:**
+- `qty` luôn quy về **đơn vị nhỏ nhất** (tỷ lệ 1); `unit` / `unitQty` / `unitRatio` chỉ để hiện; số lượng `numeric(18,4)`, tỷ lệ `(18,6)`, tiền `(18,2)`.
+- `tenant ↔ blog_id` một-một; chuỗi nhiều cửa hàng = nhiều tenant; chi nhánh / kho / phòng ban là cây `branches` trong tenant.
+- `contact_id` ↔ `partner.code` theo SPINE §4; `item_id` ULID bất biến.
+- Chứng từ: `doc_ref` `<module>.<type>:<id>` + `version` + `content_hash`, bốn bảng, `document_links`, workflow YAML `<module>.<type>.workflow.yaml`; gửi đi với `Idempotency-Key = <doc_ref>@<version>` + `traceparent`.
+- Vai quyền, cài đặt, meta / bản ghi mềm, tệp, API, MCP, **bốn bước kết nối open-hub** (`bizcity_hub_setup@1`), đệm, kiểm, bàn điều tra: dùng của lõi.
+- open-cake hiện còn bản riêng của vài trụ (Storage, lớp mềm, danh mục H-1…H-18) — giữ đúng hình chuẩn để dời lên lõi (NC-003 C5) không đổi dữ liệu.
+
 ## Bốn câu không được quên
 
 1. **`contact_id` là trục.** Không bảng nào khoá theo id kênh.
