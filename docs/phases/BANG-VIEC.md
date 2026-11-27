@@ -2,19 +2,19 @@
 
 <!-- Tệp sinh tự động bởi bizcity-platform tools/bang-viec.mjs (R-STD-DLV-6) — không sửa tay; đổi trạng thái ở checklist / README của phase rồi sinh lại. -->
 
-> **Tệp sinh tự động — không sửa tay.** Sinh lại: `node ../bizcity-platform/tools/bang-viec.mjs --repo . --write` · ngày sinh 2026-11-26
+> **Tệp sinh tự động — không sửa tay.** Sinh lại: `node ../bizcity-platform/tools/bang-viec.mjs --repo . --write` · ngày sinh 2026-11-27
 
 | Cột | Số việc |
 |---|---|
 | Đang làm / có mã | 18 |
 | Bị chặn | 0 |
-| Chưa làm | 51 |
+| Chưa làm | 59 |
 | Hoãn | 0 |
 | Xong | 52 |
 | Huỷ | 0 |
 | Đã chuyển | 0 |
 | Theo dõi ở repo khác | 1 |
-| **Tổng** | **122** |
+| **Tổng** | **130** |
 
 > 1 việc ghi trạng thái ở **repo điều phối** (một nguồn trạng thái — ví dụ chương trình OKT ở [bizcity-open-setup](https://github.com/hoanganh8389/bizcity-open-setup/blob/main/docs/chuong-trinh/OKT/40-CHECKLIST.md)); bảng này chỉ trỏ sang, không đếm lại.
 
@@ -40,6 +40,7 @@
 | [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 7 | 4 | 0 | 5 | 16 |
 | [PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/) | Xong | 8 | 0 | 0 | 0 | 8 |
 | [PHASE-018-NOI-LUU-TEP](PHASE-018-NOI-LUU-TEP/) | Đang làm / có mã | 1 | 0 | 0 | 7 | 8 |
+| [PHASE-019-TACH-OPEN-CORE](PHASE-019-TACH-OPEN-CORE/) | Chưa làm | 0 | 0 | 0 | 8 | 8 |
 
 ## Đang làm / có mã (18)
 
@@ -64,7 +65,7 @@
 | [S016-5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L14) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | /api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.* |
 | [S016-Q4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L22) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | nối bộ giám sát chung của máy chủ (infrastructure/monitoring: đoạn scrape + OTLP) |
 
-## Chưa làm (51)
+## Chưa làm (59)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -119,3 +120,11 @@
 | [S018-6](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L14) | PHASE-018-NOI-LUU-TEP | cake |
 | [S018-7](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L15) | PHASE-018-NOI-LUU-TEP | open-setup |
 | [S018-8](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L16) | PHASE-018-NOI-LUU-TEP | bizcity-platform |
+| [S019-1](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L9) | PHASE-019-TACH-OPEN-CORE | cake |
+| [S019-2](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L10) | PHASE-019-TACH-OPEN-CORE | cake |
+| [S019-3](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L11) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
+| [S019-4](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L12) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
+| [S019-5](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L13) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
+| [S019-6](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L14) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
+| [S019-7](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L15) | PHASE-019-TACH-OPEN-CORE | cake |
+| [S019-8](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L16) | PHASE-019-TACH-OPEN-CORE | open-setup |
