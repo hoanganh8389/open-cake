@@ -5,7 +5,7 @@
 | Tài liệu | Ở đâu |
 |---|---|
 | Canon chung (bản chủ) | [open-hub/docs/canon](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/README.md) — chỗ trỏ cũ: [BIZCITY-OPEN-CANON-v1.md](BIZCITY-OPEN-CANON-v1.md) |
-| **Xương sống xuyên app `bizcity_spine@1`** | [bizcity-platform/docs/standard/BIZCITY-SPINE-v1.md](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-SPINE-v1.md) · schema máy đọc `packages/contracts/schema/spine/` |
+| **Xương sống xuyên app `bizcity_spine@1`** | [bizcity-platform/docs/standard/BIZCITY-SPINE-v1.md](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-SPINE-v1.md) · schema máy đọc `schema/spine/` (open-platform) |
 | Luật của repo này | [docs/00-CANON.md](../00-CANON.md) (R-CAKE-*) |
 
 ## App này trong xương sống (`bizcity.app.json` ở gốc repo)
