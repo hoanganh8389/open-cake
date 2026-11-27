@@ -31,7 +31,7 @@ describe.skipIf(!url)('chẩn đoán dữ liệu thật SC-CAKE-2..5', () => {
 
   it('dữ liệu do kernel ghi ⇒ cả bốn phép kiểm ĐẠT; cần quyền reports:read', async () => {
     const r = await run();
-    expect(r.checks.map((c) => c.id)).toEqual(['SC-CAKE-2', 'SC-CAKE-3', 'SC-CAKE-4', 'SC-CAKE-5']);
+    expect(r.checks.map((c) => c.id)).toEqual(['SC-CAKE-2', 'SC-CAKE-3', 'SC-CAKE-4', 'SC-CAKE-5', 'SC-STOR-0']);
     expect(r).toMatchObject({ ok: true });
     for (const c of r.checks) expect(c).toMatchObject({ ok: true, count: 0, sample: [] });
     expect((await app.inject({ method: 'GET', url: '/api/v1/system/diagnostics' })).statusCode).toBe(401);

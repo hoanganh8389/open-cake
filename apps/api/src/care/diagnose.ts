@@ -9,6 +9,7 @@ import { authOf, requirePermission } from '@bizcity/platform/core/auth';
 import { db } from '@bizcity/platform/db/client';
 import { computeState, sameState } from '@open-cake/care-kernel';
 import { PgCareRepo } from './pg-care-repo.js';
+import { storageStatus } from '../storage/index.js';
 
 export type Check = { id: string; title: string; ok: boolean; count: number; sample: string[]; note?: string };
 const SAMPLE = 20;
@@ -39,6 +40,9 @@ export async function diagnoseCare(tenantId: string): Promise<{ ok: boolean; che
       mk('SC-CAKE-4', 'không MERGE nào có bằng chứng là tên', nameMerge),
       mk('SC-CAKE-5', 'contact_state khớp dựng lại từ sổ (bỏ rev)', drift, contacts.length > STATE_LIMIT ? `chỉ kiểm ${STATE_LIMIT} khách đầu` : undefined),
     ];
+    // [2026-11-27 11:05 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-2 — nơi lưu tệp: đặt s3 mà đang lưu đĩa (thiếu / sai cấu hình) thì báo ở đây, như CONFIG_MISSING của bizcity-r2.php
+    const st = await storageStatus();
+    checks.push(mk('SC-STOR-0', `nơi lưu tệp chạy đúng cấu hình (đang dùng: ${st.active})`, st.reason ? [st.reason] : []));
     return { ok: checks.every((c) => c.ok), checks };
   });
 }

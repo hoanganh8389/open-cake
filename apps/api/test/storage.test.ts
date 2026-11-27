@@ -8,7 +8,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { CreateBucketCommand } from '@aws-sdk/client-s3';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { buildKey, LocalDriver, S3Driver, signLocalToken, sitePrefix, verifyLocalToken, type StorageDriver } from '../src/storage/index.js';
+import { readFileSync } from 'node:fs';
+import { buildKey, LocalDriver, signLocalToken, sitePrefix, storageFromEnv, verifyLocalToken, type StorageDriver } from '../src/storage/index.js';
+import { S3Driver } from '../src/storage/s3.js';
 
 const s3Endpoint = process.env.STORAGE_TEST_S3_ENDPOINT;
 const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex');
@@ -94,5 +96,39 @@ describe.each(cases)('bộ lưu $name', ({ make, done, name }) => {
     }
     expect(() => buildKey({ app: 'cake', site: 'Hoa Mai', area: 'chat', tenantId: '1', sha256: 'a'.repeat(64), ext: 'jpg' })).toThrow();
     expect(() => buildKey({ app: 'cake', site: 'hoa-mai', area: 'chat', tenantId: '0', sha256: 'a'.repeat(64), ext: 'jpg' })).toThrow();
+  });
+});
+
+// [2026-11-27 11:05 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-2 — chủ: S3 không cài thì đĩa vẫn dùng được, như WP media (bizcity-r2.php thiếu cấu hình ⇒ CONFIG_MISSING, media vẫn ở uploads/).
+describe('không có S3 ⇒ vẫn lưu trên đĩa (như WP media)', () => {
+  let dir = '';
+  beforeAll(() => { dir = mkdtempSync(path.join(tmpdir(), 'cake-fallback-')); process.env.CAKE_SECRET_KEY = 'khoa-ma-hoa-thu-0123456789abcdef0123'; });
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+  const env = (o: Record<string, string>) => ({ DATA_DIR: dir, ...o }) as NodeJS.ProcessEnv;
+
+  it.each([
+    ['mặc định (không đặt gì)', {}, null],
+    ['đặt s3 nhưng thiếu biến', { STORAGE_DRIVER: 's3', STORAGE_S3_ENDPOINT: 'https://x.r2.cloudflarestorage.com' }, /thiếu STORAGE_S3_BUCKET, STORAGE_S3_ACCESS_KEY, STORAGE_S3_SECRET_KEY/],
+    ['tên bộ sai', { STORAGE_DRIVER: 'r2' }, /không hợp lệ/],
+  ])('%s ⇒ bộ đĩa chạy được, có lý do khi lệch cấu hình', async (_n, o, reason) => {
+    const { driver, status } = await storageFromEnv(env(o));
+    expect(driver.kind).toBe('local');
+    expect(status.active).toBe('local');
+    if (reason) expect(status.reason).toMatch(reason); else expect(status.reason).toBeNull();
+    const body = Buffer.from('ảnh khách gửi');
+    const k = key('_default', body);
+    await driver.put(k, body, 'image/jpeg');
+    expect((await driver.get(k))!.equals(body)).toBe(true);
+  });
+
+  it('đủ cấu hình s3 ⇒ dùng s3 (không gọi mạng lúc dựng)', async () => {
+    const { driver, status } = await storageFromEnv(env({ STORAGE_DRIVER: 's3', STORAGE_S3_ENDPOINT: 'http://127.0.0.1:1', STORAGE_S3_BUCKET: 'b', STORAGE_S3_ACCESS_KEY: 'a', STORAGE_S3_SECRET_KEY: 's' }));
+    expect([driver.kind, status.active, status.reason]).toEqual(['s3', 's3', null]);
+  });
+
+  it('index.ts không import tĩnh bộ s3 / AWS SDK (bản chỉ dùng đĩa không nạp SDK)', () => {
+    const src = readFileSync(path.join(__dirname, '../src/storage/index.ts'), 'utf8');
+    expect(src).not.toMatch(/^import[^\n]*(\.\/s3\.js|@aws-sdk)/m);
+    expect(src).toMatch(/await import\('\.\/s3\.js'\)/);
   });
 });
