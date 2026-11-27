@@ -3,7 +3,7 @@
 
 > **Việc lộ trình:** W3 · **Áp dụng cho:** cake · bizcity-platform · open-setup · bizcity-web · **Trạng thái:** ◐ — chủ chốt NC-002 Q-OC-1…9 ngày 2026-11-27, bắt đầu S019-1 <!-- [2026-11-27 10:15 AM Johnny Chu - Chu Hoàng Anh] PHASE-019 — chủ chốt Q-OC-1…9 --> · **Phụ thuộc:** 014 (nhiều site), 016 (khung chạy), 018 (nơi lưu tệp)
 > **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md).
-> **Kiến trúc:** bizcity-platform [NC-002 open-core](https://github.com/hoanganh8389/bizcity-platform/pull/30) · [NC-001 học từ WordPress](https://github.com/hoanganh8389/bizcity-platform/pull/30) (PR #30 của bizcity-platform).
+> **Kiến trúc:** bizcity-platform [NC-002 open-core](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/research/NC-002-OPEN-CORE-WORKSPACE-UNIVERSAL.md) · [NC-001 học từ WordPress](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/research/NC-001-KERNEL-TU-WORDPRESS.md).
 > **Mục tiêu:** open-cake chạy như **một module CRM trên open-core**: máy chủ khung, giao diện khung, kernel (Site Context, Cache, Options, Meta, Records & Hooks, Storage) là phần chung; phần CRM (chạm khách, hộp thư, kênh, đơn, danh mục) là module có manifest. **Không đổi hành vi** trong lúc tách.
 > **Ngoài phạm vi:** tính năng CRM mới; open-ketoan nhận open-core (đợt riêng qua R-FLOW của repo đó).
 
