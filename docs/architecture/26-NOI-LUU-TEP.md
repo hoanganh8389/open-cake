@@ -119,13 +119,14 @@ open-setup là nơi cài và cấp site (R-STD-SITE-2: không chạm CSDL app). 
 | OS-R2-5 | Lệch giờ máy chủ | R2 từ chối chữ ký khi lệch giờ (F-1 tạm dừng 15 phút) — kiểm NTP của VPS là một bước cài |
 | OS-R2-6 | Hiện cấu hình ở Site Manager | trạng thái bộ lưu của từng app (`local` / `s3`, dung lượng, lần tự kiểm cuối), **không** hiện khoá |
 
-## 7. Câu hỏi chờ chủ
+## 7. Quyết định của chủ (2026-11-27)
+<!-- [2026-11-27 10:51 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-2 — chủ chốt Q-STOR-1…3 theo đề xuất -->
 
 | Mã | Câu hỏi | Đề xuất |
 |---|---|---|
-| Q-STOR-1 | Duyệt khuôn khoá §4.1 và luật §4.2 làm chuẩn chung `bizcity_storage@1` (nộp `bizcity-platform`) | duyệt |
-| Q-STOR-2 | Bộ `local` có xoá tệp chat theo tuổi không | không xoá; cảnh báo 80 % đĩa; đơn vị tự bật hạn nếu cần |
-| Q-STOR-3 | App dùng chung bucket media WP hay bucket riêng | bucket riêng tư riêng (OS-R2-2), cùng tài khoản R2 |
+| Q-STOR-1 | Duyệt khuôn khoá §4.1 và luật §4.2 làm chuẩn chung `bizcity_storage@1` (nộp `bizcity-platform`) | **chốt A**: chuẩn chung; `sites/<slug Workspace>` (một công ty: `_default`) |
+| Q-STOR-2 | Bộ `local` có xoá tệp chat theo tuổi không | **chốt A**: không xoá; cảnh báo 80 % đĩa; settings `bizcity.cake.storage.chat_retention_days` (trống = không xoá) để chủ đơn vị tự bật; chứng từ / bằng chứng không bao giờ xoá theo tuổi |
+| Q-STOR-3 | App dùng chung bucket media WP hay bucket riêng | **chốt B**: bucket riêng tư riêng, cùng tài khoản R2, token quyền hẹp, không gắn tên miền công khai; một bucket cho mọi app open-core, tách bằng tiền tố `<app>/` |
 
 ## Nhật ký
 

@@ -8,9 +8,9 @@
 |---|---|
 | Đang làm / có mã | 18 |
 | Bị chặn | 0 |
-| Chưa làm | 58 |
+| Chưa làm | 57 |
 | Hoãn | 0 |
-| Xong | 53 |
+| Xong | 54 |
 | Huỷ | 0 |
 | Đã chuyển | 0 |
 | Theo dõi ở repo khác | 1 |
@@ -39,7 +39,7 @@
 | [PHASE-015-KIEM-CHUNG-PHAT-HANH](PHASE-015-KIEM-CHUNG-PHAT-HANH/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 7 | 4 | 0 | 5 | 16 |
 | [PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/) | Xong | 8 | 0 | 0 | 0 | 8 |
-| [PHASE-018-NOI-LUU-TEP](PHASE-018-NOI-LUU-TEP/) | Đang làm / có mã | 1 | 0 | 0 | 7 | 8 |
+| [PHASE-018-NOI-LUU-TEP](PHASE-018-NOI-LUU-TEP/) | Đang làm / có mã | 2 | 0 | 0 | 6 | 8 |
 | [PHASE-019-TACH-OPEN-CORE](PHASE-019-TACH-OPEN-CORE/) | Đang làm / có mã | 1 | 0 | 0 | 7 | 8 |
 
 ## Đang làm / có mã (18)
@@ -65,7 +65,7 @@
 | [S016-5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L14) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | /api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.* |
 | [S016-Q4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L22) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | nối bộ giám sát chung của máy chủ (infrastructure/monitoring: đoạn scrape + OTLP) |
 
-## Chưa làm (58)
+## Chưa làm (57)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -113,7 +113,6 @@
 | [S016-9](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L18) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | scripts: so-tiep-theo.mjs, nhan-viec.mjs, ky-dau.mjs, lay-log.sh, kiem-nang-cap.sh |
 | [S016-Q5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L23) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | dashboard + cảnh báo Cake* + test cảnh báo (promtool) + sổ tay |
 | [S016-Q7](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L25) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | diagnostic_runs, L0 / L1, bizcity doctor --bundle |
-| [S018-2](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L10) | PHASE-018-NOI-LUU-TEP | cake |
 | [S018-3](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L11) | PHASE-018-NOI-LUU-TEP | cake |
 | [S018-4](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L12) | PHASE-018-NOI-LUU-TEP | cake |
 | [S018-5](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L13) | PHASE-018-NOI-LUU-TEP | cake |

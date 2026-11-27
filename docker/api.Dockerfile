@@ -26,7 +26,7 @@ ARG BIZCITY_GIT_SHA=
 ENV NODE_ENV=production PORT=8120 CAKE_MIGRATIONS_DIR=/app/db/migrations BIZCITY_GIT_SHA=${BIZCITY_GIT_SHA}
 COPY --from=build /out apps/api
 COPY db/migrations db/migrations
-RUN mkdir -p /app/logs && chown node:node /app/logs
+RUN mkdir -p /app/logs /app/data && chown node:node /app/logs /app/data
 WORKDIR /app/apps/api
 USER node
 EXPOSE 8120
