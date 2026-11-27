@@ -6,7 +6,7 @@
 
 | Mã | Việc | Trạng thái |
 |---|---|---|
-| S019-1 | cake | ☐ |
+| S019-1 | cake | ◐ |
 | S019-2 | cake | ☐ |
 | S019-3 | bizcity-platform | ☐ |
 | S019-4 | bizcity-platform | ☐ |

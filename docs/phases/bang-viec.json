@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-27T02:50:41.546Z",
+  "generated": "2026-11-27T03:16:26.523Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -984,11 +984,11 @@
     {
       "name": "PHASE-019-TACH-OPEN-CORE",
       "path": "docs/phases/PHASE-019-TACH-OPEN-CORE",
-      "status": "Chưa làm",
+      "status": "Đang làm / có mã",
       "items": [
         {
           "id": "S019-1",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 9
