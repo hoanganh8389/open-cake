@@ -81,7 +81,8 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
     });
     [posUrl, ketoanUrl] = [await listen(posServer), await listen(ketoanServer)];
 
-    const schemaFile = join(PLATFORM, 'packages/contracts/schema/order/order-flow.schema.json');
+    // [2026-11-27 11:31 PM Johnny Chu - Chu Hoàng Anh] NC-003 C2 — schema chuẩn ở open-platform `schema/` (trước: packages/contracts/schema); đọc được cả hai
+    const schemaFile = ['schema', 'packages/contracts/schema'].map((d) => join(PLATFORM, d, 'order/order-flow.schema.json')).find((p) => existsSync(p)) ?? '';
     if (existsSync(schemaFile)) {
       const { validate } = await import(pathToFileURL(join(PLATFORM, 'tools/lib/json-schema.mjs')).href) as { validate: (r: unknown, s: unknown, v: unknown) => string[] };
       const schema = JSON.parse(readFileSync(schemaFile, 'utf8'));
