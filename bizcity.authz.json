@@ -90,7 +90,7 @@
     },
     {
       "key": "cake:inbox-lap",
-      "label": "Gửi tin",
+      "label": "Tải tệp lên",
       "risk": "low",
       "module": "cake"
     },

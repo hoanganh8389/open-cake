@@ -9,7 +9,7 @@
 | S018-1 | cake | ☑ |
 | S018-2 | cake | ☑ |
 | S018-3 | cake | ☑ |
-| S018-4 | cake | ☐ |
+| S018-4 | cake | ☑ |
 | S018-5 | cake | ☐ |
 | S018-6 | cake | ☐ |
 | S018-7 | open-setup | ☐ |

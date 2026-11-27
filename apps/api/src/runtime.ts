@@ -98,7 +98,9 @@ async function runCommand(spec: ActionSpec, req: FastifyRequest, input: Any, h: 
   if (typeof raw === 'string' && !/^[\x21-\x7e]{8,128}$/.test(raw)) throw failure('VALIDATION_ERROR', 'Idempotency-Key phải 8–128 ký tự in được.', { field: 'idempotency-key' });
   const key = typeof raw === 'string' && raw ? raw : null;
   // [2026-11-26 10:39 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — băm KHÔNG gồm mật khẩu / mã / cookie (băm trần của mật khẩu yếu dò ngược được): các khoá bí mật thay bằng "[ẩn]" trước khi băm.
-  const inputHash = createHash('sha256').update(JSON.stringify(input, (k, v) => (SECRET_INPUT_KEYS.has(k) ? '[ẩn]' : v))).digest('hex');
+  // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4 — trường nhị phân (tệp tải lên ≤ 25 MB) băm riêng rồi mới đưa vào: JSON.stringify nguyên mảng byte rất nặng; cùng khoá + tệp khác vẫn ra IDEMPOTENCY_CONFLICT
+  const hashable = Object.fromEntries(Object.entries(input).map(([k, v]) => [k, v instanceof Uint8Array ? `sha256:${createHash('sha256').update(v).digest('hex')}` : v]));
+  const inputHash = createHash('sha256').update(JSON.stringify(hashable, (k, v) => (SECRET_INPUT_KEYS.has(k) ? '[ẩn]' : v))).digest('hex');
   try {
     return await db.transaction().execute(async (tx) => {
       if (key) {

@@ -30,6 +30,7 @@ import { retryChannelCommands, sendHandlers } from './care/send.js';
 import { channelOpHandlers } from './care/channel-ops.js';
 import { channelLinkHandlers } from './care/channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 // [2026-11-26 08:44 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 // [2026-11-26 12:54 AM Johnny Chu - Chu Hoàng Anh] PHASE-006 S006-3 — tin ra kênh qua Hub
 import { registerPosEvents } from './orders/pos-events.js';
+import { fileHandlers, registerFileRoutes } from './storage/routes.js'; // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4
 import { registerDiagnostics } from './care/diagnose.js'; // [2026-11-26 02:10 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 S005-7
 import { cakeLoggerOptions, genReqId, registerObservability } from './observability.js';
 import { installProcessHandlers } from '@bizcity/platform/core/logger';
@@ -56,7 +57,8 @@ export async function buildApp(opts: { tenant?: string; logger?: boolean; hub?: 
   });
   // [2026-11-24 08:34 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 — thêm 6 action đọc hộp thư / danh bạ / Contact 360 + cổng nhận bizcity_touch@1 của Hub.
   const handlers = { ...catalogHandlers, ...inboxHandlers, ...careCommandHandlers, ...memberHandlers, ...staffHandlers, ...apiKeyHandlers, ...recordHandlers, ...orderHandlers, ...linkHandlers, ...partnerHandlers, ...sendHandlers, ...channelOpHandlers, ...channelLinkHandlers };
-  registerActions(app, ALL_ACTIONS, handlers);
+  registerFileRoutes(app); // bộ đọc thân nhị phân phải có trước route POST /api/v1/files của action
+  registerActions(app, ALL_ACTIONS, { ...handlers, ...fileHandlers });
   // [2026-11-24 09:42 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-6 — tra một bằng chứng theo meta.receipt.evidenceId (trong đơn vị; không có nội dung, chỉ băm).
   app.get<{ Params: { id: string } }>('/api/v1/evidence/:id', { preHandler: requirePermission('reports:read') }, async (req) => {
     if (!/^[1-9][0-9]{0,18}$/.test(req.params.id)) throw failure('VALIDATION_ERROR', 'Mã bằng chứng không hợp lệ.', { field: 'id' });

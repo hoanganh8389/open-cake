@@ -145,6 +145,14 @@ export const inboxHandlers: Record<string, (s: Store, input: Any) => unknown> = 
     Object.assign(l, { mode: i.mode, connectorUrl: i.mode === 'self' ? i.connectorUrl : l.connectorUrl, ...(issue ? { keyPrefix: 'ckn.1.gia-lap…', hasSecret: true } : {}) });
     return { ...l, issued: issue ? { key: `ckn.1.gia-lap-${++s.seq}-0123456789abcdef`, secret: 'bi-mat-gia-lap-0123456789-0123456789-ab' } : null };
   },
+  // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4 — tải tệp giả lập: cùng giới hạn cỡ như máy chủ (ảnh 10 MB, tệp 25 MB); loại đoán theo đuôi (máy chủ thật đoán theo đầu tệp).
+  'cake.file.upload': (s, i) => {
+    const size = (i.data as Uint8Array).length, ext = String(i.name).split('.').pop()!.toLowerCase();
+    const image = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
+    if (['exe', 'bat', 'cmd', 'js', 'msi', 'sh'].includes(ext)) throw new ApiError({ code: 'VALIDATION_ERROR', message: 'Loại tệp không được gửi (tệp chạy được).', field: 'file' });
+    if (size > (image ? 10 : 25) * 1024 * 1024) throw new ApiError({ code: 'VALIDATION_ERROR', message: `Vượt giới hạn ${image ? 10 : 25} MB.`, field: 'file' });
+    return { fileId: demo.fid('M', ++s.seq), area: i.area, kind: image ? 'image' : 'file', contentType: image ? 'image/jpeg' : 'application/octet-stream', size, name: i.name, sha256: '0'.repeat(64), createdAt: iso(s.now()), deduped: false };
+  },
   'cake.channel_link.test': (s) => Object.assign(link(s), { lastOkAt: iso(s.now()), lastError: null }),
   'cake.directory.sync': (s) => ({ commandKey: `cake:0:directory_sync:${++s.seq}`, state: 'accepted' }),
   'cake.contact.find': (s) => ({ commandKey: `cake:0:contact_find:${++s.seq}`, state: 'accepted' }),

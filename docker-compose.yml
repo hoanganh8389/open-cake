@@ -53,6 +53,7 @@ services:
       # [2026-11-27 10:51 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-2 — nơi lưu tệp (26-NOI-LUU-TEP): local = volume cake-files (Tự cài, không tự xoá theo tuổi); s3 = bucket R2 RIÊNG TƯ riêng, token quyền hẹp (Q-STOR-3 = B)
       DATA_DIR: /app/data
       STORAGE_DRIVER: "${STORAGE_DRIVER:-local}"
+      CAKE_PUBLIC_URL: "${CAKE_PUBLIC_URL:-}"
       STORAGE_S3_ENDPOINT: "${STORAGE_S3_ENDPOINT:-}"
       STORAGE_S3_BUCKET: "${STORAGE_S3_BUCKET:-}"
       STORAGE_S3_ACCESS_KEY: "${STORAGE_S3_ACCESS_KEY:-}"

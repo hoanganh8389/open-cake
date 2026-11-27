@@ -8,6 +8,7 @@ export * from './base/event.js';
 export * from './base/action.js';
 export * from './cake/channel.js';
 export * from './cake/entities.js';
+export * from './cake/files.js'; // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4
 export * from './cake/touch.js';
 export * from './cake/channel-command.js';
 export * from './cake/contact-contract.js';

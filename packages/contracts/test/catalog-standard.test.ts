@@ -50,7 +50,7 @@ describe('cổng ghi duy nhất theo nguồn danh mục (R-OKT-CONN-4)', () => {
     const keys = new Set(CAKE_META_KEYS.filter((m) => m.entityType === 'item').map((m) => m.key));
     for (const k of Object.values(ITEM_LOCAL_META)) expect(keys.has(k), k).toBe(true);
   });
-  it('danh mục app = 21 cake + 8 nhân viên / vai + 3 khoá API + 8 đơn + 2 công nợ + 4 năng lực kênh + 3 cách kết nối + 3 bước QR / Facebook + 4 lớp mềm + 9 danh mục', () => expect(ALL_ACTIONS.length).toBe(65)); // [2026-11-26 10:41 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — + cake.channel.fb_login; // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — +2 cake.partner.*; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7
+  it('danh mục app = 21 cake + 8 nhân viên / vai + 3 khoá API + 8 đơn + 2 công nợ + 4 năng lực kênh + 3 cách kết nối + 3 bước QR / Facebook + 4 lớp mềm + 9 danh mục + 1 tải tệp', () => expect(ALL_ACTIONS.length).toBe(66)); // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4 — + cake.file.upload; // [2026-11-26 10:41 PM Johnny Chu - Chu Hoàng Anh] KN W4b-2 — + cake.channel.fb_login; // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3 — +2 cake.partner.*; // [2026-11-24 11:39 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-7
 });
 
 // [2026-11-24 05:44 PM Johnny Chu - Chu Hoàng Anh] PHASE-017 S017-8 — ItemRef trên dây theo bizcity_spine@1 §3.

@@ -10,7 +10,8 @@ import { API_KEY_ACTIONS } from './cake/apikeys.js';
 import { PARTNER_ACTIONS } from './cake/partner.js';
 import { CHANNEL_OP_ACTIONS } from './cake/channel-ops.js';
 import { CHANNEL_CONNECT_ACTIONS, CHANNEL_LINK_ACTIONS } from './cake/channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 // [2026-11-26 08:43 PM Johnny Chu - Chu Hoàng Anh] KN K2b-3 // [2026-11-26 12:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 S010-2/3
+import { FILE_ACTIONS } from './cake/files.js'; // [2026-11-27 11:21 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-4
 import { ORDER_ACTIONS } from './cake/orders.js'; // [2026-11-25 06:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — luồng đơn xuyên app // [2026-11-24 11:45 PM Johnny Chu - Chu Hoàng Anh] PHASE-004 S004-3
 
-export const ALL_ACTIONS = [...CAKE_ACTIONS, ...STAFF_ACTIONS, ...API_KEY_ACTIONS, ...ORDER_ACTIONS, ...PARTNER_ACTIONS, ...CHANNEL_OP_ACTIONS, ...CHANNEL_LINK_ACTIONS, ...CHANNEL_CONNECT_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
+export const ALL_ACTIONS = [...FILE_ACTIONS, ...CAKE_ACTIONS, ...STAFF_ACTIONS, ...API_KEY_ACTIONS, ...ORDER_ACTIONS, ...PARTNER_ACTIONS, ...CHANNEL_OP_ACTIONS, ...CHANNEL_LINK_ACTIONS, ...CHANNEL_CONNECT_ACTIONS, ...FLEX_ACTIONS, ...CATALOG_ACTIONS] as const;
 export const appCatalog = createActionCatalog(ALL_ACTIONS);
