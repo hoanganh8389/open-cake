@@ -5,6 +5,15 @@
 
 Đọc theo thứ tự: [canon chung ở open-hub](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/README.md) (canon, B2B, tái sử dụng, dữ liệu) → [00-CANON](docs/00-CANON.md) → [ADR-0001](docs/adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md) → [architecture/10](docs/architecture/10-ARCHITECTURE.md) → phase đang mở ([phases/README](docs/phases/README.md)).
 
+<!-- [2026-11-27 11:03 PM Johnny Chu - Chu Hoàng Anh] NC-003 — chủ chốt Q-CORE-1…4 (bizcity-platform NC-003): ba vai nền; open-core là repo mã lõi riêng -->
+## open-cake trong ba vai nền (canon R-CANON-17)
+
+**open-platform** (repo `bizcity-platform`: chuẩn `BIZCITY-*`, bộ kiểm `standard-check`) quy định → **open-core** (repo `open-core`: mã lõi `@bizcity/*`, semver chung) hiện thực → **open-cake = open-core + module `cake.crm` (+ `cake.catalog`)** → **open-setup** cấp instance (`/_sites/v1`, ghi `core_version`).
+
+- Phần **chung** viết ở đây trước (Storage, Records / Meta, máy chủ action, web shell…) phải ở đúng ranh giới `core` (PHASE-019 S019-2) để dời lên open-core (NC-003 C5) **không đổi hành vi**; phần CRM ở `modules/crm`.
+- Cần sửa lõi ⇒ PR vào open-core (trước C2: bizcity-platform), cake nhận qua bản phát hành; **không** vá `node_modules/@bizcity/*`, không chép mã lõi vào repo.
+- Đổi chuẩn ⇒ PR ở open-platform trước; cake ghi mức đạt bằng `node ../bizcity-platform/tools/standard-check.mjs --repo .`.
+
 ## Bốn câu không được quên
 
 1. **`contact_id` là trục.** Không bảng nào khoá theo id kênh.

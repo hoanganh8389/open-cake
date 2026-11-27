@@ -7,8 +7,8 @@
 | Cột | Số việc |
 |---|---|
 | Đang làm / có mã | 18 |
-| Bị chặn | 0 |
-| Chưa làm | 55 |
+| Bị chặn | 1 |
+| Chưa làm | 54 |
 | Hoãn | 0 |
 | Xong | 56 |
 | Huỷ | 0 |
@@ -40,7 +40,7 @@
 | [PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/) | Đang làm / có mã | 7 | 4 | 0 | 5 | 16 |
 | [PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/) | Xong | 8 | 0 | 0 | 0 | 8 |
 | [PHASE-018-NOI-LUU-TEP](PHASE-018-NOI-LUU-TEP/) | Đang làm / có mã | 4 | 0 | 0 | 4 | 8 |
-| [PHASE-019-TACH-OPEN-CORE](PHASE-019-TACH-OPEN-CORE/) | Đang làm / có mã | 1 | 0 | 0 | 7 | 8 |
+| [PHASE-019-TACH-OPEN-CORE](PHASE-019-TACH-OPEN-CORE/) | Đang làm / có mã | 1 | 0 | 1 | 6 | 8 |
 
 ## Đang làm / có mã (18)
 
@@ -65,7 +65,13 @@
 | [S016-5](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L14) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | /api/v1/system/health, /health/ready, /capabilities; phong bì + Errors.* |
 | [S016-Q4](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/CHECKLIST.md#L22) | PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT | nối bộ giám sát chung của máy chủ (infrastructure/monitoring: đoạn scrape + OTLP) |
 
-## Chưa làm (55)
+## Bị chặn (1)
+
+| Mã | Phase | Việc |
+|---|---|---|
+| [S019-3](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L11) | PHASE-019-TACH-OPEN-CORE | open-core |
+
+## Chưa làm (54)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -118,9 +124,8 @@
 | [S018-7](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L15) | PHASE-018-NOI-LUU-TEP | open-setup |
 | [S018-8](PHASE-018-NOI-LUU-TEP/CHECKLIST.md#L16) | PHASE-018-NOI-LUU-TEP | bizcity-platform |
 | [S019-2](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L10) | PHASE-019-TACH-OPEN-CORE | cake |
-| [S019-3](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L11) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
-| [S019-4](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L12) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
-| [S019-5](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L13) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
-| [S019-6](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L14) | PHASE-019-TACH-OPEN-CORE | bizcity-platform |
+| [S019-4](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L12) | PHASE-019-TACH-OPEN-CORE | open-core |
+| [S019-5](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L13) | PHASE-019-TACH-OPEN-CORE | open-core |
+| [S019-6](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L14) | PHASE-019-TACH-OPEN-CORE | open-core |
 | [S019-7](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L15) | PHASE-019-TACH-OPEN-CORE | cake |
 | [S019-8](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L16) | PHASE-019-TACH-OPEN-CORE | open-setup |

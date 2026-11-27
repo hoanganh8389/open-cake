@@ -8,9 +8,9 @@
 |---|---|---|
 | S019-1 | cake | ☑ |
 | S019-2 | cake | ☐ |
-| S019-3 | bizcity-platform | ☐ |
-| S019-4 | bizcity-platform | ☐ |
-| S019-5 | bizcity-platform | ☐ |
-| S019-6 | bizcity-platform | ☐ |
+| S019-3 | open-core | ⛔ |
+| S019-4 | open-core | ☐ |
+| S019-5 | open-core | ☐ |
+| S019-6 | open-core | ☐ |
 | S019-7 | cake | ☐ |
 | S019-8 | open-setup | ☐ |

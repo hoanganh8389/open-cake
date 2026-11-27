@@ -4,6 +4,9 @@
 
 **Trạng thái:** Chấp nhận (chủ dự án, 2026-11-24) · **Áp dụng cho:** cake · **Sửa:** ADR-0001 quyết định 1 · **Kế hoạch xuyên repo:** [open-hub/docs/canon/KE-HOACH-GOI-CHUNG-BIZCITY-PLATFORM.md](https://github.com/hoanganh8389/open-hub/blob/main/docs/canon/KE-HOACH-GOI-CHUNG-BIZCITY-PLATFORM.md)
 
+> <!-- [2026-11-27 11:03 PM Johnny Chu - Chu Hoàng Anh] NC-003 — chủ chốt Q-CORE-1…4 (bizcity-platform NC-003): ba vai nền; open-core là repo mã lõi riêng -->
+> **Sửa 2026-11-27 (canon R-CANON-17):** "repo gói chung" ở quyết định 1, 4 là repo **open-core** (mã lõi `@bizcity/*`); `bizcity-platform` chỉ còn vai **open-platform** (chuẩn + bộ kiểm). Tên gói không đổi; URL bản phát hành đổi sang release của open-core từ bản 0.3.0 (NC-003 C2). Lớp mềm (quyết định 3) dời lên lõi ở NC-003 C5 cùng Storage, máy chủ action, web shell.
+
 ## Bối cảnh
 
 - ADR-0001 định "sao chép khung open-ketoan, fork `packages/platform` có `UPSTREAM.md`". Fork làm hai bản trôi nhau và trái R-CANON-14 (một năng lực viết một lần).

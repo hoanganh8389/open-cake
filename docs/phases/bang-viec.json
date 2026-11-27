@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-27T06:28:24.820Z",
+  "generated": "2026-11-27T16:11:18.490Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -1002,29 +1002,29 @@
         },
         {
           "id": "S019-3",
-          "group": "Chưa làm",
-          "text": "bizcity-platform",
+          "group": "Bị chặn",
+          "text": "open-core",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 11
         },
         {
           "id": "S019-4",
           "group": "Chưa làm",
-          "text": "bizcity-platform",
+          "text": "open-core",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 12
         },
         {
           "id": "S019-5",
           "group": "Chưa làm",
-          "text": "bizcity-platform",
+          "text": "open-core",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 13
         },
         {
           "id": "S019-6",
           "group": "Chưa làm",
-          "text": "bizcity-platform",
+          "text": "open-core",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 14
         },
