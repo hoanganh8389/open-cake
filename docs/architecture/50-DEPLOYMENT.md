@@ -58,7 +58,7 @@ docker compose up -d && docker compose logs -f db-migrate
 | Job | Lệnh |
 |---|---|
 | guard | `bash scripts/kiem-chuan.sh` (grep H-*: H-LEDGER, H-TRIGGER-OFF, H-CROSS-MODULE, H-REPLY, H-SKIP, H-SECRET, H-MD-TABLE, H-METRIC-LABEL, H-CAKE-SECRET-COL, H-CAKE-NAME-MERGE) |
-| typecheck | `npm run typecheck` |
+| typecheck | `pnpm run typecheck` (repo dùng pnpm 9 — `packageManager` trong package.json; PHASE-019 S019-1) |
 | test | `npm test` trên PostgreSQL 16 dịch vụ, DB `cake_test` (vitest từ chối tên không có `test`) |
 | migrate-upgrade | `scripts/kiem-nang-cap.sh <tag trước>` |
 | conformance | `node tests/conformance/selfcheck.mjs --lane selfcheck --strict`; promtool / amtool / otelcol validate |

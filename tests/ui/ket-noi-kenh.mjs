@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // [2026-11-26 10:13 PM Johnny Chu - Chu Hoàng Anh] KN K7 — giao diện THẬT (bản build, bộ giả lập) so với mockup kết nối ① Cài đặt › Kết nối kênh, ② 4 bước Tự cài, ③ thắng nhỏ:
 //   ① ② Đạt sẵn (Tự cài chạy sẵn) ⇒ ③ đặt tên, lấy QR, giả lập quét xong ⇒ số được ghi ⇒ ④ chọn người trực ⇒ nhắn thử ⇒ "Đã thử hai chiều". Hỏng bước nào thì dừng, mã thoát 1.
-//   npm run web:build && node tests/ui/ket-noi-kenh.mjs [thư-mục-ảnh]
+//   pnpm run web:build && node tests/ui/ket-noi-kenh.mjs [thư-mục-ảnh]
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';

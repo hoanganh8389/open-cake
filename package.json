@@ -8,20 +8,16 @@
   "engines": {
     "node": ">=22.12"
   },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p packages/contracts && tsc -p packages/care-kernel && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web && npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && tsc -p apps/api --noEmit",
+    "typecheck": "tsc -p packages/contracts && tsc -p packages/care-kernel && tsc -p packages/ui-kit && tsc -p packages/action-client && tsc -p apps/web && pnpm --filter @open-cake/contracts run build && pnpm --filter @open-cake/care-kernel run build && tsc -p apps/api --noEmit",
     "contracts:check": "vitest run packages/contracts",
-    "web:dev": "npm run dev -w @open-cake/web",
-    "web:build": "npm run build -w @open-cake/web",
-    "api:build": "npm run build -w @open-cake/contracts && npm run build -w @open-cake/care-kernel && npm run build -w @open-cake/api",
+    "web:dev": "pnpm --filter @open-cake/web run dev",
+    "web:build": "pnpm --filter @open-cake/web run build",
+    "api:build": "pnpm --filter @open-cake/contracts run build && pnpm --filter @open-cake/care-kernel run build && pnpm --filter @open-cake/api run build",
     "ui:hop-thu": "node tests/ui/hop-thu-phim.mjs",
     "ui:chup": "node tests/ui/chup-man.mjs",
-    "authz:manifest": "node -e \"process.env.UPDATE_AUTHZ='1';require('child_process').execSync('npx vitest run apps/api/test/authz-manifest.test.ts',{stdio:'inherit',env:process.env})\"",
+    "authz:manifest": "node -e \"process.env.UPDATE_AUTHZ='1';require('child_process').execSync('pnpm exec vitest run apps/api/test/authz-manifest.test.ts',{stdio:'inherit',env:process.env})\"",
     "selfcheck": "node tests/conformance/selfcheck.mjs"
   },
   "devDependencies": {
@@ -35,5 +31,6 @@
   "dependencies": {
     "react": "18.3.1",
     "react-dom": "18.3.1"
-  }
+  },
+  "packageManager": "pnpm@9.15.9"
 }

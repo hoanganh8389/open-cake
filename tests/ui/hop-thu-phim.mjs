@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // [2026-11-25 10:41 AM Johnny Chu - Chu Hoàng Anh] PHASE-007 — R-WEB-15 kiểm trên trình duyệt THẬT (playwright-core + Chrome đã cài, không tải trình duyệt):
 //   hộp thư bản giả lập — ↓ / ↑ đổi hội thoại (URL đổi theo), / vào ô tìm, gõ lọc danh sách, Esc rời ô, Enter vào ô soạn; chụp ảnh bằng chứng.
-// Chạy: npm run web:build && (cd apps/web && npx vite preview --port 4182) ; node tests/ui/hop-thu-phim.mjs http://localhost:4182 <thư-mục-ảnh>
+// Chạy: pnpm run web:build && (cd apps/web && pnpm exec vite preview --port 4182) ; node tests/ui/hop-thu-phim.mjs http://localhost:4182 <thư-mục-ảnh>
 import { chromium } from 'playwright-core';
 
 const base = process.argv[2] ?? 'http://localhost:4182';

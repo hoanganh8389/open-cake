@@ -2,7 +2,7 @@
 // [2026-11-25 07:05 PM Johnny Chu - Chu Hoàng Anh] PHASE-010 — chạy luồng đơn trên giao diện THẬT (bản build, bộ giả lập, ?catalog=ketoan) bằng Chrome, như người dùng:
 //   Cài đặt › Kết nối cửa hàng → Hộp thư › Gửi giá (thấy tồn) → + vào đơn → sheet Yêu cầu đặt hàng → Gửi → dòng hệ thống trong chat → Contact 360 › Đơn.
 //   Chụp app-*.png để so với mockup đã duyệt (docs/phases/PHASE-010-…/evidence/build-shots/mockup-*.png). Hỏng bước nào thì dừng, mã thoát 1.
-//   npm run web:build && node tests/ui/luong-don.mjs [thư-mục-ảnh]
+//   pnpm run web:build && node tests/ui/luong-don.mjs [thư-mục-ảnh]
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';

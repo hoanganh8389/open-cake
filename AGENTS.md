@@ -29,7 +29,7 @@
 
 1. `node tests/conformance/selfcheck.mjs` — phải PASS (nợ mới **sửa**, không thêm vào `baseline.json`).
 2. `bash scripts/kiem-chuan.sh`
-3. `npm run typecheck`
+3. `pnpm run typecheck` <!-- [2026-11-27 10:15 AM Johnny Chu - Chu Hoàng Anh] PHASE-019 S019-1 — repo dùng pnpm (NC-002 Q-OC-6); cài: `corepack enable pnpm` rồi `pnpm install` -->
 4. `npm test` (cần `docker compose up -d db`; luôn chạy trên `cake_test`, không bao giờ DB thật).
 5. `node scripts/so-tiep-theo.mjs kiem` (số migration / ADR không trùng).
 6. `npx bizcity module check <key>` nếu đụng module; `bizcity event check` phải `KẾT LUẬN: PASS` (SKIP ≠ PASS).

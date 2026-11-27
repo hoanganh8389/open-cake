@@ -1,32 +1,30 @@
 # [2026-11-24 07:55 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 S016-6 — ảnh API (và job db-migrate dùng chung ảnh): build contracts + api, chạy node --conditions=cake-dist.
 #   @bizcity/platform cài từ GitHub Release v0.2.0 (không cần token). Test tích hợp DB chạy ở CI / máy dev (cần Postgres), không chạy trong build ảnh.
+# [2026-11-27 10:15 AM Johnny Chu - Chu Hoàng Anh] PHASE-019 S019-1 — pnpm (NC-002 Q-OC-6): cài theo pnpm-lock.yaml, build, rồi `pnpm deploy --prod` ra một thư mục tự đủ cho @open-cake/api
+#   (phụ thuộc production + gói nội bộ đã build) — ảnh chạy không mang phụ thuộc dev, không cần symlink của workspace.
 FROM node:22-alpine AS build
 WORKDIR /app
-COPY package.json package-lock.json ./
+RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/care-kernel/package.json packages/care-kernel/
 COPY packages/ui-kit/package.json packages/ui-kit/
 COPY packages/action-client/package.json packages/action-client/
 COPY apps/web/package.json apps/web/
 COPY apps/api/package.json apps/api/
-RUN npm ci --no-audit --no-fund
+RUN pnpm install --frozen-lockfile
 COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/api apps/api
-RUN npm run api:build
+RUN pnpm run api:build
+RUN pnpm --filter @open-cake/api deploy --prod /out
 
 FROM node:22-alpine
 WORKDIR /app
 # [2026-11-25 05:04 PM Johnny Chu - Chu Hoàng Anh] PHASE-016 R-STD-OBS-1 — mã commit vào mọi dòng log (trường commit, R-LOG-5): docker compose build với BIZCITY_GIT_SHA=$(git rev-parse HEAD).
 ARG BIZCITY_GIT_SHA=
 ENV NODE_ENV=production PORT=8120 CAKE_MIGRATIONS_DIR=/app/db/migrations BIZCITY_GIT_SHA=${BIZCITY_GIT_SHA}
-COPY --from=build /app/node_modules node_modules
-COPY --from=build /app/packages/contracts/package.json packages/contracts/
-COPY --from=build /app/packages/contracts/dist packages/contracts/dist
-COPY --from=build /app/packages/care-kernel/package.json packages/care-kernel/
-COPY --from=build /app/packages/care-kernel/dist packages/care-kernel/dist
-COPY --from=build /app/apps/api/package.json apps/api/
-COPY --from=build /app/apps/api/dist apps/api/dist
+COPY --from=build /out apps/api
 COPY db/migrations db/migrations
 RUN mkdir -p /app/logs && chown node:node /app/logs
 WORKDIR /app/apps/api

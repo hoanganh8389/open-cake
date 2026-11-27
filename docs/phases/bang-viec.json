@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-27T03:16:26.523Z",
+  "generated": "2026-11-27T03:34:52.647Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -988,7 +988,7 @@
       "items": [
         {
           "id": "S019-1",
-          "group": "Đang làm / có mã",
+          "group": "Xong",
           "text": "cake",
           "file": "docs/phases/PHASE-019-TACH-OPEN-CORE/CHECKLIST.md",
           "line": 9

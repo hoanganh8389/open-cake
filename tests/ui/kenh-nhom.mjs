@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Johnny Chu (Chu Hoàng Anh) / BizCity. GPL-2.0-or-later. See LICENSE.
 // [2026-11-26 08:35 PM Johnny Chu - Chu Hoàng Anh] KN K2b-2 — giao diện THẬT (bản build, bộ giả lập) so với mockup ⑥ Hộp thư nhóm và ⑤ Danh bạ:
 //   tên / số thành viên nhóm, tên người gửi từng tin, @nhắc, trích dẫn, tin đã thu hồi, reaction; danh bạ có ảnh. Hỏng bước nào thì dừng, mã thoát 1.
-//   npm run web:build && node tests/ui/kenh-nhom.mjs [thư-mục-ảnh]
+//   pnpm run web:build && node tests/ui/kenh-nhom.mjs [thư-mục-ảnh]
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
