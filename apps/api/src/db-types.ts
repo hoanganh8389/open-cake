@@ -70,6 +70,11 @@ export interface ContactLinksTable {
   push_error: string | null; linked_at: Ts;
 }
 
+// [2026-11-27 11:17 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-3 — khớp 0109 files
+export interface FilesTable {
+  file_id: string; tenant_id: string; area: string; storage_key: string; driver: string; sha256: string; size_bytes: ColumnType<string, string | number, string | number>;
+  kind: string; content_type: string; original_name: string; created_by: string; created_at: ColumnType<Date, Date | undefined, Date>; archived_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+}
 // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — khớp 0108 channel_links
 export interface ChannelLinksTable {
   tenant_id: string; mode: ColumnType<string, string | undefined, string>; connector_url: string | null; key_sealed: string | null; key_prefix: string | null; secret_sealed: string | null;
@@ -83,6 +88,7 @@ declare module '@bizcity/platform/db/types' {
     pos_links: PosLinksTable;
     contact_links: ContactLinksTable;
     channel_links: ChannelLinksTable;
+    files: FilesTable;
     channel_commands: ChannelCommandsTable;
     channel_account_members: ChannelAccountMembersTable;
     contacts: ContactsTable;

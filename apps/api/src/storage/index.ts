@@ -44,6 +44,15 @@ let current: Promise<{ driver: StorageDriver; status: StorageStatus }> | null = 
 export const storage = async (): Promise<StorageDriver> => (await (current ??= storageFromEnv())).driver;
 /** Trạng thái bộ lưu cho màn chẩn đoán. */
 export const storageStatus = async (): Promise<StorageStatus> => (await (current ??= storageFromEnv())).status;
+/**
+ * [2026-11-27 11:17 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 S018-3 — bộ giữ một tệp cụ thể (cột files.driver): đổi cấu hình đĩa → s3 thì tệp cũ trên đĩa vẫn đọc được
+ * (bộ đĩa luôn dựng được — R-STOR-2a). Tệp nằm ở s3 mà s3 đang tắt ⇒ null (báo rõ ở nơi gọi, không đọc nhầm chỗ).
+ */
+export async function driverOf(kind: string, env: NodeJS.ProcessEnv = process.env): Promise<StorageDriver | null> {
+  const cur = await storage();
+  if (cur.kind === kind) return cur;
+  return kind === 'local' ? localOf(env) : null;
+}
 /** Chỉ cho test. */
 export const setStorageForTest = (d: StorageDriver | null) => {
   current = d ? Promise.resolve({ driver: d, status: { configured: d.kind, active: d.kind, reason: null } }) : null;

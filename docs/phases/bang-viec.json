@@ -1,6 +1,6 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-27T04:01:17.600Z",
+  "generated": "2026-11-27T04:21:55.227Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
@@ -939,7 +939,7 @@
         },
         {
           "id": "S018-3",
-          "group": "Chưa làm",
+          "group": "Xong",
           "text": "cake",
           "file": "docs/phases/PHASE-018-NOI-LUU-TEP/CHECKLIST.md",
           "line": 11
