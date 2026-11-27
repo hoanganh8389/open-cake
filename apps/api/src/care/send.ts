@@ -17,6 +17,7 @@ import { notifyChanged } from '../stream.js';
 import { PgCareRepo } from './pg-care-repo.js';
 import { channelTarget, type ChannelTarget } from './channel-link.js'; // [2026-11-26 09:55 PM Johnny Chu - Chu Hoàng Anh] KN K5 — đích lệnh theo đơn vị (Hub | máy kết nối Tự cài)
 import { assertConversationVisible } from './scope.js';
+import { resolveOutgoing, withFileLinks } from '../storage/attach.js';
 
 const GIVE_UP_MS = 10 * 60_000;
 export const CAPS = ['cake.conversation.manage', 'cake.message.send'];
@@ -56,7 +57,8 @@ export type CmdRow = { tenant_id: string; command_key: string; message_id: strin
 
 /** Gửi một lệnh trong hàng chờ và ghi kết quả. */
 export async function dispatch(tx: Db, r: CmdRow): Promise<'accepted' | 'rejected' | 'queued' | 'given_up'> {
-  const res = await callHub(await channelTarget(tx, r.tenant_id), r.body as ChannelCommand);
+  // [2026-11-27 11:30 AM Johnny Chu - Chu Hoàng Anh] PHASE-018 — file:<id> ⇒ đường dẫn ký MỚI mỗi lần gửi (bản lưu trong hàng chờ giữ nguyên)
+  const res = await callHub(await channelTarget(tx, r.tenant_id), await withFileLinks(tx, r.tenant_id, r.body as ChannelCommand));
   const now = new Date();
   const where = <Q extends { where: (...a: any[]) => Q }>(q: Q) => q.where('tenant_id', '=', r.tenant_id).where('command_key', '=', r.command_key); // eslint-disable-line @typescript-eslint/no-explicit-any
   const msg = (delivery: string) => r.message_id ? tx.updateTable('messages').set({ delivery }).where('tenant_id', '=', r.tenant_id).where('message_id', '=', r.message_id).where('delivery', '=', 'accepted').execute() : null;
@@ -109,9 +111,10 @@ export const sendHandlers: Record<string, Handler> = {
     const acc = await accountOf(tx, tenantId, conv.channel_account_id);
     if (conv.kind === 'comment_thread') throw failure('VALIDATION_ERROR', 'Hội thoại bình luận trả lời bằng "Trả lời bình luận".');
     if (acc.channel === 'facebook_page' && conv.window_until && new Date(conv.window_until).getTime() < Date.now()) throw cakeError('CAKE_WINDOW_CLOSED');
+    // [2026-11-27 01:26 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 / S007-3 — tệp phải là file:<id> đã tải lên của đơn vị (thông tin lấy từ bảng files); kiểm TRƯỚC khi ghi tin ⇒ lỗi không để tin treo
+    const attachments = await resolveOutgoing(tx, tenantId, acc.channel, i.attachments as ChannelCommand['content']['attachments']);
     await hub(tx, tenantId); // chưa có đích lệnh ⇒ báo ngay, không ghi tin "đang gửi" mãi
     const r = await requestSend(deps(ctx), { conversationId: i.conversationId, text: i.text, actor: ctx.actor, userId: ctx.userId });
-    const attachments = i.attachments as ChannelCommand['content']['attachments'];
     const body = ChannelCommandSchema.parse({
       contract: 'bizcity_channel_command@1', operation: 'message.send', idempotencyKey: r.commandKey, channel: acc.channel,
       channelAccount: { cellRef: acc.cell_ref, externalAccountId: acc.external_account_id }, target: { externalThreadId: conv.external_thread_id, anchor: null },

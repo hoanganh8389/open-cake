@@ -80,6 +80,8 @@ Hợp đồng đã cho phép (`cake.message.send` nhận `attachments` ≤ 10; l
 | ⑨ `dinh-kem-da-gui` | tin có ảnh / tệp: thumbnail, thẻ tệp, Đang gửi · Đã gửi · Gửi không thành + Gửi lại; tin khách gửi ảnh / tệp cùng cách hiện |
 | ⑩ `dinh-kem-gioi-han` | kênh không gửi được tệp (Facebook cá nhân, KN-CAP-2): nút kẹp giấy mờ + giải thích, không để bấm rồi mới báo lỗi |
 
+<!-- [2026-11-27 01:26 PM Johnny Chu - Chu Hoàng Anh] PHASE-007 S007-3 --> **Tiến độ:** ◐ máy chủ xong — tải lên `cake.file.upload` (PHASE-018 S018-4), gửi tin mang `file:<mã>`, Hub nhận đường dẫn ký 15 phút (`apps/api/src/storage/attach.ts`). Chưa: máy kết nối gửi ảnh / tệp lên Zalo (zalo-hub), khay ⑦–⑩ trên giao diện.
+
 **Quyết định** (D-ATT-2..4 thay bằng PHASE-018)
 
 | Mã | Câu hỏi | Đề xuất |

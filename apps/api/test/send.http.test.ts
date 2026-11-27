@@ -3,7 +3,10 @@
 //   gửi ⇒ lệnh bizcity_channel_command@1 đúng khuôn, ký, Idempotency-Key = khoá lệnh · delivery.updated (commandKey) qua cổng nhận ⇒ "đã gửi", không thêm dòng sổ ·
 //   Hub sập ⇒ queued, gửi lại CÙNG khoá · Hub từ chối ⇒ "lỗi" · quá 10 phút ⇒ "chưa rõ đã gửi", không tự gửi khoá mới · chưa kết nối / chưa nối Hub ⇒ chặn · gửi thử ⇒ tested_at.
 import { createHmac } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { freshDb } from './fresh-db.js';
@@ -23,6 +26,7 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
   const hub = { mode: 'ok' as 'ok' | 'down' | 'reject', got: [] as { body: Record<string, unknown>; key: string; auth: string; sigOk: boolean; path: string }[] };
   let hubServer: Server;
   let conv = { id: '', thread: '', account: '', accountId: '' };
+  let dataDir = '';
 
   const call = (method: 'GET' | 'POST', u: string, payload?: object) =>
     app.inject({ method, url: u, payload, headers: { authorization: `Bearer ${token}`, ...(method === 'POST' ? { 'idempotency-key': `s-${Math.random().toString(36).slice(2, 12)}` } : {}) } });
@@ -34,6 +38,11 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
     process.env.CAKE_DEV_AUTH = '1';
     process.env.CAKE_HUB_SECRET = HUB.secret;
     process.env.CAKE_HUB_SITE_KEY = SITE_KEY;
+    process.env.CAKE_SECRET_KEY = 'khoa-ma-hoa-thu-0123456789abcdef0123';
+    process.env.CAKE_PUBLIC_URL = 'https://abc.opencake.net';
+    dataDir = mkdtempSync(path.join(tmpdir(), 'cake-send-files-'));
+    process.env.DATA_DIR = dataDir;
+    delete process.env.STORAGE_DRIVER;
     const dbUrl = await freshDb(url!, 'gui_tin');
     const pg = (await import('pg')).default;
     const admin = new pg.Client({ connectionString: dbUrl }); await admin.connect();
@@ -62,7 +71,7 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
       WHERE a.channel = 'zalo_personal' AND c.kind = 'dm' ORDER BY c.conversation_id LIMIT 1`)).rows[0]!;
     conv = { id: String(r.conversation_id), thread: String(r.external_thread_id), account: String(r.external_account_id), accountId: String(r.channel_account_id) };
   }, 90_000);
-  afterAll(async () => { await app?.close(); hubServer?.close(); });
+  afterAll(async () => { await app?.close(); hubServer?.close(); rmSync(dataDir, { recursive: true, force: true }); delete process.env.CAKE_PUBLIC_URL; delete process.env.DATA_DIR; });
 
   it('gửi ⇒ Hub nhận lệnh đúng khuôn (ký, khoá site, Idempotency-Key = khoá lệnh); delivery.updated ⇒ "đã gửi" + mã thật, không thêm dòng sổ', async () => {
     hub.mode = 'ok'; hub.got = [];
@@ -216,5 +225,48 @@ describe.skipIf(!url)('tin ra kênh qua Hub (open-cake ⇄ Hub giả)', () => {
     expect(hub.got.map((g) => (parseCmd(g.body) as { operation: string }).operation)).toEqual(['directory.sync', 'contact.find']);
     expect(parseCmd(hub.got[1]!.body)).toMatchObject({ options: { phone: '0909123456' } });
     expect((await call('POST', `/api/v1/channels/${conv.accountId}/find`, { phone: 'abc' })).statusCode).toBe(400);
+  });
+
+  // [2026-11-27 01:26 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 / S007-3 — gửi tin có tệp: tải lên ⇒ file:<id>; Hub nhận đường dẫn ký + tên / MIME / cỡ lấy từ bảng files;
+  //   hàng chờ giữ file:<id> (gửi lại ⇒ ký lại); tệp lạ / ref ngoài / kênh không gửi tệp ⇒ từ chối, không ghi tin.
+  it('gửi tin có ảnh: Hub nhận đường dẫn ký; hàng chờ giữ file:<id>; tệp lạ / ref ngoài / kênh không gửi tệp ⇒ từ chối, không ghi tin', async () => {
+    const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.from('anh mau ao')]);
+    const up = await app.inject({ method: 'POST', url: `/api/v1/files?area=chat&name=${encodeURIComponent('mẫu áo.jpg')}`, payload: jpg,
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/octet-stream', 'idempotency-key': 'k-gui-tep-00001' } });
+    const f = up.json().data;
+    expect(up.statusCode, up.body).toBe(200);
+    hub.mode = 'ok'; hub.got = [];
+    const r = await call('POST', '/api/v1/messages', { conversationId: conv.id, text: 'Mẫu này ạ', attachments: [{ type: 'file', ref: `file:${f.fileId}`, name: 'gia.exe', size: 1 }] });
+    expect(r.statusCode, r.body).toBe(200);
+    const att = { type: 'image', ref: `file:${f.fileId}`, name: 'mẫu áo.jpg', mime: 'image/jpeg', size: jpg.length }; // từ bảng files, không tin client
+    expect(r.json().data.attachments).toEqual([att]);
+    const sent = parseCmd(hub.got[0]!.body) as { content: { type: string; attachments: { ref: string }[] } };
+    expect(sent.content).toMatchObject({ type: 'image', attachments: [{ ...att, ref: expect.stringMatching(/^https:\/\/abc\.opencake\.net\/files\/v1\/[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/) }] });
+    const dl = await app.inject({ method: 'GET', url: new URL(sent.content.attachments[0]!.ref).pathname });
+    expect(dl.statusCode).toBe(200);
+    expect(dl.rawPayload.equals(jpg)).toBe(true);
+    const id = r.json().data.messageId;
+    expect((await sql('SELECT body FROM channel_commands WHERE message_id = $1', [id])).rows[0]!.body).toMatchObject({ content: { attachments: [att] } });
+    expect((await sql('SELECT attachments FROM messages WHERE message_id = $1', [id])).rows[0]!.attachments).toEqual([att]);
+
+    // Hub sập ⇒ hàng chờ giữ file:<id>; gửi lại ⇒ ký lại đường dẫn
+    hub.mode = 'down';
+    const q = await call('POST', '/api/v1/messages', { conversationId: conv.id, text: 'Ảnh thật ạ', attachments: [{ type: 'image', ref: `file:${f.fileId}` }] });
+    expect((await cmd(q.json().data.messageId)).state).toBe('queued');
+    hub.mode = 'ok'; hub.got = [];
+    await sql("UPDATE channel_commands SET next_at = now() - interval '1 second' WHERE state = 'queued'");
+    await retry();
+    const again = hub.got.map((g) => parseCmd(g.body) as { content: { attachments: { ref: string }[] } }).find((c) => c.content.attachments.length);
+    expect(again!.content.attachments[0]!.ref).toMatch(/^https:\/\/abc\.opencake\.net\/files\/v1\//);
+
+    // từ chối ⇒ không ghi tin
+    const count = async () => (await sql("SELECT count(*)::int n FROM messages WHERE direction = 'out'")).rows[0]!.n;
+    const before = await count();
+    const bad = async (attachments: object[], cid = conv.id) => (await call('POST', '/api/v1/messages', { conversationId: cid, text: 'x', attachments })).json().error;
+    expect((await bad([{ type: 'image', ref: 'file:01JDA0000000000000000000ZZ' }])).code).toBe('NOT_FOUND');
+    expect((await bad([{ type: 'image', ref: 'http://evil.example/a.jpg' }])).code).toBe('VALIDATION_ERROR');
+    const page = (await sql(`SELECT c.conversation_id FROM conversations c JOIN channel_accounts a USING (channel_account_id) WHERE a.channel = 'facebook_page' AND c.kind = 'dm' LIMIT 1`)).rows[0];
+    if (page) expect((await bad([{ type: 'image', ref: `file:${f.fileId}` }], String(page.conversation_id))).code).toMatch(/VALIDATION_ERROR|CAKE_WINDOW_CLOSED/);
+    expect(await count()).toBe(before);
   });
 });
