@@ -26,7 +26,7 @@ Màn: `#/inbox` · `#/contacts` · `#/contacts/01JDAC00000000000000000001` (Cont
 
 ```bash
 cp .env.example .env            # đặt JWT_SECRET (bắt buộc — nền chặn khoá mặc định)
-docker compose up -d --build    # db · db-migrate (nền @bizcity/platform + open-cake, gieo dữ liệu GIẢ LẬP) · api · web
+docker compose up -d --build    # db · db-migrate (lõi open-core @bizcity/platform + open-cake, gieo dữ liệu GIẢ LẬP) · api · web
 # http://127.0.0.1:8110/?api=mix#/catalog   Hàng hoá chạy máy chủ thật, màn khác còn giả lập
 # http://127.0.0.1:8110/#/inbox             toàn bộ giả lập (như trước)
 # http://127.0.0.1:8120/api/v1/system/health/ready   API trực tiếp

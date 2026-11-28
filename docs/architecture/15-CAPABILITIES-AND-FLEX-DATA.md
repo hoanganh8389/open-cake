@@ -20,7 +20,7 @@
 | `cake.channel.manage` | planned (006–009) | `cake.channel.connect_start`, `.status`, `.test`, `.disconnect` | web (owner) |
 | `cake.broadcast` | planned (011) | `broadcast.campaign.*` (module) | web |
 | `cake.document.order_request` | planned (010) | `cake.order_request.create`, `.submit` | web, MCP R1 |
-| `cake.flex` | planned (002) — **bản đầu** ở `packages/flex` (`@bizcity/flex`), thăng vào `@bizcity/platform` khi open-ketoan dùng (D-PLAT-4) | `core.meta.get/set`, `core.user_meta.get/set`, `core.records.*` | mọi module |
+| `cake.flex` | planned (002) — **bản đầu** ở `packages/flex` (`@bizcity/flex`), dời lên open-core `@bizcity/platform` ở NC-003 C5 (R-CANON-18; thay D-PLAT-4 "chờ app thứ hai") | `core.meta.get/set`, `core.user_meta.get/set`, `core.records.*` | mọi module |
 
 Mỗi action khai `expose: { rest, mcp, ui }`; không có route / tool / hook nào viết tay ngoài danh sách này (SC-REUSE-1..3).
 

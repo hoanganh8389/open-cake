@@ -5,6 +5,9 @@
 > **Luật cấp trên:** [BIZCITY OPEN CANON](../canon/BIZCITY-OPEN-CANON-v1.md) · [00-CANON](../00-CANON.md) · [ADR-0001](../adr/ADR-0001-cung-khung-open-ketoan-truc-contact.md)
 > **Đọc kèm:** [20-DATA-SPINE](20-DATA-SPINE.md) · [30-OBSERVABILITY](30-OBSERVABILITY.md) · [40-SECURITY-USERS](40-SECURITY-USERS.md) · [50-DEPLOYMENT](50-DEPLOYMENT.md) · [60-UI](60-UI.md) · [70-API-REST](70-API-REST.md) · [80-REACT](80-REACT.md) · [90-LESSONS](90-LESSONS-FROM-OPEN-KETOAN.md)
 
+<!-- [2026-11-28 04:22 PM Johnny Chu - Chu Hoàng Anh] NC-003 — gói chung ở repo open-core (R-CANON-17, R-CANON-18) -->
+> **Ba vai nền:** open-platform (`bizcity-platform`: chuẩn + bộ kiểm) quy định → **open-core** (repo `open-core`: lõi `@bizcity/*`) hiện thực → **open-cake = open-core + module `cake.crm` (+ `cake.catalog`)** → open-setup cấp instance. Phần chung đang viết ở đây trước (Storage, lớp mềm, máy chủ action, web shell) dời lên open-core ở NC-003 C5.
+
 ## 1. Bối cảnh hệ (C4 mức 1)
 
 ```text
@@ -41,7 +44,7 @@
 ```text
 packages/contracts     zod + kiểu: bizcity_touch@1 · bizcity_channel_command@1 · bizcity_contact@1
                        + bản sao có ghi nguồn: ERROR_CATALOG, DOC_LINK_ROLES, event envelope, api envelope
-@bizcity/platform      ← GÓI CHUNG (phụ thuộc theo phiên bản, không fork — ADR-0002): http (phong bì, Errors.*), auth (JWT, API key, SSO),
+@bizcity/platform      ← LÕI OPEN-CORE (repo open-core, Release v0.3.x, phụ thuộc theo phiên bản, không fork — ADR-0002, R-CANON-17): http (phong bì, Errors.*), auth (JWT, API key, SSO),
                        actions (defineAction/runAction, Idempotency), events (outbox, defineSubscriber,
                        dispatchOnce, tickClock), db (client, router theo site, RLS set_config), settings,
                        documents (business_documents, document_links), evidence (audit_logs hash-chain),
@@ -50,7 +53,7 @@ packages/care-kernel   KHÔNG biết HTTP. contacts · identities · resolver ·
                        contact_state · merge/unmerge · Send Guard. Mặt công khai chỉ src/index.ts
 @bizcity/module-sdk    (gói chung) facade duy nhất module được import
 @bizcity/ui-kit        (gói chung) facade web; token Deplao là theme của cake
-packages/flex          @bizcity/flex — BẢN ĐẦU lớp dữ liệu mềm (user_meta, entity_meta, record_types, records); thăng vào @bizcity/platform khi app thứ hai dùng
+packages/flex          @bizcity/flex — BẢN ĐẦU lớp dữ liệu mềm (user_meta, entity_meta, record_types, records); dời lên open-core (`@bizcity/platform`) ở NC-003 C5 — open-core bảo đảm trụ meta / bản ghi mềm cho mọi app (R-CANON-18)
 @bizcity/cli (gói chung) + lệnh cake: bin bizcity: site create|migrate|backup · cake rebuild-state · cake identity-audit · doctor
 apps/api               lắp ráp: platform + care-kernel + modules; route lõi /api/v1/{contacts,conversations,
                        messages,channels,identities,system,auth,documents}; /ingress/v1; /mcp; /_sites/v1
