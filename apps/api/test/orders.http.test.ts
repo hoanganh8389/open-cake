@@ -161,6 +161,17 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
     expect(now.events.map((e: { type: string }) => e.type).sort()).toEqual(['cake.sent', 'pos.order.confirmed', 'pos.order.shipped', 'pos.order_request.received']);
     const touches = (await sql(`SELECT dims->>'stage' AS stage FROM touch_ledger WHERE kind = 'document' AND contact_id = $1 ORDER BY touch_id`, [contactId])).rows.map((r) => r.stage);
     expect(touches).toEqual(['confirmed', 'shipped', 'pending']); // mỗi sự kiện MỚI một dấu chạm, mang bước cửa hàng báo (lặp không ghi; đến muộn vẫn ghi nhưng không đổi trạng thái)
+    // [2026-11-28 08:18 PM Johnny Chu - Chu Hoàng Anh] S003-14b — đầu phiếu trên trục chứng từ chung theo đúng trạng thái; mỗi lần đổi một hoạt động (lặp / đến muộn không ghi)
+    const head = (await sql(`SELECT status_raw, status, total::int AS total, org_unit_code, partner_ref <> '' AS has_partner FROM business_documents WHERE doc_ref = $1`, [docRef])).rows[0];
+    expect(head).toEqual({ status_raw: 'shipped', status: 'in_progress', total: 780000, org_unit_code: 'CN01', has_partner: true });
+    const acts = (await sql(`SELECT kind, from_status, to_status, actor FROM document_activities WHERE doc_ref = $1 ORDER BY id`, [docRef])).rows;
+    expect(acts.map((a) => `${a.kind}:${a.from_status ?? ''}>${a.to_status}`)).toEqual(['create:>draft', 'transition:draft>pending', 'transition:pending>confirmed', 'transition:confirmed>shipped']);
+    expect(acts.slice(2).every((a) => a.actor === 'pos')).toBe(true);
+    // Giao rồi bị trả: đơn gốc vẫn hoàn tất (nhóm done, không phải cancelled); trạng thái riêng giữ ở status_raw
+    await post(ev('evt-0004', 'pos.order.delivered', '2026-11-27T03:00:00Z'));
+    expect((await sql(`SELECT status_raw, status FROM business_documents WHERE doc_ref = $1`, [docRef])).rows[0]).toEqual({ status_raw: 'delivered', status: 'done' });
+    await post(ev('evt-0005', 'pos.order.returned', '2026-11-28T03:00:00Z'));
+    expect((await sql(`SELECT status_raw, status FROM business_documents WHERE doc_ref = $1`, [docRef])).rows[0]).toEqual({ status_raw: 'returned', status: 'done' });
     expect((await call('POST', `/api/v1/order-requests/${o!.orderRequestId}/cancel`, {})).json().error.details.reason).toBe('CAKE_ORDER_LOCKED');
   });
 
@@ -227,5 +238,8 @@ describe.skipIf(!url)('luồng đơn xuyên app (open-cake ⇄ cửa hàng giả
     const before = pos.cancels;
     expect((await call('POST', `/api/v1/order-requests/${sent.orderRequestId}/cancel`, { reason: 'khách đổi ý' })).json().data.status).toBe('cancelled');
     expect(pos.cancels).toBe(before + 1);
+    const ref = `cake.order_request:${sent.orderRequestId}`;
+    expect((await sql(`SELECT status FROM business_documents WHERE doc_ref = $1`, [ref])).rows[0]).toEqual({ status: 'cancelled' });
+    expect((await sql(`SELECT reason FROM document_activities WHERE doc_ref = $1 AND to_status = 'cancelled'`, [ref])).rows).toEqual([{ reason: 'khách đổi ý' }]);
   });
 });

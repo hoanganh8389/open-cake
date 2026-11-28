@@ -11,6 +11,7 @@ import { orderCode, type OrderRequest } from '@open-cake/contracts';
 import { cakeError, failure, newUlid, type Ctx } from '../runtime.js';
 import { notifyChanged } from '../stream.js';
 import { POS_PATH, open, posCall, type PosTarget } from './clients.js';
+import { mirrorOrderRequest } from './document.js';
 
 type Row = Awaited<ReturnType<typeof loadRow>>;
 const iso = (d: Date | string | null) => (d === null ? null : new Date(d).toISOString());
@@ -133,6 +134,7 @@ export async function deliver(tx: Db, tenantId: string, r: NonNullable<Row>, act
       last_error: res ? `Cửa hàng trả ${res.status}` : 'Không tới được cửa hàng', updated_at: now }).where('tenant_id', '=', tenantId).where('order_request_id', '=', r.order_request_id).execute();
     await tx.updateTable('pos_links').set({ last_error: res ? `HTTP ${res.status}` : 'không tới được' }).where('tenant_id', '=', tenantId).execute();
   }
+  await mirrorOrderRequest(tx, tenantId, r.order_request_id, actor);
 }
 
 /** RC-ORDER-1: gửi lại các yêu cầu đang queued đến hạn (mọi đơn vị; mỗi yêu cầu chạy trong ngữ cảnh đơn vị của nó). */
@@ -208,6 +210,7 @@ export const orderHandlers: Record<string,(ctx: Ctx, i: Record<string, any>) => 
     };
     if (prev) await tx.updateTable('order_requests').set(v).where('tenant_id', '=', tenantId).where('order_request_id', '=', id).execute();
     else await tx.insertInto('order_requests').values({ ...v, tenant_id: tenantId, order_request_id: id, created_by: actor }).execute();
+    await mirrorOrderRequest(tx, tenantId, id, actor); // [2026-11-28 08:18 PM Johnny Chu - Chu Hoàng Anh] S003-14b — đầu phiếu lên trục chứng từ chung
     return one(tx, tenantId, id);
   },
   'cake.order_request.send': async ({ tx, tenantId, actor }, i) => {
@@ -234,6 +237,7 @@ export const orderHandlers: Record<string,(ctx: Ctx, i: Record<string, any>) => 
     await tx.updateTable('order_requests').set({ status: 'cancelled', send_state: r.send_state === 'queued' ? 'none' : r.send_state, next_send_at: null, updated_at: new Date() })
       .where('tenant_id', '=', tenantId).where('order_request_id', '=', r.order_request_id).execute();
     await addEvent(tx, tenantId, r.order_request_id, `local:cancel:${r.order_request_id}`, 'cake.cancelled', { by: actor, reason: i.reason });
+    await mirrorOrderRequest(tx, tenantId, r.order_request_id, actor, i.reason);
     return one(tx, tenantId, r.order_request_id);
   },
 };

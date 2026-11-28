@@ -12,6 +12,7 @@ import { notifyChanged } from '../stream.js';
 import { PgCareRepo } from '../care/pg-care-repo.js';
 import { open, verifyBody } from './clients.js';
 import { addEvent, loadRow } from './service.js';
+import { mirrorOrderRequest } from './document.js';
 import { EVENTS_PATH } from './link.js';
 
 const STATUS: Record<string, string> = {
@@ -54,6 +55,7 @@ export function registerPosEvents(app: FastifyInstance): void {
             ...(typeof d.expiresAt === 'string' ? { expires_at: d.expiresAt } : {}), ...(typeof d.total === 'number' ? { total: d.total } : {}),
             ...(to === 'rejected' ? { reject_reason: [d.reasonCode, d.reason].filter(Boolean).join(' — ') || null } : {}),
           }).where('tenant_id', '=', tenantId).where('order_request_id', '=', id).execute();
+          await mirrorOrderRequest(tx, tenantId, id, 'pos', to === 'rejected' ? [d.reasonCode, d.reason].filter(Boolean).join(' — ') : null); // S003-14b
         }
         // Dấu chạm kind=document: Contact 360 thấy đơn bằng tham chiếu (không sao chép đơn).
         const repo = new PgCareRepo(tenantId, tx);

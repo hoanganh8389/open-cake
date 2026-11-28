@@ -43,11 +43,11 @@ importers:
         specifier: 3.700.0
         version: 3.700.0
       '@bizcity/contracts':
-        specifier: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz
-        version: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz
+        specifier: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz
+        version: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz
       '@bizcity/platform':
-        specifier: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-platform-0.4.0.tgz
-        version: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-platform-0.4.0.tgz
+        specifier: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-platform-0.5.0.tgz
+        version: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-platform-0.5.0.tgz
       '@open-cake/care-kernel':
         specifier: workspace:*
         version: link:../../packages/care-kernel
@@ -391,13 +391,13 @@ packages:
     resolution: {integrity: sha512-/XKpKDakL//LZ66bq1XsZOswuqeI5MZqPLDu18o3XdkU1fNJ7bdPtzgnc4ZNS+bBGHV0FJG8jjb8SwcC3nNVQQ==}
     engines: {node: '>=6.9.0'}
 
-  '@bizcity/contracts@https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz':
-    resolution: {tarball: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz}
-    version: 0.4.0
+  '@bizcity/contracts@https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz':
+    resolution: {tarball: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz}
+    version: 0.5.0
 
-  '@bizcity/platform@https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-platform-0.4.0.tgz':
-    resolution: {tarball: https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-platform-0.4.0.tgz}
-    version: 0.4.0
+  '@bizcity/platform@https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-platform-0.5.0.tgz':
+    resolution: {tarball: https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-platform-0.5.0.tgz}
+    version: 0.5.0
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -2276,13 +2276,13 @@ snapshots:
       '@babel/helper-string-parser': 7.29.15
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@bizcity/contracts@https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz':
+  '@bizcity/contracts@https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz':
     dependencies:
       zod: 3.25.76
 
-  '@bizcity/platform@https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-platform-0.4.0.tgz':
+  '@bizcity/platform@https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-platform-0.5.0.tgz':
     dependencies:
-      '@bizcity/contracts': https://github.com/hoanganh8389/open-core/releases/download/v0.4.0/bizcity-contracts-0.4.0.tgz
+      '@bizcity/contracts': https://github.com/hoanganh8389/open-core/releases/download/v0.5.0/bizcity-contracts-0.5.0.tgz
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/context-async-hooks': 2.12.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/core': 2.12.0(@opentelemetry/api@1.9.1)

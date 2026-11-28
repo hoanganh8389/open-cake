@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- 2026-11-28 — S003-14b (<!-- [2026-11-28 08:18 PM Johnny Chu - Chu Hoàng Anh] S003-14b -->): gói nền **open-core v0.5.0**; yêu cầu đặt hàng lên **trục chứng từ chung** theo cách phản chiếu (`apps/api/src/orders/document.ts`): `order_requests` vẫn là bảng nguồn + trạng thái (cửa hàng gửi về), lõi giữ đầu phiếu `cake.order_request:<ULID>` (số `orderCode`, khách, cửa hàng xuất, tổng) và dòng hoạt động — gọi sau mỗi lần lưu / gửi / huỷ / sự kiện cửa hàng, cùng giao dịch. Trạng thái → nhóm chuẩn: confirmed = approved, shipped = in_progress, delivered / returned = done (trả hàng sau giao là chứng từ riêng, status_raw giữ returned), rejected / expired / cancelled = cancelled. Test orders kiểm đầu phiếu + hoạt động; 199 / 199 trên Postgres.
 - 2026-11-28 — NC-003 C3: gói nền lên **open-core v0.3.1** (secrets, `users.external_sub`, tool-password từ open-ketoan); 199/199 test, typecheck, selfcheck 9/9. <!-- [2026-11-28 02:15 PM Johnny Chu - Chu Hoàng Anh] NC-003 C3 -->
 - 2026-11-28 — NC-003 C2: `@bizcity/platform` + `@bizcity/contracts` cài từ Release **open-core v0.3.0** (trước: bizcity-platform v0.2.0); 199/199 test, typecheck, selfcheck 9/9. <!-- [2026-11-28 12:06 AM Johnny Chu - Chu Hoàng Anh] NC-003 C2 -->
 - 2026-11-27 — NC-003 ba vai nền: AGENTS (open-cake = open-core + module), ADR-0002 (repo gói chung = open-core), PHASE-019 S019-3…6 đổi đích sang open-core. <!-- [2026-11-27 11:08 PM Johnny Chu - Chu Hoàng Anh] NC-003 — chủ chốt Q-CORE-1…4 -->
