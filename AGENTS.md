@@ -23,6 +23,9 @@
 - Vai quyền, cài đặt, meta / bản ghi mềm, tệp, API, MCP, **bốn bước kết nối open-hub** (`bizcity_hub_setup@1`), đệm, kiểm, bàn điều tra: dùng của lõi.
 - open-cake hiện còn bản riêng của vài trụ (Storage, lớp mềm, danh mục H-1…H-18) — giữ đúng hình chuẩn để dời lên lõi (NC-003 C5) không đổi dữ liệu.
 
+<!-- [2026-11-28 06:44 PM Johnny Chu - Chu Hoàng Anh] R-CANON-19 — một chuẩn REST + JSON + React trên open-core -->
+**Một chuẩn REST + JSON + React (canon R-CANON-19):** open-core là hạ tầng. Mọi chức năng là action ⇒ REST `/api/v1` + MCP; **mọi danh sách** theo [`bizcity_list@1`](https://github.com/hoanganh8389/bizcity-platform/blob/main/docs/standard/BIZCITY-LIST-v1.md) (`q`, `f.<cột>.<phép>`, `sort`, con trỏ, `count` / `sums`, xuất csv / xlsx / json / ndjson có quyền xuất riêng + bằng chứng); giao diện dùng `@bizcity/web-shell` (`<ListScreen>`, `useListQuery`, menu chung) khi lõi có (open-core PHASE-003) — **không** tự dựng bảng + lọc + phân trang + nút xuất mới; màn danh sách đang có chuyển dần ở S003-7.
+
 ## Bốn câu không được quên
 
 1. **`contact_id` là trục.** Không bảng nào khoá theo id kênh.
