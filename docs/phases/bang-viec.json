@@ -1,11 +1,11 @@
 {
   "schema": "bizcity_task_board@1",
-  "generated": "2026-11-27T16:11:18.490Z",
+  "generated": "2026-11-28T14:48:20.844Z",
   "phases": [
     {
       "name": "PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
       "path": "docs/phases/PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID",
-      "status": "Chưa làm",
+      "status": "Đang làm / có mã",
       "items": []
     },
     {
@@ -270,7 +270,7 @@
     {
       "name": "PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
       "path": "docs/phases/PHASE-006-HOP-DONG-INGRESS-CELL-ZALO",
-      "status": "Chưa làm",
+      "status": "Đang làm / có mã",
       "items": [
         {
           "id": "S006-1",
@@ -466,7 +466,7 @@
     {
       "name": "PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
       "path": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA",
-      "status": "Chưa làm",
+      "status": "Đang làm / có mã",
       "items": [
         {
           "id": "S010-1",
@@ -477,14 +477,14 @@
         },
         {
           "id": "S010-2",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — tạo khách công nợ",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 11
         },
         {
           "id": "S010-3",
-          "group": "Chưa làm",
+          "group": "Đang làm / có mã",
           "text": "cake — công nợ ở Contact 360",
           "file": "docs/phases/PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md",
           "line": 12

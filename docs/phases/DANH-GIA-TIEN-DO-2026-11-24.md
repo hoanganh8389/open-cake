@@ -1,4 +1,6 @@
 # Đánh giá tiến độ mã so với tài liệu — 2026-11-24
+
+> **ĐÃ THAY THẾ bởi [DANH-GIA-TIEN-DO-2026-11-28.md](DANH-GIA-TIEN-DO-2026-11-28.md)** — giữ làm lịch sử; số liệu và các mục L1–L6 dưới đây **đã lỗi thời**. <!-- [2026-11-28 10:03 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — đánh dấu bản cũ đã thay thế -->
 <!-- [2026-11-24 06:38 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — chủ (2026-11-24): "đánh giá tiến độ code base so với tài liệu", sau khi phát hành bizcity-platform v0.2.0. Số liệu đo trên main 2026-11-24 18:38. -->
 
 ## 1. Một câu

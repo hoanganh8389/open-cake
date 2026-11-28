@@ -2,13 +2,13 @@
 
 <!-- Tệp sinh tự động bởi bizcity-platform tools/bang-viec.mjs (R-STD-DLV-6) — không sửa tay; đổi trạng thái ở checklist / README của phase rồi sinh lại. -->
 
-> **Tệp sinh tự động — không sửa tay.** Sinh lại: `node ../bizcity-platform/tools/bang-viec.mjs --repo . --write` · ngày sinh 2026-11-27
+> **Tệp sinh tự động — không sửa tay.** Sinh lại: `node ../bizcity-platform/tools/bang-viec.mjs --repo . --write` · ngày sinh 2026-11-28
 
 | Cột | Số việc |
 |---|---|
-| Đang làm / có mã | 18 |
+| Đang làm / có mã | 20 |
 | Bị chặn | 1 |
-| Chưa làm | 54 |
+| Chưa làm | 52 |
 | Hoãn | 0 |
 | Xong | 56 |
 | Huỷ | 0 |
@@ -22,16 +22,16 @@
 
 | Phase | Trạng thái phase | Xong | Đang / có mã | Bị chặn | Chưa làm | Tổng |
 |---|---|---|---|---|---|---|
-| [PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/) | Chưa làm | 0 | 0 | 0 | 0 | 0 |
+| [PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/) | Đang làm / có mã | 0 | 0 | 0 | 0 | 0 |
 | [PHASE-002-NEN-HOP-DONG-NANG-LUC](PHASE-002-NEN-HOP-DONG-NANG-LUC/) | Xong | 8 | 0 | 0 | 0 | 8 |
 | [PHASE-003-UI-UX-TREN-HOP-DONG](PHASE-003-UI-UX-TREN-HOP-DONG/) | Xong | 10 | 0 | 0 | 0 | 10 |
 | [PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/) | Xong | 7 | 0 | 0 | 0 | 7 |
 | [PHASE-005-CARE-KERNEL-SO-CHAM-KHACH](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/) | Đang làm / có mã | 7 | 0 | 0 | 1 | 8 |
-| [PHASE-006-HOP-DONG-INGRESS-CELL-ZALO](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/) | Chưa làm | 1 | 4 | 0 | 1 | 6 |
+| [PHASE-006-HOP-DONG-INGRESS-CELL-ZALO](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/) | Đang làm / có mã | 1 | 4 | 0 | 1 | 6 |
 | [PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/) | Đang làm / có mã | 3 | 5 | 0 | 0 | 8 |
 | [PHASE-008-FACEBOOK-PAGE-COMMENT](PHASE-008-FACEBOOK-PAGE-COMMENT/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
 | [PHASE-009-FACEBOOK-CA-NHAN-NHOM](PHASE-009-FACEBOOK-CA-NHAN-NHOM/) | Chưa làm | 0 | 0 | 0 | 4 | 4 |
-| [PHASE-010-TRUC-CHUNG-TU-MASTER-DATA](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/) | Chưa làm | 0 | 5 | 0 | 2 | 8 |
+| [PHASE-010-TRUC-CHUNG-TU-MASTER-DATA](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/) | Đang làm / có mã | 0 | 7 | 0 | 0 | 8 |
 | [PHASE-011-GUI-HANG-LOAT-SEND-GUARD](PHASE-011-GUI-HANG-LOAT-SEND-GUARD/) | Chưa làm | 0 | 0 | 0 | 4 | 4 |
 | [PHASE-012-BAO-CAO-CONG-VIEC](PHASE-012-BAO-CAO-CONG-VIEC/) | Chưa làm | 0 | 0 | 0 | 3 | 3 |
 | [PHASE-013-MCP-TWIN-BRAIN](PHASE-013-MCP-TWIN-BRAIN/) | Chưa làm | 0 | 0 | 0 | 6 | 6 |
@@ -42,7 +42,7 @@
 | [PHASE-018-NOI-LUU-TEP](PHASE-018-NOI-LUU-TEP/) | Đang làm / có mã | 4 | 0 | 0 | 4 | 8 |
 | [PHASE-019-TACH-OPEN-CORE](PHASE-019-TACH-OPEN-CORE/) | Đang làm / có mã | 1 | 0 | 1 | 6 | 8 |
 
-## Đang làm / có mã (18)
+## Đang làm / có mã (20)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -56,6 +56,8 @@
 | [S007-5](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md#L13) | PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360 | **Contact 360**: dòng thời gian mọi kênh, danh tính + độ tin, Ghép / Tách |
 | [S007-6](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/CHECKLIST.md#L14) | PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360 | **Kênh** + sheet Kết nối kênh 4 bước (Zalo trước) |
 | [S010-1](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L10) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — cake.order_request (LD-CAKE-1) |
+| [S010-2](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L11) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — tạo khách công nợ |
+| [S010-3](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L12) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — công nợ ở Contact 360 |
 | [S010-5](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L14) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — nghe sự kiện POS ⇒ Contact 360 (LD-CAKE-4) |
 | [S010-6](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L15) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — RC-ORDER-1 + RC-ORDER-3 (LD-CAKE-5) |
 | [S010-7](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L16) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — đọc tồn Kế Toán, mockup trước (LD-CAKE-2) |
@@ -71,7 +73,7 @@
 |---|---|---|
 | [S019-3](PHASE-019-TACH-OPEN-CORE/CHECKLIST.md#L11) | PHASE-019-TACH-OPEN-CORE | open-core |
 
-## Chưa làm (54)
+## Chưa làm (52)
 
 | Mã | Phase | Việc |
 |---|---|---|
@@ -87,8 +89,6 @@
 | [S009-2](PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md#L10) | PHASE-009-FACEBOOK-CA-NHAN-NHOM | Cell |
 | [S009-3](PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md#L11) | PHASE-009-FACEBOOK-CA-NHAN-NHOM | cake |
 | [S009-4](PHASE-009-FACEBOOK-CA-NHAN-NHOM/CHECKLIST.md#L12) | PHASE-009-FACEBOOK-CA-NHAN-NHOM | cake |
-| [S010-2](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L11) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — tạo khách công nợ |
-| [S010-3](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/CHECKLIST.md#L12) | PHASE-010-TRUC-CHUNG-TU-MASTER-DATA | cake — công nợ ở Contact 360 |
 | [S011-1](PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md#L9) | PHASE-011-GUI-HANG-LOAT-SEND-GUARD | module modules/broadcast (mod_broadcast: broadcasts, broadcast_targets); mỗi người nhận một touch broadcast_target |
 | [S011-2](PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md#L10) | PHASE-011-GUI-HANG-LOAT-SEND-GUARD | Send Guard trong care-kernel: trần theo tài khoản kênh / giờ, giờ gửi, danh sách không nhận, cửa sổ Page; đếm từ sổ; /api/v1/m/broadcast/qu… |
 | [S011-3](PHASE-011-GUI-HANG-LOAT-SEND-GUARD/CHECKLIST.md#L11) | PHASE-011-GUI-HANG-LOAT-SEND-GUARD | duyệt chiến dịch (cake:broadcast-duyet, R2) |

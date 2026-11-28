@@ -12,28 +12,28 @@ Ký hiệu: ☐ chưa · ◐ đang · ☑ xong (mã + bằng chứng) · ⏸ ch�
 
 | Phase | Đợt | Một câu | Repo chạm | Golden | TT |
 |---|---|---|---|---|---|
-| [001](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md) Kiến trúc | W0 | trục `contact_id`, khung open-ketoan, bốn trục | cake | — | ◐ (D / Q còn mở) |
+| [001](PHASE-001-KIEN-TRUC-TRUC-CONTACT-ID/README.md) Kiến trúc | W0 | trục `contact_id`, khung open-ketoan, bốn trục | cake | — | ◐ kiến trúc đã được mã hiện thực (002…018); còn rà D / Q đã chốt chưa rồi đóng |
 | [002](PHASE-002-NEN-HOP-DONG-NANG-LUC/README.md) **Nền hợp đồng & năng lực** | W1 | zod một chỗ: hợp đồng nền, action spec + danh mục năng lực, trục contact, 3 hợp đồng cake, registry lớp mềm, fixture | cake | — | ☑ 2026-11-24 (25 test) |
 | [003](PHASE-003-UI-UX-TREN-HOP-DONG/README.md) **UI/UX trên hợp đồng** | W1 | ui-kit + 6 màn lõi + màn lớp mềm tự sinh, dữ liệu qua `ActionClient` + bộ giả lập | cake | — | ☑ 2026-11-24 (14 ảnh build, 42 test) |
-| [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ☑ SSO, quyền / vai + vai riêng (ma trận), vai CSDL (RLS), bằng chứng, khoá nút theo quyền, phạm vi kênh, màn Nhân viên · Vai & quyền · Khoá API; việc SSO của nền để sau |
-| [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ kernel + PgCareRepo ☑ (9 kịch bản trên bộ nhớ và Postgres); còn outbox, selfcheck |
-| [006](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/README.md) Kênh | W3 | ingress `bizcity_touch@1` / `bizcity_channel_command@1`; Zalo cá nhân đầu tiên | cake · zalo-hub · router | — | ◐ cổng nhận phía Cake ☑ (HMAC, 3 test); Cell / Hub ☐ |
-| [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ◐ đọc + 4 lệnh ghi (nhãn, giao việc, ghép, tách) trên máy chủ ☑; gửi tin (Cell) + SSE ☐ |
+| [004](PHASE-004-NGUOI-DUNG-QUYEN-BANG-CHUNG/README.md) Người dùng | W2 | quyền `cake:*`, SSO WP, khoá API, bằng chứng | cake | — | ☑ S004-1..7; SSO của nền (40-SECURITY §3.4) để sau, chưa có việc riêng |
+| [005](PHASE-005-CARE-KERNEL-SO-CHAM-KHACH/README.md) Care-kernel | W2 | `submitTouchIn`, sổ chỉ-thêm, resolver, merge / unmerge | cake | — | ◐ kernel + PgCareRepo + selfcheck ☑; còn **outbox S005-6** |
+| [006](PHASE-006-HOP-DONG-INGRESS-CELL-ZALO/README.md) Kênh | W3 | ingress `bizcity_touch@1` / `bizcity_channel_command@1`; Zalo cá nhân đầu tiên | cake · zalo-hub · router | — | ◐ phía Cake ☑ (cổng nhận HMAC, hàng chờ lệnh gửi, `channel.test`); zalo-hub phát touch có mã; chưa chạy Cell + Hub thật; S006-5 ☐ |
+| [007](PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md) Giao diện nối dữ liệu thật | W3 | đổi adapter giả lập → `http`; SSE realtime | cake | — | ◐ mọi việc không cần kênh thật xong (đọc + ghi, SSE, ErrorBoundary, i18n, phím tắt, gửi tin kèm ảnh / tệp qua Hub giả); còn gửi tin thật, bình luận (008), NỢ-007-1 |
 | [008](PHASE-008-FACEBOOK-PAGE-COMMENT/README.md) FB Page | W4 | chat Page, comment, private reply | cake · Cell · router | G1–G4 | ☐ |
 | [009](PHASE-009-FACEBOOK-CA-NHAN-NHOM/README.md) FB cá nhân + Group | W5 | fbchat-v2 (mở lại WP 017), group_feed, Ghép / Tách | cake · zalo-hub | G5–G6 | ☐ |
-| [010](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/README.md) Bốn trục | W5 | `cake.order_request` → POS → Kế Toán | cake · ketoan · pos | G7–G8 | ☐ |
+| [010](PHASE-010-TRUC-CHUNG-TU-MASTER-DATA/README.md) Bốn trục | W5 | `cake.order_request` → POS → Kế Toán | cake · ketoan · pos | G7–G8 | ◐ phía Cake S010-1, 2, 3, 5, 6, 7, 8 có mã (cửa hàng giả + Kế Toán giả); chưa chạy POS / Kế Toán thật |
 | [011](PHASE-011-GUI-HANG-LOAT-SEND-GUARD/README.md) Gửi hàng loạt | W6 | module broadcast, Send Guard | cake | — | ☐ |
 | [012](PHASE-012-BAO-CAO-CONG-VIEC/README.md) Báo cáo + Việc | W6 | báo cáo đọc sổ, Kanban | cake | — | ☐ |
 | [013](PHASE-013-MCP-TWIN-BRAIN/README.md) MCP | W6 | Twin Brain đọc / nháp / gửi có xác nhận | cake · twin-brain | — | ☐ |
 | [014](PHASE-014-NHIEU-SITE-OPEN-SETUP/README.md) Nhiều site | W6 | máy nhiều site của platform cho cake; open-setup `product` | cake · open-setup · router | — | ☐ |
 | [015](PHASE-015-KIEM-CHUNG-PHAT-HANH/README.md) Kiểm chứng | W7 | golden G1–G8, DOD-SYS, thử tải, phát hành | cả hai | G1–G8 | ☐ |
-| [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ◐ P2b-1..5 ☑ (platform v0.2.0) · `apps/api` + danh mục Postgres ☑ (Docker end-to-end) · còn PgCareRepo, quan sát, CI |
+| [016](PHASE-016-KHUNG-CHAY-PLATFORM-QUAN-SAT/README.md) Khung chạy + quan sát | W2 | API / DB / Docker / CI trên `bizcity-platform`; log · metric · trace | cake · bizcity-platform | — | ◐ `apps/api` + compose + selfcheck + quan sát Q1–Q3, Q6 ☑ · còn CI (S016-7), scripts (S016-9), Q4–Q5, Q7 |
 | [017](PHASE-017-DANH-MUC-DOC-LAP-SAN-ANH-XA/README.md) **Danh mục độc lập** | W1 | hàng · nhóm · ĐVT · bảng giá của riêng Cake theo chuẩn H-* open-ketoan, `catalog_source local|ketoan`, một cổng ghi (ADR-0004) | cake | — | ☑ 2026-11-24 (64 test, 8 ảnh build; SPINE 1.1 ở platform PR #2) |
-| [018](PHASE-018-NOI-LUU-TEP/README.md) **Nơi lưu tệp theo site** <!-- [2026-11-26 11:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 — mở phase --> | W3 | một cổng `storage` hai bộ (đĩa \| R2), khoá `sites/<site>` như WP, nhân bản theo tiền tố; đề xuất chuẩn `bizcity_storage@1` ([26](../architecture/26-NOI-LUU-TEP.md)) | cake · open-setup · bizcity-platform | — | ◐ S018-1 ☑ |
+| [018](PHASE-018-NOI-LUU-TEP/README.md) **Nơi lưu tệp theo site** <!-- [2026-11-26 11:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 — mở phase --> | W3 | một cổng `storage` hai bộ (đĩa \| R2), khoá `sites/<site>` như WP, nhân bản theo tiền tố; đề xuất chuẩn `bizcity_storage@1` ([26](../architecture/26-NOI-LUU-TEP.md)) | cake · open-setup · bizcity-platform | — | ◐ S018-1..4 ☑ (cổng + bộ đĩa + `cake.file.upload`); còn S018-5..8 |
 | [019](PHASE-019-TACH-OPEN-CORE/README.md) **Tách open-core + module CRM** <!-- [2026-11-27 09:48 AM Johnny Chu - Chu Hoàng Anh] PHASE-019 — mở phase --> | W3 | open-cake chạy như module CRM trên open-core; Universal Cache · Options · Meta · Records & Hooks · Storage áp ở đây trước; pnpm; contract workspace / app registry (bizcity-platform NC-002) | cake · bizcity-platform · open-setup · bizcity-web | — | ◐ chủ chốt NC-002 2026-11-27; S019-1 đang làm |
 | *(open-ketoan)* PHASE-041 tách gói | — | P0 / P1 / P3 / P6 trong open-ketoan | open-ketoan | — | 💤 hoãn (#616, #617 bản nháp) |
 
-**Đánh giá gần nhất:** [DANH-GIA-TIEN-DO-2026-11-24.md](DANH-GIA-TIEN-DO-2026-11-24.md) — hợp đồng + UI xong; máy chủ / DB nối thật / đăng nhập / quan sát chưa bắt đầu.
+**Đánh giá gần nhất:** [DANH-GIA-TIEN-DO-2026-11-28.md](DANH-GIA-TIEN-DO-2026-11-28.md) — máy chủ, đăng nhập, quyền, bằng chứng, quan sát, kho tệp, luồng đơn đã chạy (199 / 199 test); còn thiếu CI, `scripts/`, chạy thật với Cell / Hub / POS / Kế Toán. Bản cũ: [2026-11-24](DANH-GIA-TIEN-DO-2026-11-24.md) (đã thay thế). <!-- [2026-11-28 10:03 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — đánh giá mới -->
 
 ## Thứ tự làm
 

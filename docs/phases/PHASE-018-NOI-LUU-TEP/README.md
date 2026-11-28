@@ -1,7 +1,7 @@
 # PHASE-018 — Nơi lưu tệp theo site: một cổng, hai bộ (đĩa của app | R2)
 <!-- [2026-11-26 11:27 PM Johnny Chu - Chu Hoàng Anh] PHASE-018 — chủ (2026-11-26): nơi lưu đính kèm là thư mục dữ liệu của Cake, tham khảo cơ chế multisite WP khi nhân bản qua open-setup, chuẩn hoá vì chung một bản mã; open-setup nghiên cứu media WP + R2; R2 thì không đặt hạn giữ. -->
 
-> **Việc lộ trình:** W3 · **Áp dụng cho:** cake · open-setup · bizcity-platform · **Trạng thái:** ◐ (nghiên cứu xong, chờ chủ duyệt chuẩn) · **Phụ thuộc:** 014 (ngữ cảnh site), 016 (khung chạy)
+> **Việc lộ trình:** W3 · **Áp dụng cho:** cake · open-setup · bizcity-platform · **Trạng thái:** ◐ 2026-11-28 — S018-1..4 ☑ (cổng `storage`, bộ đĩa, migration `0109_files`, `cake.file.upload`; chủ chốt Q-STOR-1..3 ngày 2026-11-27); **còn S018-5..8** (bộ R2, open-setup, bizcity-platform) <!-- [2026-11-28 10:01 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — PHASE-018 — đồng bộ README với checklist --> · **Phụ thuộc:** 014 (ngữ cảnh site), 016 (khung chạy)
 > **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Nghiên cứu + đề xuất chuẩn:** [26-NOI-LUU-TEP](../../architecture/26-NOI-LUU-TEP.md) (`bizcity_storage@1`).
 > **Mục tiêu:** Cake lưu tệp (trước hết: đính kèm chat — [PHASE-007 S007-3](../PHASE-007-GIAO-DIEN-HOP-THU-DANH-BA-360/README.md)) qua **một cổng `storage`**, khoá luôn có `sites/<site>` như `uploads/sites/{blog_id}/` của WordPress, chạy được trên đĩa của app (Tự cài) hoặc R2 (mạng bizcity), nhân bản / dọn site theo tiền tố.

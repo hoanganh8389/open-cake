@@ -1,7 +1,7 @@
 # PHASE-006 — Hợp đồng kênh: `bizcity_touch@1` vào, `bizcity_channel_command@1` ra; Zalo cá nhân là kênh đầu
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
-> **Việc lộ trình:** W2 · **Áp dụng cho:** cake + zalo-hub + llm-router · **Trạng thái:** ☐ · **Phụ thuộc:** 005
+> **Việc lộ trình:** W2 · **Áp dụng cho:** cake + zalo-hub + llm-router · **Trạng thái:** ◐ 2026-11-28 — phía Cake có mã (cổng nhận HMAC, hàng chờ lệnh gửi, `cake.channel.test`), zalo-hub phát `bizcity_touch@1` (PR #4); **chưa chạy với Cell + Hub thật**, S006-5 (llm-router) ☐ <!-- [2026-11-28 09:58 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — PHASE-006 — đồng bộ README với checklist (1 ☑, 4 ◐, 1 ☐) --> · **Phụ thuộc:** 005
 > **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** một số Zalo cá nhân thật (Cell zalo-hub) nhắn vào ⇒ dòng sổ trong Cake; nhân viên trả lời ⇒ tin tới Zalo; phát lại không trùng. Kênh đã chạy ổn định nên làm đầu.
 

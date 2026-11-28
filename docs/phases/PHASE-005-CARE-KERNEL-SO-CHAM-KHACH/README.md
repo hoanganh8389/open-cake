@@ -2,7 +2,7 @@
 <!-- [2026-11-24 08:20 PM Johnny Chu - Chu Hoàng Anh] PHASE-005 — cổng CareRepo chuyển BẤT ĐỒNG BỘ (bản PG không hiện thực được cổng đồng bộ); PgCareRepo ở apps/api/src/care; bộ kịch bản dùng chung test/scenarios.ts chạy trên cả hai bản kho. -->
 <!-- [2026-11-24 02:40 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — mở phase theo lộ trình open-cake. -->
 
-> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ◐ 2026-11-24 — kernel + **kho PostgreSQL** xong (S005-1..5, S005-8 trên CẢ MemoryRepo lẫn PgCareRepo); còn outbox (S005-6), selfcheck (S005-7), route API hộp thư / danh bạ (PHASE-007) · **Phụ thuộc:** 002, 004 · **Mức kernel:** K3 (R-KER-1)
+> **Việc lộ trình:** W1 · **Áp dụng cho:** cake · **Trạng thái:** ◐ 2026-11-28 — kernel + **kho PostgreSQL** xong (S005-1..5, S005-8 trên CẢ MemoryRepo lẫn PgCareRepo), selfcheck S005-7 ☑ (9 / 9 ĐẠT), route hộp thư / danh bạ đã chạy ở PHASE-007; **còn duy nhất outbox (S005-6)** <!-- [2026-11-28 09:58 PM Johnny Chu - Chu Hoàng Anh] ROADMAP — PHASE-005 — S005-7 đã ☑ ở checklist; đồng bộ README --> · **Phụ thuộc:** 002, 004 · **Mức kernel:** K3 (R-KER-1)
 > **Trạng thái từng việc:** [CHECKLIST.md](CHECKLIST.md) (nguồn của bảng việc).
 > **Mục tiêu:** trái tim open-cake chạy được không cần kênh nào: `submitTouchIn` ghi sổ chỉ-thêm, resolver trả `contact_id`, merge / unmerge có bằng chứng, `contact_state` dựng lại được. Chi tiết: [20-DATA-SPINE](../../architecture/20-DATA-SPINE.md).
 
